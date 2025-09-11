@@ -1,0 +1,212 @@
+/* Dashboard - Simple Design */
+.dashboard-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.dashboard-header {
+  margin-bottom: 30px;
+}
+
+.dashboard-header h1 {
+  margin: 0 0 8px 0;
+  font-size: 28px;
+  color: #333;
+}
+
+.dashboard-header p {
+  margin: 0;
+  color: #666;
+  font-size: 16px;
+}
+
+.search-filters {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  flex-wrap: wrap;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.filter-select {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background: white;
+  min-width: 120px;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.add-button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.add-button:hover {
+  background: #0056b3;
+}
+
+.results-info {
+  margin-bottom: 15px;
+  color: #666;
+  font-size: 14px;
+}
+
+.dashboard-table {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.dashboard-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dashboard-table th {
+  background: #f8f9fa;
+  padding: 15px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.dashboard-table td {
+  padding: 12px;
+  border-bottom: 1px solid #dee2e6;
+  vertical-align: top;
+}
+
+.dashboard-table tr:hover {
+  background: #f8f9fa;
+}
+
+.name-cell {
+  font-weight: 600;
+  color: #333;
+}
+
+.type-chip {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  background: #e3f2fd;
+  color: #1976d2;
+  border: 1px solid #bbdefb;
+}
+
+.type-analytics { background: #e8f5e8; color: #2e7d32; border-color: #c8e6c9; }
+.type-finance { background: #fff3e0; color: #f57c00; border-color: #ffcc02; }
+.type-monitoring { background: #f3e5f5; color: #7b1fa2; border-color: #ce93d8; }
+.type-support { background: #e0f2f1; color: #00695c; border-color: #80cbc4; }
+.type-marketing { background: #fce4ec; color: #c2185b; border-color: #f8bbd9; }
+
+.status-chip {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-active {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.status-warning {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.status-pending {
+  background: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+.value-cell {
+  font-weight: 600;
+  color: #007bff;
+}
+
+.description-cell {
+  color: #666;
+  max-width: 200px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 15px;
+  }
+  
+  .search-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-input {
+    min-width: auto;
+  }
+  
+  .filter-select {
+    min-width: auto;
+  }
+  
+  .dashboard-table {
+    overflow-x: auto;
+  }
+  
+  .dashboard-table table {
+    min-width: 600px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-header h1 {
+    font-size: 24px;
+  }
+  
+  .dashboard-table th,
+  .dashboard-table td {
+    padding: 8px 6px;
+    font-size: 12px;
+  }
+}

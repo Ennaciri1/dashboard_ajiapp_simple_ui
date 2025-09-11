@@ -1,0 +1,171 @@
+/* AppBar Component Styles */
+.app-bar {
+  position: fixed;
+  width: calc(100% - 240px);
+  left: 240px;
+  transition: width 0.3s ease-in-out, left 0.3s ease-in-out;
+  background-color: var(--background-paper) !important;
+  color: var(--text-primary) !important;
+  box-shadow: var(--shadow-light) !important;
+  border-bottom: 1px solid var(--border-color);
+  top: 0;
+  right: 0;
+}
+
+.app-bar-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: transparent !important;
+  min-height: 64px;
+  padding: 0 24px;
+  width: 100%;
+  left: 0;
+  margin-left: 0;
+}
+
+.app-bar-title {
+  flex-grow: 1;
+  font-weight: 700;
+  font-size: 1.75rem;
+  color: var(--text-primary) !important;
+  margin-left: 0;
+  overflow: visible;
+  text-overflow: unset;
+  right: 0px;
+}
+
+.app-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+
+.app-bar-actions * {
+  color: var(--text-primary) !important;
+}
+
+.search-button,
+.notifications-button {
+  color: var(--text-secondary) !important;
+  transition: color var(--transition-fast);
+}
+
+.search-button:hover,
+.notifications-button:hover {
+  color: var(--primary-color) !important;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.user-profile-section {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-md);
+  transition: background-color var(--transition-fast);
+  cursor: pointer;
+}
+
+.user-profile-section:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--border-color);
+}
+
+.user-name {
+  font-weight: 500;
+  color: var(--text-primary) !important;
+}
+
+.user-menu-button {
+  color: var(--text-secondary) !important;
+  padding: 2px !important;
+}
+
+.user-menu-button:hover {
+  color: var(--text-primary) !important;
+  background-color: transparent;
+}
+
+/* Theme Toggle Button */
+.theme-toggle-button {
+  margin-left: 8px;
+  transition: transform 0.2s ease-in-out;
+}
+
+.theme-toggle-button:hover {
+  transform: scale(1.1);
+}
+
+/* Override Material-UI styles */
+.app-bar .MuiAppBar-root {
+  background-color: var(--background-paper) !important;
+  color: var(--text-primary) !important;
+}
+
+.app-bar .MuiToolbar-root {
+  background-color: transparent !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .app-bar {
+    width: calc(100% - 100px);
+    left: 200px;
+  }
+  
+  .app-bar-toolbar {
+    padding: 0 16px;
+  }
+  
+  .app-bar-title {
+    font-size: 1.5rem;
+    margin-left: 0;
+  }
+  
+  .app-bar-actions {
+    margin-left: 8px;
+  }
+  
+  .user-name {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-bar {
+    width: 100%;
+    left: 0;
+  }
+  
+  .app-bar-toolbar {
+    padding: 0 12px;
+  }
+  
+  .app-bar-title {
+    font-size: 1.25rem;
+    margin-left: 0;
+  }
+  
+  .app-bar-actions {
+    gap: var(--spacing-xs);
+    margin-left: 4px;
+  }
+  
+  .user-profile-section {
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs);
+  }
+  
+  .user-avatar {
+    width: 28px;
+    height: 28px;
+  }
+}

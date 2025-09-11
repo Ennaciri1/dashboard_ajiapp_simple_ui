@@ -1,0 +1,263 @@
+/* Hotels Component Styles - Identical to TouristSpots */
+
+/* Search and Filters Section */
+.search-filters-section {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background-color: var(--background-paper);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-light);
+  flex-wrap: wrap;
+}
+
+.search-field {
+  flex: 1;
+  min-width: 300px;
+}
+
+.search-field .MuiOutlinedInput-root {
+  background-color: var(--background-default);
+  border-radius: var(--border-radius-md);
+}
+
+.filters-container {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.filter-select {
+  min-width: 120px;
+}
+
+.filter-select .MuiOutlinedInput-root {
+  background-color: var(--background-default);
+}
+
+/* Indicateur de résultats */
+.results-indicator {
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--background-paper);
+  border-radius: var(--border-radius-md);
+  border-left: 4px solid var(--primary-color);
+}
+
+.MuiCardContent-root {
+  padding: 0 !important;
+}
+
+.add-hotel-button {
+  background-color: var(--primary-color) !important;
+  color: white !important;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  font-weight: 500;
+  transition: all var(--transition-normal);
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.add-hotel-button:hover {
+  background-color: var(--primary-hover) !important;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+/* Card Styles */
+.hotels-card {
+  background-color: var(--background-paper);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-light);
+  overflow: hidden;
+}
+
+/* Table Styles */
+.hotels-table {
+  background-color: transparent;
+}
+
+.hotels-table .MuiTableHead-root {
+  background-color: var(--background-default);
+}
+
+.hotels-table .MuiTableCell-head {
+  font-weight: 600;
+  color: var(--text-primary);
+  padding: var(--spacing-md) var(--spacing-sm);
+  border-bottom: 2px solid var(--divider-color);
+  background-color: var(--background-default);
+}
+
+.hotels-table .MuiTableBody-root .MuiTableRow-root {
+  transition: background-color var(--transition-fast);
+}
+
+.hotels-table .MuiTableBody-root .MuiTableCell-root {
+  padding: var(--spacing-sm);
+  border-bottom: 1px solid var(--divider-color);
+  vertical-align: top;
+}
+
+.hotels-table .MuiTableBody-root .MuiTableRow-root:hover .MuiTableCell-root {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Hotel Image */
+.hotel-image {
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-light);
+}
+
+/* Hotel Name */
+.hotel-name {
+    color: var(--primary-color);
+    font-weight: 500;
+    cursor: pointer;
+}
+/* Location Cell */
+.location-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.location-cell .MuiSvgIcon-root {
+  color: var(--primary-color);
+}
+
+/* Description Cell */
+.description-cell {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Rating Cell */
+.rating-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.rating-cell .MuiSvgIcon-root {
+  color: #ffc107;
+}
+
+/* Actions Button */
+.actions-button {
+  color: var(--text-secondary);
+  transition: color var(--transition-fast);
+}
+
+.actions-button:hover {
+  color: var(--primary-color);
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Context Menu Styles */
+.context-menu .MuiMenuItem-root {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: 0.875rem;
+}
+
+.context-menu .MuiListItemIcon-root {
+  min-width: 36px;
+}
+
+/* Dark Mode Styles */
+[data-theme="dark"] .hotels-table .MuiTableBody-root .MuiTableRow-root:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+[data-theme="dark"] .actions-button:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .hotels-table .MuiTableCell-body {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.875rem;
+  }
+  
+  .search-filters-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-sm);
+  }
+  
+  .search-field {
+    min-width: auto;
+  }
+  
+  .filters-container {
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 768px) {
+  .hotels-container {
+    padding: var(--spacing-md);
+  }
+  
+  .search-filters-section {
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .filters-container {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    align-items: stretch;
+  }
+  
+  .filter-select {
+    min-width: auto;
+  }
+  
+  .hotels-table {
+    overflow-x: auto;
+  }
+  
+  .hotels-table .MuiTable-root {
+    min-width: 700px;
+  }
+  
+  .add-hotel-button {
+    width: 100%;
+    margin-top: var(--spacing-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .hotels-container {
+    padding: var(--spacing-sm);
+  }
+  
+  .search-filters-section {
+    padding: var(--spacing-xs);
+  }
+  
+  .search-field .MuiOutlinedInput-root {
+    font-size: 0.875rem;
+  }
+  
+  .filter-select .MuiOutlinedInput-root {
+    font-size: 0.875rem;
+  }
+  
+  .hotels-table .MuiTableCell-body {
+    padding: var(--spacing-xs);
+    font-size: 0.8rem;
+  }
+  
+  .hotel-image {
+    width: 30px;
+    height: 30px;
+  }
+}

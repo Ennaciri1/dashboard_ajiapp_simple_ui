@@ -1,0 +1,149 @@
+/* Profil Page Styles */
+.profil-container {
+  padding: 24px;
+  min-height: calc(100vh - 64px);
+}
+
+.profil-header {
+  margin-bottom: 32px;
+}
+
+.profil-title {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: inherit;
+}
+
+.profil-subtitle {
+  font-size: 1rem;
+  color: rgba(0, 0, 0, 0.6);
+  margin: 0;
+}
+
+.profil-content {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 32px;
+  max-width: 1200px;
+}
+
+.profil-sidebar {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  height: fit-content;
+}
+
+.profil-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 3rem;
+  color: #666;
+}
+
+.profil-name {
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 8px;
+  color: inherit;
+}
+
+.profil-role {
+  font-size: 1rem;
+  color: rgba(0, 0, 0, 0.6);
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.profil-main {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.profil-section {
+  margin-bottom: 32px;
+}
+
+.profil-section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: inherit;
+}
+
+.profil-info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.profil-info-item:last-child {
+  border-bottom: none;
+}
+
+.profil-info-label {
+  font-weight: 500;
+  color: inherit;
+}
+
+.profil-info-value {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+/* Dark Mode Styles */
+[data-theme="dark"] .profil-subtitle {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+[data-theme="dark"] .profil-sidebar,
+[data-theme="dark"] .profil-main {
+  background: #1e1e1e;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .profil-avatar {
+  background: #404040;
+  color: #ccc;
+}
+
+[data-theme="dark"] .profil-role {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+[data-theme="dark"] .profil-info-item {
+  border-bottom-color: #404040;
+}
+
+[data-theme="dark"] .profil-info-value {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .profil-container {
+    padding: 16px;
+  }
+  
+  .profil-content {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .profil-sidebar,
+  .profil-main {
+    padding: 16px;
+  }
+}

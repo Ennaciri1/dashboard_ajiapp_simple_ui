@@ -1,0 +1,115 @@
+/* Paramètres Page Styles */
+.parametres-container {
+  padding: 24px;
+  min-height: calc(100vh - 64px);
+}
+
+.parametres-header {
+  margin-bottom: 32px;
+}
+
+.parametres-title {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: inherit;
+}
+
+.parametres-subtitle {
+  font-size: 1rem;
+  color: rgba(0, 0, 0, 0.6);
+  margin: 0;
+}
+
+.parametres-content {
+  max-width: 800px;
+}
+
+.parametres-section {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.parametres-section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: inherit;
+}
+
+.parametres-form-group {
+  margin-bottom: 20px;
+}
+
+.parametres-label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: inherit;
+}
+
+.parametres-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s ease-in-out;
+}
+
+.parametres-input:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+}
+
+.parametres-button {
+  background: #1976d2;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.parametres-button:hover {
+  background: #1565c0;
+}
+
+/* Dark Mode Styles */
+[data-theme="dark"] .parametres-subtitle {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+[data-theme="dark"] .parametres-section {
+  background: #1e1e1e;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .parametres-input {
+  background: #2d2d2d;
+  border-color: #404040;
+  color: white;
+}
+
+[data-theme="dark"] .parametres-input:focus {
+  border-color: #90caf9;
+  box-shadow: 0 0 0 2px rgba(144, 202, 249, 0.2);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .parametres-container {
+    padding: 16px;
+  }
+  
+  .parametres-section {
+    padding: 16px;
+  }
+}
