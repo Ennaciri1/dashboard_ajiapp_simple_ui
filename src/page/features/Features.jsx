@@ -107,7 +107,7 @@ const Features = () => {
 
         <FilterSelect
           value={statusFilter}
-          onChange={setStatusFilter}
+          onChange={setStatu sFilter}
           options={FILTER_OPTIONS.STATUS}
           className="filter-select"
         />

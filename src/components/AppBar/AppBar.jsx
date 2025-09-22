@@ -62,6 +62,15 @@ const AppBar = () => {
     <MuiAppBar
       position="fixed"
       className="app-bar"
+      sx={{
+        width: { xs: '100%', sm: 'calc(100% - 240px)' },
+        ml: { xs: 0, sm: '240px' },
+        backgroundColor: 'var(--background-paper)',
+        color: 'var(--text-primary)',
+        boxShadow: 'var(--shadow-light)',
+        borderBottom: '1px solid var(--border-color)',
+        zIndex: 1100,
+      }}
     >
       <Toolbar className="app-bar-toolbar">
         <Typography variant="h14" component="div" className="app-bar-title">
