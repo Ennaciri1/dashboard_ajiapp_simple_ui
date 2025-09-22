@@ -8,8 +8,8 @@
 /* CSS Variables for consistent theming */
 :root {
   /* Light theme colors */
-  --primary-color: #1976d2;
-  --primary-hover: #1565c0;
+  --primary-color: #97051D;
+  --primary-hover: #7A0418;
   --secondary-color: #dc004e;
   --secondary-hover: #c51162;
   
@@ -48,8 +48,8 @@
 
 /* Dark theme colors */
 [data-theme="dark"] {
-  --primary-color: #90caf9;
-  --primary-hover: #64b5f6;
+  --primary-color: #E53E3E;
+  --primary-hover: #C53030;
   --secondary-color: #f48fb1;
   --secondary-hover: #f06292;
   
@@ -166,7 +166,7 @@ input, textarea, select {
 input:focus, textarea:focus, select:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+  box-shadow: 0 0 0 2px rgba(151, 5, 29, 0.2);
 }
 
 [data-theme="dark"] input:focus,
@@ -188,11 +188,7 @@ input:focus, textarea:focus, select:focus {
   box-shadow: var(--shadow-medium);
 }
 
-.global-container {
-  padding: 24px;
-  min-height: calc(100vh - 64px);
-
-}
+/* Global container moved to App.css to avoid conflicts */
 
 /* Utilities */
 .text-center { text-align: center; }

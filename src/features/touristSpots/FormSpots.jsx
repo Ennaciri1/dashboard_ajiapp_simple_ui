@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { INTEREST_TYPES } from '../constants.js';
+import { INTEREST_TYPES } from './index.js';
 import './FormSpots.css';
 
 // Form validation utility

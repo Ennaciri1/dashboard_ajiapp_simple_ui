@@ -1,4 +1,4 @@
-/* Drawer Component Styles */
+/* Drawer Component Styles - Simple Original Design */
 .drawer {
   width: 240px;
   flex-shrink: 0;
@@ -43,6 +43,34 @@
   margin: 2px 8px;
   transition: background-color 0.2s ease-in-out;
 }
+
+.drawer-content {
+  padding: 24px 0 0 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.drawer-header {
+  padding: 0 24px 24px 24px;
+  border-bottom: 1px solid var(--divider-color);
+  margin-bottom: 16px;
+}
+
+.drawer-logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.drawer-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  text-align: center;
+  margin: 0;
+}
+
 
 .menu-item-button:hover {
   background-color: rgba(0, 0, 0, 0.04);
@@ -110,7 +138,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
 }
 
 .submenu-text {
@@ -142,10 +169,6 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .drawer {
-    width: 200px;
-  }
-  
-  .drawer-paper {
-    width: 200px;
+    display: none;
   }
 }

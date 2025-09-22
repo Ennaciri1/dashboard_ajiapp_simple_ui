@@ -6,25 +6,26 @@ import {
   Card,
   CardContent
 } from '@mui/material';
-import { SpotsTable, SearchFilters, ContextMenu } from './components';
-import { sampleTouristSpots } from './data';
-import { INTEREST_TYPES, RATING_FILTERS, RATING_THRESHOLDS } from './constants.js';
-import { filterSpots } from './utils';
+import {
+  Add as AddIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Visibility as ViewIcon
+} from '@mui/icons-material';
+import SpotsTable from '../../../features/touristSpots/SpotsTable';
+import { sampleTouristSpots, TOURIST_FILTER_DEFAULTS, TOURIST_FILTERS, filterSpots } from '../../../features/touristSpots';
+import { FilterToolbar, ActionMenu } from '../../../components/common';
 import './TouristSpots.css';
-
 
 const TouristSpots = () => {
   const navigate = useNavigate();
   const [spots] = useState(sampleTouristSpots);
   const [selectedSpots, setSelectedSpots] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [typeFilter, setTypeFilter] = useState(RATING_FILTERS.ALL);
-  const [ratingFilter, setRatingFilter] = useState(RATING_FILTERS.ALL);
+  const [filters, setFilters] = useState(TOURIST_FILTER_DEFAULTS);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedSpotId, setSelectedSpotId] = useState(null);
 
-  // Filter spots using utility function
-  const filteredSpots = filterSpots(spots, searchTerm, typeFilter, ratingFilter);
+  const filteredSpots = filterSpots(spots, filters);
 
   const handleAddSpot = () => {
     navigate('/services/tourist-spots/formSpots');
@@ -32,16 +33,16 @@ const TouristSpots = () => {
 
   const handleSelectAll = (event) => {
     if (event.target.checked) {
-      setSelectedSpots(filteredSpots.map(spot => spot.id));
+      setSelectedSpots(filteredSpots.map((spot) => spot.id));
     } else {
       setSelectedSpots([]);
     }
   };
 
   const handleSelectSpot = (spotId) => {
-    setSelectedSpots(prev =>
+    setSelectedSpots((prev) =>
       prev.includes(spotId)
-        ? prev.filter(id => id !== spotId)
+        ? prev.filter((id) => id !== spotId)
         : [...prev, spotId]
     );
   };
@@ -57,38 +58,56 @@ const TouristSpots = () => {
   };
 
   const handleEditSpot = () => {
-    console.log('Edit spot:', selectedSpotId);
-    alert(`Editing spot: ${spots.find(s => s.id === selectedSpotId)?.name}`);
-    handleMenuClose();
+    const spot = spots.find((s) => s.id === selectedSpotId);
+    if (spot) {
+      console.log('Edit spot:', spot.id);
+      alert(`Editing spot: ${spot.name}`);
+    }
   };
 
   const handleDeleteSpot = () => {
-    console.log('Delete spot:', selectedSpotId);
-    alert(`Deleting spot: ${spots.find(s => s.id === selectedSpotId)?.name}`);
-    handleMenuClose();
+    const spot = spots.find((s) => s.id === selectedSpotId);
+    if (spot) {
+      console.log('Delete spot:', spot.id);
+      alert(`Deleting spot: ${spot.name}`);
+    }
   };
 
   const handleViewSpot = () => {
-    console.log('View spot:', selectedSpotId);
-    alert(`Viewing spot: ${spots.find(s => s.id === selectedSpotId)?.name}`);
-    handleMenuClose();
+    const spot = spots.find((s) => s.id === selectedSpotId);
+    if (spot) {
+      console.log('View spot:', spot.id);
+      alert(`Viewing spot: ${spot.name}`);
+    }
   };
+
+  const handleFilterChange = (key) => (value) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const toolbarFilters = TOURIST_FILTERS.map((filter) => ({
+    ...filter,
+    value: filters[filter.key],
+    onChange: handleFilterChange(filter.key)
+  }));
 
   return (
     <div className="global-container">
-
-      {/* Search and filters bar */}
-      <SearchFilters
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        typeFilter={typeFilter}
-        onTypeFilterChange={setTypeFilter}
-        ratingFilter={ratingFilter}
-        onRatingFilterChange={setRatingFilter}
-        onAddSpot={handleAddSpot}
+      <FilterToolbar
+        title="Tourist Spots Management"
+        search={{
+          placeholder: 'Search spots...',
+          value: filters.search,
+          onChange: (value) => setFilters((prev) => ({ ...prev, search: value }))
+        }}
+        filters={toolbarFilters}
+        primaryAction={{
+          label: 'Add Tourist Spot',
+          icon: <AddIcon />,
+          onClick: handleAddSpot
+        }}
       />
 
-      {/* Results indicator */}
       <Box className="results-indicator">
         <Typography variant="body2" color="textSecondary">
           {filteredSpots.length} spot{filteredSpots.length !== 1 ? 's' : ''} found
@@ -96,7 +115,6 @@ const TouristSpots = () => {
         </Typography>
       </Box>
 
-      {/* Table */}
       <Card className="tourist-spots-card">
         <CardContent>
           <SpotsTable
@@ -109,14 +127,30 @@ const TouristSpots = () => {
         </CardContent>
       </Card>
 
-      {/* Context menu */}
-      <ContextMenu
+      <ActionMenu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
-        onEdit={handleEditSpot}
-        onDelete={handleDeleteSpot}
-        onView={handleViewSpot}
+        items={[
+          {
+            key: 'view',
+            label: 'View Spot',
+            icon: <ViewIcon fontSize="small" />,
+            onClick: handleViewSpot
+          },
+          {
+            key: 'edit',
+            label: 'Edit Spot',
+            icon: <EditIcon fontSize="small" />,
+            onClick: handleEditSpot
+          },
+          {
+            key: 'delete',
+            label: 'Delete Spot',
+            icon: <DeleteIcon fontSize="small" />,
+            onClick: handleDeleteSpot
+          }
+        ]}
       />
     </div>
   );

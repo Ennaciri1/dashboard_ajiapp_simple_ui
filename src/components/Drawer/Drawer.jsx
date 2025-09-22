@@ -1,6 +1,8 @@
 import MuiDrawer from '@mui/material/Drawer';
 import Toolbar from '@mui/material/Toolbar';
 import Divider from '@mui/material/Divider';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
@@ -25,7 +27,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import List from '@mui/material/List';
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useTheme } from '../../contexts/ThemeContext';
+import { useTheme } from '../../contexts/useTheme';
 import './Drawer.css';
 const drawerWidth = 240;
 
@@ -66,6 +68,17 @@ const Drawer = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { isDarkMode } = useTheme();
+
+    const drawerPaperStyles = {
+        width: drawerWidth,
+        boxSizing: 'border-box',
+        position: 'fixed',
+        height: '100vh',
+        top: 0,
+        left: 0,
+        zIndex: 1200,
+        backgroundColor: isDarkMode ? '#1e1e1e' : '#ffffff',
+    };
     
     // States to manage opening/closing of submenus
     const [servicesOpen, setServicesOpen] = useState(false);
@@ -122,35 +135,49 @@ const Drawer = () => {
     );
     
     return (
+        
         <MuiDrawer
             className="drawer"
             variant="permanent"
             anchor="left"
+            sx={{
+                width: drawerWidth,
+                flexShrink: 0,
+                '& .MuiDrawer-paper': drawerPaperStyles,
+            }}
         >
-            <Toolbar className="drawer-toolbar" />
-
-            <Divider className="drawer-divider" />
+            <Box className="drawer-content">
+                {/* Header */}
+                <Box className="drawer-header">
+                    <Typography className="drawer-logo">
+                        Simple UI
+                    </Typography>
+                    <Typography className="drawer-subtitle">
+                        Management System
+                    </Typography>
+                </Box>
+                <Divider className="drawer-divider" />
 
             {/* Main menu */}
             <List className="menu-list">
                 {mainMenuItems.map(renderMenuItem)}
             </List>
 
-            <Divider className="drawer-divider" />
+                <Divider className="drawer-divider" />
 
-            {/* Services menu with submenus */}
-            <List className="menu-list">
-                {renderMenuWithSubmenu(servicesMenu, servicesOpen, setServicesOpen)}
-            </List>
+                {/* Services menu with submenus */}
+                <List className="menu-list">
+                    {renderMenuWithSubmenu(servicesMenu, servicesOpen, setServicesOpen)}
+                </List>
 
-            <Divider className="drawer-divider" />
+                <Divider className="drawer-divider" />
 
-            {/* Users menu with submenus */}
-            <List className="menu-list">
-                {renderMenuWithSubmenu(usersMenu, usersOpen, setUsersOpen)}
-            </List>
-
-        </MuiDrawer >
+                {/* Users menu with submenus */}
+                <List className="menu-list">
+                    {renderMenuWithSubmenu(usersMenu, usersOpen, setUsersOpen)}
+                </List>
+            </Box>
+        </MuiDrawer>
     );
 };
 

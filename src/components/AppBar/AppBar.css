@@ -1,15 +1,6 @@
 /* AppBar Component Styles */
 .app-bar {
-  position: fixed;
-  width: calc(100% - 240px);
-  left: 240px;
-  transition: width 0.3s ease-in-out, left 0.3s ease-in-out;
-  background-color: var(--background-paper) !important;
-  color: var(--text-primary) !important;
-  box-shadow: var(--shadow-light) !important;
-  border-bottom: 1px solid var(--border-color);
-  top: 0;
-  right: 0;
+  /* Styles are now handled by sx prop in component */
 }
 
 .app-bar-toolbar {

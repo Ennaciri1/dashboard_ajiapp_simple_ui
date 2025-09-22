@@ -1,16 +1,13 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { ThemeContext } from './ThemeContextBase';
 
-// Création du contexte
-const ThemeContext = createContext();
-
-// Thème clair
 const lightTheme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#1976d2',
+      main: '#97051D',
     },
     secondary: {
       main: '#dc004e',
@@ -22,7 +19,6 @@ const lightTheme = createTheme({
   },
 });
 
-// Thème sombre
 const darkTheme = createTheme({
   palette: {
     mode: 'dark',
@@ -39,27 +35,22 @@ const darkTheme = createTheme({
   },
 });
 
-// Provider du contexte de thème
 export const CustomThemeProvider = ({ children }) => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
-    // Récupérer la préférence sauvegardée ou utiliser la préférence système
     const savedTheme = localStorage.getItem('darkMode');
     if (savedTheme !== null) {
       return JSON.parse(savedTheme);
     }
-    // Utiliser la préférence système si aucune préférence n'est sauvegardée
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
 
-  // Sauvegarder la préférence dans localStorage et appliquer l'attribut data-theme
   useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
-    // Appliquer l'attribut data-theme au body pour les variables CSS
     document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
   }, [isDarkMode]);
 
   const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
+    setIsDarkMode((prev) => !prev);
   };
 
   const theme = isDarkMode ? darkTheme : lightTheme;
@@ -74,11 +65,5 @@ export const CustomThemeProvider = ({ children }) => {
   );
 };
 
-// Hook personnalisé pour utiliser le contexte de thème
-export const useTheme = () => {
-  const context = useContext(ThemeContext);
-  if (context === undefined) {
-    throw new Error('useTheme must be used within a CustomThemeProvider');
-  }
-  return context;
-};
+export default CustomThemeProvider;
+

@@ -6,9 +6,9 @@ import Features from "./page/features/Features";
 import Paramètres from "./page/Paramètres/Paramètres";
 import Profil from "./page/Profil/Profil";
 import TouristSpots from "./page/services/tourist-spots/TouristSpots";
-import FormSpots from "./page/services/tourist-spots/components/FormSpots";
+import FormSpots from "./features/touristSpots/FormSpots";
 import Hotels from "./page/services/hotels/Hotels";
-import FormHotel from "./page/services/hotels/components/FormHotel";
+import FormHotel from "./features/hotels/FormHotel";
 
 const router = createBrowserRouter(
  createRoutesFromElements(

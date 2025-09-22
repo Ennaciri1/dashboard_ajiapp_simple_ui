@@ -1,7 +1,23 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { HOTEL_AMENITIES } from '../constants.js';
 import './FormHotel.css';
+
+const HOTEL_AMENITIES = [
+  'Pool',
+  'Spa',
+  'Restaurant',
+  'Gym',
+  'WiFi',
+  'Business Center',
+  'Airport Shuttle',
+  'Mountain View',
+  'Beach',
+  'Water Sports',
+  'Traditional',
+  'Cultural Tours',
+  'Breakfast',
+  'Hiking'
+];
 
 // Form validation utility
 const validateFormData = (data) => {

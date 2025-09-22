@@ -6,24 +6,26 @@ import {
   Card,
   CardContent
 } from '@mui/material';
-import { HotelsTable, SearchFilters, ContextMenu } from './components';
-import { sampleHotels } from './sampleData';
-import { HOTEL_STATUS, RATING_FILTERS, PRICE_RANGES } from './constants.js';
-import { filterHotels } from './utils';
+import {
+  Add as AddIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  Visibility as ViewIcon
+} from '@mui/icons-material';
+import HotelsTable from '../../../features/hotels/HotelsTable';
+import { sampleHotels, filterHotels, HOTEL_FILTER_DEFAULTS, HOTEL_FILTERS } from '../../../features/hotels';
+import { FilterToolbar, ActionMenu } from '../../../components/common';
 import './Hotels.css';
 
 const Hotels = () => {
   const navigate = useNavigate();
   const [hotels] = useState(sampleHotels);
   const [selectedHotels, setSelectedHotels] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [ratingFilter, setRatingFilter] = useState(RATING_FILTERS.ALL);
-  const [priceFilter, setPriceFilter] = useState(PRICE_RANGES.ALL);
+  const [filters, setFilters] = useState(HOTEL_FILTER_DEFAULTS);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedHotelId, setSelectedHotelId] = useState(null);
 
-  // Filter hotels using utility function
-  const filteredHotels = filterHotels(hotels, searchTerm, 'All', ratingFilter, priceFilter);
+  const filteredHotels = filterHotels(hotels, filters);
 
   const handleAddHotel = () => {
     navigate('/services/hotels/formHotel');
@@ -31,16 +33,16 @@ const Hotels = () => {
 
   const handleSelectAll = (event) => {
     if (event.target.checked) {
-      setSelectedHotels(filteredHotels.map(hotel => hotel.id));
+      setSelectedHotels(filteredHotels.map((hotel) => hotel.id));
     } else {
       setSelectedHotels([]);
     }
   };
 
   const handleSelectHotel = (hotelId) => {
-    setSelectedHotels(prev =>
+    setSelectedHotels((prev) =>
       prev.includes(hotelId)
-        ? prev.filter(id => id !== hotelId)
+        ? prev.filter((id) => id !== hotelId)
         : [...prev, hotelId]
     );
   };
@@ -56,37 +58,56 @@ const Hotels = () => {
   };
 
   const handleEditHotel = () => {
-    console.log('Edit hotel:', selectedHotelId);
-    alert(`Editing hotel: ${hotels.find(h => h.id === selectedHotelId)?.name}`);
-    handleMenuClose();
+    const hotel = hotels.find((h) => h.id === selectedHotelId);
+    if (hotel) {
+      console.log('Edit hotel:', hotel.id);
+      alert(`Editing hotel: ${hotel.name}`);
+    }
   };
 
   const handleDeleteHotel = () => {
-    console.log('Delete hotel:', selectedHotelId);
-    alert(`Deleting hotel: ${hotels.find(h => h.id === selectedHotelId)?.name}`);
-    handleMenuClose();
+    const hotel = hotels.find((h) => h.id === selectedHotelId);
+    if (hotel) {
+      console.log('Delete hotel:', hotel.id);
+      alert(`Deleting hotel: ${hotel.name}`);
+    }
   };
 
   const handleViewHotel = () => {
-    console.log('View hotel:', selectedHotelId);
-    alert(`Viewing hotel: ${hotels.find(h => h.id === selectedHotelId)?.name}`);
-    handleMenuClose();
+    const hotel = hotels.find((h) => h.id === selectedHotelId);
+    if (hotel) {
+      console.log('View hotel:', hotel.id);
+      alert(`Viewing hotel: ${hotel.name}`);
+    }
   };
+
+  const handleFilterChange = (key) => (value) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const toolbarFilters = HOTEL_FILTERS.map((filter) => ({
+    ...filter,
+    value: filters[filter.key],
+    onChange: handleFilterChange(filter.key)
+  }));
 
   return (
     <div className="global-container">
-      {/* Search and filters bar */}
-      <SearchFilters
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        ratingFilter={ratingFilter}
-        onRatingFilterChange={setRatingFilter}
-        priceFilter={priceFilter}
-        onPriceFilterChange={setPriceFilter}
-        onAddHotel={handleAddHotel}
+      <FilterToolbar
+        title="Hotels Management"
+        search={{
+          placeholder: 'Search hotels...',
+          value: filters.search,
+          onChange: (value) => setFilters((prev) => ({ ...prev, search: value }))
+        }}
+        filters={toolbarFilters}
+        primaryAction={{
+          label: 'Add Hotel',
+          icon: <AddIcon />,
+          onClick: handleAddHotel
+        }}
       />
 
-      {/* Results indicator */}
       <Box className="results-indicator">
         <Typography variant="body2" color="textSecondary">
           {filteredHotels.length} hotel{filteredHotels.length !== 1 ? 's' : ''} found
@@ -94,7 +115,6 @@ const Hotels = () => {
         </Typography>
       </Box>
 
-      {/* Table */}
       <Card className="hotels-card">
         <CardContent>
           <HotelsTable
@@ -107,14 +127,30 @@ const Hotels = () => {
         </CardContent>
       </Card>
 
-      {/* Context menu */}
-      <ContextMenu
+      <ActionMenu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
-        onEdit={handleEditHotel}
-        onDelete={handleDeleteHotel}
-        onView={handleViewHotel}
+        items={[
+          {
+            key: 'view',
+            label: 'View',
+            icon: <ViewIcon fontSize="small" />,
+            onClick: handleViewHotel
+          },
+          {
+            key: 'edit',
+            label: 'Edit',
+            icon: <EditIcon fontSize="small" />,
+            onClick: handleEditHotel
+          },
+          {
+            key: 'delete',
+            label: 'Delete',
+            icon: <DeleteIcon fontSize="small" />,
+            onClick: handleDeleteHotel
+          }
+        ]}
       />
     </div>
   );

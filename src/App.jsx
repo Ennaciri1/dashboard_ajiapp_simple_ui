@@ -9,11 +9,12 @@ import './App.css';
 export default function PermanentDrawerLeft() {
   return (
     <Box className="app-container">
-      <AppBar />
       <Drawer />
       <Box component="main" className="app-main-content">
-        <Toolbar /> {/* Espace pour l'AppBar fixe */}
-        <Outlet />
+        <AppBar />
+        <Box className="app-content">
+          <Outlet />
+        </Box>
       </Box>
     </Box>
   );
