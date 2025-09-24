@@ -11,7 +11,6 @@ export const sampleHotels = [
     image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=300&h=200&fit=crop",
     rating: 4.8,
     ratingCount: 324,
-    amenities: ["Pool", "Spa", "Restaurant", "Gym"],
     status: "Available"
   },
   {
@@ -25,7 +24,6 @@ export const sampleHotels = [
     image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=300&h=200&fit=crop",
     rating: 4.5,
     ratingCount: 156,
-    amenities: ["Business Center", "WiFi", "Restaurant"],
     status: "Available"
   },
   {
@@ -39,7 +37,6 @@ export const sampleHotels = [
     image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=200&fit=crop",
     rating: 4.9,
     ratingCount: 89,
-    amenities: ["Mountain View", "Spa", "Hiking", "Restaurant"],
     status: "Available"
   },
   {
@@ -53,7 +50,6 @@ export const sampleHotels = [
     image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=300&h=200&fit=crop",
     rating: 4.6,
     ratingCount: 203,
-    amenities: ["Traditional", "Cultural Tours", "Breakfast"],
     status: "Available"
   },
   {
@@ -67,7 +63,6 @@ export const sampleHotels = [
     image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=300&h=200&fit=crop",
     rating: 4.4,
     ratingCount: 278,
-    amenities: ["Beach", "Pool", "Water Sports", "Restaurant"],
     status: "Available"
   }
 ];

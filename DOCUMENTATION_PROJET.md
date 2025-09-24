@@ -422,3 +422,4 @@ Le code est organisé, documenté, et suit les meilleures pratiques de développ
 
 *Documentation générée le 21 septembre 2025*
 *Version du projet: 0.0.0*
+

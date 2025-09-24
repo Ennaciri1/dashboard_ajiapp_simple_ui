@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { PageHeader, SearchBar, FilterSelect, DataTable } from '../../components/common';
 import { sampleDashboardData } from './sampleData';
 import { filterData, SEARCH_FIELDS, formatCurrency, formatDate, truncateText, FILTER_OPTIONS } from '../../utils/common';
+import { useNotification } from '../../contexts/NotificationContext';
 import './Dashboard.css';
 
 const Dashboard = () => {
+  const { showSuccess, showError } = useNotification();
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
@@ -97,7 +99,7 @@ const Dashboard = () => {
           className="filter-select"
         />
 
-        <button className="add-button" onClick={() => alert('Add new dashboard item')}>
+        <button className="add-button" onClick={() => showSuccess('Add new dashboard item')}>
           + Add Item
         </button>
       </div>

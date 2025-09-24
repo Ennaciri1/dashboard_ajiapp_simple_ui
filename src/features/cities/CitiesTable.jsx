@@ -9,19 +9,29 @@ import {
   Paper,
   Checkbox,
   Typography,
-  Box,
   IconButton,
   Chip
 } from '@mui/material';
-import { Place as PlaceIcon, MoreVert as MoreVertIcon } from '@mui/icons-material';
+import { Delete as DeleteIcon } from '@mui/icons-material';
 import { getCityName } from './index';
+
+// Helper function to format date
+const formatDate = (dateString) => {
+  if (!dateString) return '-';
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  } catch (error) {
+    return '-';
+  }
+};
 
 const CitiesTable = ({
   cities,
   selectedCities,
   onSelectAll,
   onSelectCity,
-  onMenuClick
+  onDeleteClick
 }) => {
   return (
     <TableContainer component={Paper} className="cities-table">
@@ -35,12 +45,12 @@ const CitiesTable = ({
                 onChange={onSelectAll}
               />
             </TableCell>
-            <TableCell>City</TableCell>
-            <TableCell>Code</TableCell>
-            <TableCell>Description</TableCell>
-            <TableCell>Coordinates</TableCell>
+            <TableCell>Name</TableCell>
             <TableCell>Status</TableCell>
-            <TableCell>Updated</TableCell>
+            <TableCell>Created At</TableCell>
+            <TableCell>Created By</TableCell>
+            <TableCell>Updated At</TableCell>
+            <TableCell>Updated By</TableCell>
             <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
@@ -59,22 +69,6 @@ const CitiesTable = ({
                 </Typography>
               </TableCell>
               <TableCell>
-                <Typography variant="body2">{city.code}</Typography>
-              </TableCell>
-              <TableCell>
-                <Typography variant="body2" className="description-cell">
-                  {city.description || '—'}
-                </Typography>
-              </TableCell>
-              <TableCell>
-                <Box display="flex" alignItems="center" gap={0.5}>
-                  <PlaceIcon fontSize="small" />
-                  <Typography variant="body2">
-                    {city.location?.latitude?.toFixed(4)}, {city.location?.longitude?.toFixed(4)}
-                  </Typography>
-                </Box>
-              </TableCell>
-              <TableCell>
                 <Chip
                   label={city.active ? 'Active' : 'Inactive'}
                   color={city.active ? 'success' : 'default'}
@@ -82,13 +76,32 @@ const CitiesTable = ({
                 />
               </TableCell>
               <TableCell>
-                <Typography variant="body2">
-                  {city.updatedAt || '—'}
+                <Typography variant="body2" fontSize="0.875rem">
+                  {formatDate(city.createdAt)}
                 </Typography>
               </TableCell>
               <TableCell>
-                <IconButton onClick={(event) => onMenuClick(event, city.id)}>
-                  <MoreVertIcon />
+                <Typography variant="body2" fontSize="0.875rem">
+                  {city.createdBy || '-'}
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="body2" fontSize="0.875rem">
+                  {formatDate(city.updatedAt)}
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="body2" fontSize="0.875rem">
+                  {city.updatedBy || '-'}
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <IconButton 
+                  onClick={() => onDeleteClick(city.id)}
+                  color="error"
+                  title="Delete city"
+                >
+                  <DeleteIcon />
                 </IconButton>
               </TableCell>
             </TableRow>

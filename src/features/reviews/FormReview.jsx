@@ -17,6 +17,7 @@ import {
   REVIEW_ENTITY_OPTIONS,
   sampleReviewUsers
 } from './index';
+import { useNotification } from '../../contexts/NotificationContext';
 import './FormReview.css';
 
 const activityOptions = [
@@ -34,6 +35,7 @@ const getUserOptions = () => sampleReviewUsers.map((user) => ({ value: user.id, 
 
 const FormReview = () => {
   const navigate = useNavigate();
+  const { showSuccess, showError } = useNotification();
   const [isModerationMode, setIsModerationMode] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -92,7 +94,7 @@ const FormReview = () => {
     };
 
     console.log('Review form submitted:', formattedData);
-    alert('Review saved successfully!');
+    showSuccess('Review saved successfully!');
     navigate('/services/reviews');
   };
 
@@ -119,29 +121,31 @@ const FormReview = () => {
           </div>
 
           <div className="form-group">
-            <label>Message</label>
+            <label>Message *</label>
             <textarea
               value={formData.message}
               onChange={handleInputChange('message')}
               rows={4}
               className="simple-textarea"
               readOnly={isModerationMode}
+              required
             />
           </div>
 
           <div className="form-group">
-            <label>Rating</label>
+            <label>Rating *</label>
             <Rating
               name="rating"
               value={Number(formData.rating)}
               onChange={(_, value) => handleInputChange('rating')(value || 0)}
+              required
             />
           </div>
 
           <div className="form-group">
             <FormControl fullWidth>
-              <InputLabel>Status</InputLabel>
-              <Select value={formData.status} label="Status" onChange={handleStatusChange}>
+              <InputLabel>Status *</InputLabel>
+              <Select value={formData.status} label="Status *" onChange={handleStatusChange} required>
                 {REVIEW_STATUS_OPTIONS.map((option) => (
                   <MenuItem key={option.value} value={option.value}>
                     {option.label}
@@ -153,20 +157,21 @@ const FormReview = () => {
 
           {formData.status === REVIEW_STATUS.REJECTED && (
             <div className="form-group">
-              <label>Rejection reason</label>
+              <label>Rejection reason *</label>
               <textarea
                 value={formData.rejectionReason}
                 onChange={handleInputChange('rejectionReason')}
                 rows={3}
                 className="simple-textarea"
+                required
               />
             </div>
           )}
 
           <div className="form-group">
             <FormControl fullWidth>
-              <InputLabel>User</InputLabel>
-              <Select value={formData.userId} label="User" onChange={handleInputChange('userId')}>
+              <InputLabel>User *</InputLabel>
+              <Select value={formData.userId} label="User *" onChange={handleInputChange('userId')} required>
                 {getUserOptions().map((option) => (
                   <MenuItem key={option.value} value={option.value}>
                     {option.label}
@@ -179,8 +184,8 @@ const FormReview = () => {
           <div className="form-row">
             <div className="form-group">
               <FormControl fullWidth>
-                <InputLabel>Entity type</InputLabel>
-                <Select value={formData.entityType} label="Entity type" onChange={handleEntityTypeChange}>
+                <InputLabel>Entity type *</InputLabel>
+                <Select value={formData.entityType} label="Entity type *" onChange={handleEntityTypeChange} required>
                   {REVIEW_ENTITY_OPTIONS.filter((option) => option.value !== 'all').map((option) => (
                     <MenuItem key={option.value} value={option.value}>
                       {option.label}
@@ -191,8 +196,8 @@ const FormReview = () => {
             </div>
             <div className="form-group">
               <FormControl fullWidth>
-                <InputLabel>Entity</InputLabel>
-                <Select value={formData.entityId} label="Entity" onChange={handleInputChange('entityId')}>
+                <InputLabel>Entity *</InputLabel>
+                <Select value={formData.entityId} label="Entity *" onChange={handleInputChange('entityId')} required>
                   {entityOptions.map((option) => (
                     <MenuItem key={option.id} value={option.id}>
                       {option.name}

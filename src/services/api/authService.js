@@ -5,6 +5,7 @@ const mapLoginResponse = (payload) => {
   if (!payload?.data) {
     throw new Error('Invalid response payload');
   }
+  
 
   const { data } = payload;
 

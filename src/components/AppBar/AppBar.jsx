@@ -112,7 +112,7 @@ const AppBar = () => {
               className="user-avatar"
             />
             <Typography variant="body2" className="user-name">
-              {user?.fullName || user?.email || 'Utilisateur'}
+              {user?.fullName || user?.email || 'User'}
             </Typography>
             <IconButton
               className="user-menu-button"
@@ -131,7 +131,7 @@ const AppBar = () => {
                     navigate('/login', { replace: true });
                   }}
                 >
-                  Se déconnecter
+                  Sign Out
                 </button>
               </Box>
             )}

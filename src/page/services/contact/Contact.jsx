@@ -9,11 +9,13 @@ import {
   CONTACT_FILTERS
 } from '../../../features/contacts';
 import { FilterToolbar, ActionMenu } from '../../../components/common';
+import { useNotification } from '../../../contexts/NotificationContext';
 import './Contact.css';
 
 const Contact = () => {
   const navigate = useNavigate();
-  const [contacts] = useState(sampleContacts);
+  const { showSuccess, showError } = useNotification();
+  const [contacts, setContacts] = useState(sampleContacts);
   const [selectedContacts, setSelectedContacts] = useState([]);
   const [filters, setFilters] = useState(CONTACT_FILTER_DEFAULTS);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -63,7 +65,7 @@ const Contact = () => {
     {
       key: 'view',
       label: 'Preview',
-      onClick: () => alert(`Opening contact ${selectedContactId}`)
+      onClick: () => showSuccess(`Opening contact ${selectedContactId}`)
     },
     {
       key: 'edit',
@@ -73,9 +75,33 @@ const Contact = () => {
     {
       key: 'toggle',
       label: 'Toggle active',
-      onClick: () => alert('Updating contact status')
+      onClick: () => showSuccess('Updating contact status')
     }
   ];
+
+  const handleDeleteAllContacts = async () => {
+    if (selectedContacts.length === 0) {
+      showError('Please select contacts to delete');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete ${selectedContacts.length} selected contacts? This action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      // Update state to remove selected contacts
+      setContacts(prev => prev.filter(contact => !selectedContacts.includes(contact.id)));
+      setSelectedContacts([]);
+      
+      showSuccess(`${selectedContacts.length} contacts deleted successfully`);
+    } catch (error) {
+      console.error('Error deleting contacts:', error);
+      showError('Error deleting contacts');
+    }
+  };
 
   return (
     <div className="global-container">
@@ -91,6 +117,14 @@ const Contact = () => {
           label: 'Add Contact',
           onClick: handleAddContact
         }}
+        secondaryActions={[
+          {
+            label: 'Delete All',
+            onClick: handleDeleteAllContacts,
+            disabled: selectedContacts.length === 0,
+            color: 'error'
+          }
+        ]}
       />
 
       <Box className="results-indicator">

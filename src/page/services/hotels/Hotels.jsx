@@ -15,11 +15,13 @@ import {
 import HotelsTable from '../../../features/hotels/HotelsTable';
 import { sampleHotels, filterHotels, HOTEL_FILTER_DEFAULTS, HOTEL_FILTERS } from '../../../features/hotels';
 import { FilterToolbar, ActionMenu } from '../../../components/common';
+import { useNotification } from '../../../contexts/NotificationContext';
 import './Hotels.css';
 
 const Hotels = () => {
   const navigate = useNavigate();
-  const [hotels] = useState(sampleHotels);
+  const { showSuccess, showError } = useNotification();
+  const [hotels, setHotels] = useState(sampleHotels);
   const [selectedHotels, setSelectedHotels] = useState([]);
   const [filters, setFilters] = useState(HOTEL_FILTER_DEFAULTS);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -61,15 +63,40 @@ const Hotels = () => {
     const hotel = hotels.find((h) => h.id === selectedHotelId);
     if (hotel) {
       console.log('Edit hotel:', hotel.id);
-      alert(`Editing hotel: ${hotel.name}`);
+      showSuccess(`Editing hotel: ${hotel.name}`);
     }
   };
 
   const handleDeleteHotel = () => {
     const hotel = hotels.find((h) => h.id === selectedHotelId);
     if (hotel) {
-      console.log('Delete hotel:', hotel.id);
-      alert(`Deleting hotel: ${hotel.name}`);
+      setHotels(prev => prev.filter(h => h.id !== selectedHotelId));
+      setSelectedHotels(prev => prev.filter(id => id !== selectedHotelId));
+      showSuccess(`Hotel "${hotel.name}" deleted successfully`);
+    }
+  };
+
+  const handleDeleteAllHotels = async () => {
+    if (selectedHotels.length === 0) {
+      showError('Please select hotels to delete');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete ${selectedHotels.length} selected hotels? This action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      // Update state to remove selected hotels
+      setHotels(prev => prev.filter(hotel => !selectedHotels.includes(hotel.id)));
+      setSelectedHotels([]);
+      
+      showSuccess(`${selectedHotels.length} hotels deleted successfully`);
+    } catch (error) {
+      console.error('Error deleting hotels:', error);
+      showError('Error deleting hotels');
     }
   };
 
@@ -77,7 +104,7 @@ const Hotels = () => {
     const hotel = hotels.find((h) => h.id === selectedHotelId);
     if (hotel) {
       console.log('View hotel:', hotel.id);
-      alert(`Viewing hotel: ${hotel.name}`);
+      showSuccess(`Viewing hotel: ${hotel.name}`);
     }
   };
 
@@ -106,6 +133,14 @@ const Hotels = () => {
           icon: <AddIcon />,
           onClick: handleAddHotel
         }}
+        secondaryActions={[
+          {
+            label: 'Delete All',
+            onClick: handleDeleteAllHotels,
+            disabled: selectedHotels.length === 0,
+            color: 'error'
+          }
+        ]}
       />
 
       <Box className="results-indicator">

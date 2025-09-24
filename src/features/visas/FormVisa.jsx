@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FormControlLabel, Switch } from '@mui/material';
+import { MultiImageSelector } from '../../components/common';
+import { useNotification } from '../../contexts/NotificationContext';
 import './FormVisa.css';
 
 const FormVisa = () => {
   const navigate = useNavigate();
+  const { showSuccess, showError } = useNotification();
 
   const [formData, setFormData] = useState({
     country: '',
     nationality: '',
     isRequired: false,
-    imageUrl: '',
+    images: [],
     processingTime: ''
   });
 
@@ -20,6 +23,13 @@ const FormVisa = () => {
 
   const handleToggle = (event) => {
     setFormData({ ...formData, isRequired: event.target.checked });
+  };
+
+  const handleImagesChange = (images) => {
+    setFormData({
+      ...formData,
+      images: images
+    });
   };
 
   const handleBack = () => {
@@ -33,12 +43,12 @@ const FormVisa = () => {
       country: formData.country.trim(),
       nationality: formData.nationality.trim(),
       isRequired: formData.isRequired,
-      imageUrl: formData.imageUrl,
+      images: formData.images,
       processingTime: formData.processingTime
     };
 
     console.log('Visa form submitted:', formattedData);
-    alert('Visa saved successfully!');
+    showSuccess('Visa saved successfully!');
     navigate('/services/visa');
   };
 
@@ -52,46 +62,49 @@ const FormVisa = () => {
       <div className="simple-form">
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Country</label>
+            <label>Country *</label>
             <input
               type="text"
               value={formData.country}
               onChange={handleInputChange('country')}
               placeholder="Country name"
               className="simple-input"
+              required
             />
           </div>
 
           <div className="form-group">
-            <label>Nationality</label>
+            <label>Nationality *</label>
             <input
               type="text"
               value={formData.nationality}
               onChange={handleInputChange('nationality')}
               placeholder="Traveller nationality"
               className="simple-input"
+              required
             />
           </div>
 
           <div className="form-group">
-            <label>Processing time</label>
+            <label>Processing time *</label>
             <input
               type="text"
               value={formData.processingTime}
               onChange={handleInputChange('processingTime')}
               placeholder="E-visa within 5 days"
               className="simple-input"
+              required
             />
           </div>
 
           <div className="form-group">
-            <label>Image URL</label>
-            <input
-              type="url"
-              value={formData.imageUrl}
-              onChange={handleInputChange('imageUrl')}
-              placeholder="https://..."
-              className="simple-input"
+            <MultiImageSelector
+              images={formData.images}
+              onChange={handleImagesChange}
+              label="Visa/Country Images"
+              maxImages={5}
+              showPreview={true}
+              allowReorder={true}
             />
           </div>
 

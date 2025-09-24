@@ -22,8 +22,11 @@ export const filterCities = (cities, { search, status }) => {
     const matchesSearch =
       !normalizedSearch ||
       toLowerCase(city.code).includes(normalizedSearch) ||
-      toLowerCase(city.name).includes(normalizedSearch) ||
-      toLowerCase(city.description).includes(normalizedSearch);
+      toLowerCase(city.description).includes(normalizedSearch) ||
+      // Rechercher dans les traductions
+      Object.values(city.nameTranslations || {}).some(translation => 
+        toLowerCase(translation).includes(normalizedSearch)
+      );
 
     const matchesStatus =
       status === FILTER_ALL ||
@@ -38,7 +41,28 @@ export const getCityName = (city, fallbackLanguage = 'en') => {
   if (!city) {
     return '';
   }
-  return city.name || city.code;
+  
+  // Si la ville a des traductions, utiliser la langue préférée ou la première disponible
+  if (city.nameTranslations) {
+    return city.nameTranslations[fallbackLanguage] || 
+           Object.values(city.nameTranslations)[0] || 
+           city.code || 
+           'Sans nom';
+  }
+  
+  // Fallback pour l'ancienne structure
+  return city.name || city.code || 'Sans nom';
+};
+
+export const getAllCityTranslations = (city) => {
+  if (!city || !city.nameTranslations) {
+    return [];
+  }
+  
+  return Object.entries(city.nameTranslations).map(([language, translation]) => ({
+    language,
+    translation
+  }));
 };
 
 export { sampleCities };

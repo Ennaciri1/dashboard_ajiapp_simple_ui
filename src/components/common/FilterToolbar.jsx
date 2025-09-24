@@ -2,7 +2,6 @@ import React from 'react';
 import {
   Paper,
   Box,
-  Typography,
   TextField,
   FormControl,
   InputLabel,
@@ -14,8 +13,6 @@ import {
 const noop = () => {};
 
 const FilterToolbar = ({
-  title,
-  subtitle,
   search,
   filters = [],
   primaryAction,
@@ -85,16 +82,6 @@ const FilterToolbar = ({
           ...sx
         }}
       >
-        {(title || subtitle) && (
-          <Box sx={{ mr: 2 }}>
-            {title && <Typography variant="h6">{title}</Typography>}
-            {subtitle && (
-              <Typography variant="body2" color="text.secondary">
-                {subtitle}
-              </Typography>
-            )}
-          </Box>
-        )}
 
         {search && (
           <TextField

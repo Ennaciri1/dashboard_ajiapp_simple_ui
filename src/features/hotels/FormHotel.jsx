@@ -1,23 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './FormHotel.css';
+import { MapSelector, MultiImageSelector } from '../../components/common';
+import { useNotification } from '../../contexts/NotificationContext';
 
-const HOTEL_AMENITIES = [
-  'Pool',
-  'Spa',
-  'Restaurant',
-  'Gym',
-  'WiFi',
-  'Business Center',
-  'Airport Shuttle',
-  'Mountain View',
-  'Beach',
-  'Water Sports',
-  'Traditional',
-  'Cultural Tours',
-  'Breakfast',
-  'Hiking'
-];
 
 // Form validation utility
 const validateFormData = (data) => {
@@ -29,9 +15,6 @@ const validateFormData = (data) => {
   if (!data.location.trim()) errors.location = 'Location is required';
   if (!data.pricePerNight || data.pricePerNight <= 0) {
     errors.pricePerNight = 'Price per night must be a positive number';
-  }
-  if (data.amenities.length === 0) {
-    errors.amenities = 'At least one amenity is required';
   }
   
   return {
@@ -56,6 +39,7 @@ const formatFormData = (data) => {
 
 const FormHotel = () => {
   const navigate = useNavigate();
+  const { showSuccess, showError } = useNotification();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -65,12 +49,10 @@ const FormHotel = () => {
     latitude: '',
     longitude: '',
     pricePerNight: '',
-    image: '',
-    amenities: [],
+    images: [],
   
   });
 
-  const [newAmenity, setNewAmenity] = useState('');
   const [errors, setErrors] = useState({});
 
   const handleInputChange = (field) => (event) => {
@@ -81,20 +63,11 @@ const FormHotel = () => {
     }
   };
 
-  const handleAmenityAdd = () => {
-    if (newAmenity && !formData.amenities.includes(newAmenity)) {
-      setFormData({
-        ...formData,
-        amenities: [...formData.amenities, newAmenity]
-      });
-      setNewAmenity('');
-    }
-  };
 
-  const handleAmenityRemove = (amenityToRemove) => {
+  const handleImagesChange = (images) => {
     setFormData({
       ...formData,
-      amenities: formData.amenities.filter(amenity => amenity !== amenityToRemove)
+      images: images
     });
   };
 
@@ -105,13 +78,13 @@ const FormHotel = () => {
     
     if (!validation.isValid) {
       setErrors(validation.errors);
-      alert('Please fix the errors before submitting.');
+      showError('Please fix the errors before submitting.');
       return;
     }
 
     const formattedData = formatFormData(formData);
     console.log('Hotel form submitted:', formattedData);
-    alert('Hotel saved successfully!');
+    showSuccess('Hotel saved successfully!');
     navigate('/services/hotels');
   };
 
@@ -194,92 +167,58 @@ const FormHotel = () => {
             
           </div>
 
-          <div className="form-group">
-            <label>Amenities</label>
-            <div className="types-display">
-              {formData.amenities.map((amenity, index) => (
-                <span key={index} className="type-tag">
-                  {amenity} <button type="button" onClick={() => handleAmenityRemove(amenity)}>×</button>
-                </span>
-              ))}
-            </div>
-            <div className="add-type">
-              <select
-                value={newAmenity}
-                onChange={(e) => setNewAmenity(e.target.value)}
-                className="simple-select"
-              >
-                <option value="">Choose an amenity</option>
-                {HOTEL_AMENITIES
-                  .filter(option => !formData.amenities.includes(option))
-                  .map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-              </select>
-              <button
-                type="button"
-                onClick={handleAmenityAdd}
-                disabled={!newAmenity}
-                className="add-btn"
-              >
-                Add
-              </button>
-            </div>
-            {errors.amenities && <span className="error-message">{errors.amenities}</span>}
-          </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label>Latitude (Optional)</label>
+              <label>Latitude *</label>
               <input
                 type="number"
                 value={formData.latitude}
                 onChange={handleInputChange('latitude')}
                 step="any"
                 className="simple-input"
+                required
               />
             </div>
 
             <div className="form-group">
-              <label>Longitude (Optional)</label>
+              <label>Longitude *</label>
               <input
                 type="number"
                 value={formData.longitude}
                 onChange={handleInputChange('longitude')}
                 step="any"
                 className="simple-input"
+                required
               />
             </div>
           </div>
 
+          <MapSelector
+            latitude={formData.latitude}
+            longitude={formData.longitude}
+            onChange={({ latitude: nextLat, longitude: nextLng }) => {
+              setFormData((prev) => ({
+                ...prev,
+                latitude: nextLat,
+                longitude: nextLng
+              }));
+            }}
+            label="Hotel Location"
+          />
+
           <div className="form-group">
-            <label>Image URL</label>
-            <input
-              type="url"
-              value={formData.image}
-              onChange={handleInputChange('image')}
-              placeholder="https://example.com/hotel-image.jpg"
-              className="simple-input"
+            <MultiImageSelector
+              images={formData.images}
+              onChange={handleImagesChange}
+              label="Hotel Images"
+              maxImages={8}
+              showPreview={true}
+              allowReorder={true}
+              showOwnerField={true}
+              ownerLabel="Photographer/Source"
             />
           </div>
-
-          {formData.image && (
-            <div className="form-group">
-              <label>Image Preview</label>
-              <div className="image-preview">
-                <img
-                  src={formData.image}
-                  alt="Hotel preview"
-                  className="preview-image"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                  }}
-                />
-              </div>
-            </div>
-          )}
 
           <div className="form-actions">
             <button type="button" onClick={handleBack} className="cancel-btn">

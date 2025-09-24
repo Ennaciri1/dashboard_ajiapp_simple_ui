@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FormControlLabel, Switch } from '@mui/material';
+import { cityService } from '../../services/api/cityService';
+import { useNotification } from '../../contexts/NotificationContext';
 import './FormCity.css';
 
 const FormCity = () => {
   const navigate = useNavigate();
+  const { showSuccess, showError } = useNotification();
 
   const [formData, setFormData] = useState({
-    code: '',
     name: '',
-    description: '',
-    latitude: '',
-    longitude: '',
     active: true
   });
+
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (field) => (event) => {
     setFormData({ ...formData, [field]: event.target.value });
@@ -27,23 +28,31 @@ const FormCity = () => {
     navigate('/services/cities');
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    setLoading(true);
 
-    const formattedData = {
-      code: formData.code.trim(),
-      name: formData.name.trim(),
-      description: formData.description.trim(),
-      location: {
-        latitude: formData.latitude ? parseFloat(formData.latitude) : null,
-        longitude: formData.longitude ? parseFloat(formData.longitude) : null
-      },
-      active: formData.active
-    };
+    try {
+      if (!formData.name.trim()) {
+        showError('Please enter the city name');
+        setLoading(false);
+        return;
+      }
 
-    console.log('City form submitted:', formattedData);
-    alert('City saved successfully!');
-    navigate('/services/cities');
+      const formattedData = {
+        nameTranslations: { en: formData.name.trim() },
+        active: formData.active
+      };
+
+      await cityService.createCity(formattedData);
+      showSuccess('City created successfully!');
+      navigate('/services/cities');
+    } catch (error) {
+      console.error('Error creating city:', error);
+      showError('Error creating city');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -56,60 +65,18 @@ const FormCity = () => {
       <div className="simple-form">
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>City Code</label>
-            <input
-              type="text"
-              value={formData.code}
-              onChange={handleInputChange('code')}
-              placeholder="e.g. RAK"
-              className="simple-input"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Name</label>
+            <label>City Name *</label>
             <input
               type="text"
               value={formData.name}
               onChange={handleInputChange('name')}
               placeholder="City name"
               className="simple-input"
+              required
             />
           </div>
 
-          <div className="form-group">
-            <label>Description</label>
-            <textarea
-              value={formData.description}
-              onChange={handleInputChange('description')}
-              rows={3}
-              className="simple-textarea"
-            />
-          </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label>Latitude</label>
-              <input
-                type="number"
-                value={formData.latitude}
-                onChange={handleInputChange('latitude')}
-                step="any"
-                className="simple-input"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Longitude</label>
-              <input
-                type="number"
-                value={formData.longitude}
-                onChange={handleInputChange('longitude')}
-                step="any"
-                className="simple-input"
-              />
-            </div>
-          </div>
 
           <div className="form-group">
             <FormControlLabel
@@ -128,8 +95,8 @@ const FormCity = () => {
             <button type="button" onClick={handleBack} className="cancel-btn">
               Cancel
             </button>
-            <button type="submit" className="save-btn">
-              Save
+            <button type="submit" className="save-btn" disabled={loading}>
+              {loading ? 'Saving...' : 'Save'}
             </button>
           </div>
         </form>

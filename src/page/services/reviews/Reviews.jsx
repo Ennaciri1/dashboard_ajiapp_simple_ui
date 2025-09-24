@@ -9,11 +9,13 @@ import {
   REVIEW_FILTER_DEFAULTS
 } from '../../../features/reviews';
 import { FilterToolbar, ActionMenu } from '../../../components/common';
+import { useNotification } from '../../../contexts/NotificationContext';
 import './Reviews.css';
 
 const Reviews = () => {
   const navigate = useNavigate();
-  const [reviews] = useState(sampleReviews);
+  const { showSuccess, showError } = useNotification();
+  const [reviews, setReviews] = useState(sampleReviews);
   const [selectedReviews, setSelectedReviews] = useState([]);
   const [filters, setFilters] = useState(REVIEW_FILTER_DEFAULTS);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -63,19 +65,43 @@ const Reviews = () => {
     {
       key: 'approve',
       label: 'Approve',
-      onClick: () => alert(`Review ${selectedReviewId} approved`)
+      onClick: () => showSuccess(`Review ${selectedReviewId} approved`)
     },
     {
       key: 'reject',
       label: 'Reject',
-      onClick: () => alert(`Review ${selectedReviewId} rejected`)
+      onClick: () => showError(`Review ${selectedReviewId} rejected`)
     },
     {
       key: 'delete',
       label: 'Delete',
-      onClick: () => alert(`Review ${selectedReviewId} deleted`)
+      onClick: () => showSuccess(`Review ${selectedReviewId} deleted`)
     }
   ];
+
+  const handleDeleteAllReviews = async () => {
+    if (selectedReviews.length === 0) {
+      showError('Please select reviews to delete');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete ${selectedReviews.length} selected reviews? This action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      // Update state to remove selected reviews
+      setReviews(prev => prev.filter(review => !selectedReviews.includes(review.id)));
+      setSelectedReviews([]);
+      
+      showSuccess(`${selectedReviews.length} reviews deleted successfully`);
+    } catch (error) {
+      console.error('Error deleting reviews:', error);
+      showError('Error deleting reviews');
+    }
+  };
 
   return (
     <div className="global-container">
@@ -91,6 +117,14 @@ const Reviews = () => {
           label: 'Add Review',
           onClick: handleAddReview
         }}
+        secondaryActions={[
+          {
+            label: 'Delete All',
+            onClick: handleDeleteAllReviews,
+            disabled: selectedReviews.length === 0,
+            color: 'error'
+          }
+        ]}
       />
 
       <Box className="results-indicator">

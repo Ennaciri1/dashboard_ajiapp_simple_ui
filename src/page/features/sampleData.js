@@ -6,7 +6,7 @@ export const sampleFeaturesData = [
     icon: "🚀",
     category: "Performance",
     status: "Active",
-    description: "Interface rapide et optimisée pour une expérience utilisateur fluide.",
+    description: "Fast and optimized interface for a smooth user experience.",
     priority: "High",
     lastUpdated: "2024-01-15"
   },
@@ -16,7 +16,7 @@ export const sampleFeaturesData = [
     icon: "🎨",
     category: "UI/UX",
     status: "Active",
-    description: "Interface utilisateur moderne et intuitive avec support du thème sombre.",
+    description: "Modern and intuitive user interface with dark theme support.",
     priority: "High",
     lastUpdated: "2024-01-14"
   },
@@ -36,7 +36,7 @@ export const sampleFeaturesData = [
     icon: "🔧",
     category: "Configuration",
     status: "Active",
-    description: "Facilement personnalisable selon vos besoins et préférences.",
+    description: "Easily customizable according to your needs and preferences.",
     priority: "Medium",
     lastUpdated: "2024-01-12"
   },
@@ -46,7 +46,7 @@ export const sampleFeaturesData = [
     icon: "🔒",
     category: "Security",
     status: "Active",
-    description: "Système de sécurité robuste pour protéger vos données.",
+    description: "Robust security system to protect your data.",
     priority: "High",
     lastUpdated: "2024-01-11"
   },
@@ -56,7 +56,7 @@ export const sampleFeaturesData = [
     icon: "📊",
     category: "Analytics",
     status: "Pending",
-    description: "Tableaux de bord et statistiques détaillées pour suivre vos activités.",
+    description: "Dashboards and detailed statistics to track your activities.",
     priority: "Low",
     lastUpdated: "2024-01-10"
   }

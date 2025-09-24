@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { PageHeader, SearchBar, FilterSelect, DataTable } from '../../components/common';
 import { sampleFeaturesData } from './sampleData';
 import { filterData, SEARCH_FIELDS, formatDate, truncateText, FILTER_OPTIONS } from '../../utils/common';
+import { useNotification } from '../../contexts/NotificationContext';
 import './Features.css';
 
 const Features = () => {
+  const { showSuccess, showError } = useNotification();
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
@@ -86,7 +88,7 @@ const Features = () => {
     <div className="features-container">
       <PageHeader
         title="Features"
-        subtitle="Découvrez toutes les fonctionnalités disponibles"
+        subtitle="Discover all available features"
         className="features-header"
       />
 
@@ -119,7 +121,7 @@ const Features = () => {
           className="filter-select"
         />
 
-        <button className="add-button" onClick={() => alert('Add new feature')}>
+        <button className="add-button" onClick={() => showSuccess('Add new feature')}>
           + Add Feature
         </button>
       </div>

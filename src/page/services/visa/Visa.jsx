@@ -9,11 +9,13 @@ import {
   VISA_FILTERS
 } from '../../../features/visas';
 import { FilterToolbar, ActionMenu } from '../../../components/common';
+import { useNotification } from '../../../contexts/NotificationContext';
 import './Visa.css';
 
 const Visa = () => {
   const navigate = useNavigate();
-  const [visas] = useState(sampleVisas);
+  const { showSuccess, showError } = useNotification();
+  const [visas, setVisas] = useState(sampleVisas);
   const [selectedVisas, setSelectedVisas] = useState([]);
   const [filters, setFilters] = useState(VISA_FILTER_DEFAULTS);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -63,7 +65,7 @@ const Visa = () => {
     {
       key: 'view',
       label: 'View details',
-      onClick: () => alert(`Viewing visa ${selectedVisaId}`)
+      onClick: () => showSuccess(`Viewing visa ${selectedVisaId}`)
     },
     {
       key: 'edit',
@@ -73,9 +75,33 @@ const Visa = () => {
     {
       key: 'duplicate',
       label: 'Duplicate',
-      onClick: () => alert('Duplicating visa entry')
+      onClick: () => showSuccess('Duplicating visa entry')
     }
   ];
+
+  const handleDeleteAllVisas = async () => {
+    if (selectedVisas.length === 0) {
+      showError('Please select visas to delete');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete ${selectedVisas.length} selected visas? This action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      // Update state to remove selected visas
+      setVisas(prev => prev.filter(visa => !selectedVisas.includes(visa.id)));
+      setSelectedVisas([]);
+      
+      showSuccess(`${selectedVisas.length} visas deleted successfully`);
+    } catch (error) {
+      console.error('Error deleting visas:', error);
+      showError('Error deleting visas');
+    }
+  };
 
   return (
     <div className="global-container">
@@ -91,6 +117,14 @@ const Visa = () => {
           label: 'Add Visa',
           onClick: handleAddVisa
         }}
+        secondaryActions={[
+          {
+            label: 'Delete All',
+            onClick: handleDeleteAllVisas,
+            disabled: selectedVisas.length === 0,
+            color: 'error'
+          }
+        ]}
       />
 
       <Box className="results-indicator">

@@ -1,7 +1,7 @@
 import { getAuthData, saveAuthData, clearAuthData } from '../storage/authStorage';
 import { isRoleAllowed } from '../../constants/auth';
 
-const baseURL = import.meta.env.VITE_API_BASE_URL + 'api/v1';
+const baseURL = import.meta.env.VITE_API_BASE_URL + '/api/v1';
 
 const unauthorizedSubscribers = new Set();
 const tokenUpdateSubscribers = new Set();
@@ -150,8 +150,13 @@ const request = async (url, options = {}) => {
 
   const resolvedUrl = resolveUrl(url);
   const authData = getAuthData();
+  
+  // Check if body is FormData
+  const isFormData = body instanceof FormData;
+  
   const finalHeaders = {
-    'Content-Type': 'application/json',
+    // Only set Content-Type if not FormData (browser will set it with boundary)
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...headers,
   };
 
@@ -161,9 +166,11 @@ const request = async (url, options = {}) => {
 
   const payload = body === undefined || body === null
     ? undefined
-    : typeof body === 'string'
-      ? body
-      : JSON.stringify(body);
+    : isFormData
+      ? body  // Send FormData as-is
+      : typeof body === 'string'
+        ? body
+        : JSON.stringify(body);
 
   const response = await fetch(resolvedUrl, {
     method,

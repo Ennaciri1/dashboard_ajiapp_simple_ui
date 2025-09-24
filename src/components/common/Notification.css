@@ -1,0 +1,39 @@
+.notification {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.notification-hide {
+  animation: slideOutRight 0.3s ease-in;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .notification {
+    right: 10px !important;
+    left: 10px !important;
+    min-width: auto !important;
+    max-width: none !important;
+  }
+}

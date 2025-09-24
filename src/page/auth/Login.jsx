@@ -24,7 +24,7 @@ const Login = () => {
     return <Navigate to="/" replace />;
   }
 
-  const handleSubmit = async (event) => {
+  const handleLogin = async (event) => {
     event.preventDefault();
     setError('');
     setIsSubmitting(true);
@@ -35,9 +35,9 @@ const Login = () => {
       navigate('/', { replace: true });
     } catch (requestError) {
       if (requestError?.code === 'FORBIDDEN_ROLE' || !isRoleAllowed(requestError?.payload?.data?.role)) {
-        setError('Vous devez disposer du rôle ADMIN ou SUPERADMIN pour accéder au tableau de bord.');
+        setError('You must have ADMIN or SUPERADMIN role to access the dashboard.');
       } else {
-        const message = requestError?.response?.data?.message || requestError?.message || 'Connexion impossible.';
+        const message = requestError?.response?.data?.message || requestError?.message || 'Connection failed.';
         setError(message);
       }
       setIsSubmitting(false);
@@ -48,10 +48,10 @@ const Login = () => {
     <Box className="login-container">
       <Paper elevation={3} className="login-card">
         <Typography variant="h5" component="h1" gutterBottom align="center">
-          Connexion
+          Login
         </Typography>
         <Typography variant="body2" color="textSecondary" align="center" paragraph>
-          Seuls les utilisateurs ayant les rôles ADMIN ou SUPERADMIN peuvent accéder au tableau de bord.
+          Only users with ADMIN or SUPERADMIN roles can access the dashboard.
         </Typography>
 
         {error && (
@@ -60,7 +60,7 @@ const Login = () => {
           </Alert>
         )}
 
-        <form onSubmit={handleSubmit} className="login-form">
+        <form onSubmit={handleLogin} className="login-form">
           <TextField
             label="Email"
             type="email"
@@ -73,7 +73,7 @@ const Login = () => {
           />
 
           <TextField
-            label="Mot de passe"
+            label="Password"
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
@@ -91,7 +91,7 @@ const Login = () => {
             className="login-submit"
             disabled={isSubmitting}
           >
-            {isSubmitting ? <CircularProgress size={24} color="inherit" /> : 'Se connecter'}
+            {isSubmitting ? <CircularProgress size={24} color="inherit" /> : 'Sign In'}
           </Button>
         </form>
       </Paper>

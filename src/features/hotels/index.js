@@ -36,10 +36,7 @@ export const filterHotels = (hotels, { search, rating, price }) => {
       !normalizedSearch ||
       toLowerCase(hotel.name).includes(normalizedSearch) ||
       toLowerCase(hotel.location).includes(normalizedSearch) ||
-      toLowerCase(hotel.description).includes(normalizedSearch) ||
-      (hotel.amenities || []).some((amenity) =>
-        toLowerCase(amenity).includes(normalizedSearch)
-      );
+      toLowerCase(hotel.description).includes(normalizedSearch);
 
     const matchesRating = matchesRatingFilter(hotel.rating, rating);
     const matchesPrice = matchesPriceFilter(hotel.pricePerNight, price);

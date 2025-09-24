@@ -8,7 +8,6 @@ import {
   TableRow,
   Paper,
   Checkbox,
-  Avatar,
   Typography,
   Box,
   IconButton,
@@ -16,7 +15,6 @@ import {
 } from '@mui/material';
 import {
   MoreVert as MoreVertIcon,
-  Star as StarIcon,
   LocationOn as LocationIcon
 } from '@mui/icons-material';
 
@@ -39,11 +37,10 @@ const SpotsTable = ({
                 onChange={onSelectAll}
               />
             </TableCell>
-            <TableCell>Image</TableCell>
             <TableCell>Name</TableCell>
             <TableCell>City</TableCell>
             <TableCell>Description</TableCell>
-            <TableCell>Rating</TableCell>
+            <TableCell>Address</TableCell>
             <TableCell>Entry</TableCell>
             <TableCell>Hours</TableCell>
             <TableCell>Status</TableCell>
@@ -60,21 +57,12 @@ const SpotsTable = ({
                 />
               </TableCell>
               <TableCell>
-                <Avatar
-                  src={spot.images?.[0]?.url}
-                  alt={spot.name}
-                  className="spot-image"
-                  variant="rounded"
-                  sx={{ width: 60, height: 40 }}
-                />
-              </TableCell>
-              <TableCell>
                 <Typography
                   variant="body2"
                   className="spot-name"
                   sx={{ fontWeight: 'bold' }}
                 >
-                  {spot.name}
+                  {spot.nameTranslations?.en || spot.name}
                 </Typography>
               </TableCell>
               <TableCell>
@@ -85,23 +73,22 @@ const SpotsTable = ({
               </TableCell>
               <TableCell>
                 <Typography variant="body2" className="description-cell">
-                  {spot.description.length > 50
-                    ? `${spot.description.substring(0, 50)}...`
-                    : spot.description
-                  }
+                  {(() => {
+                    const description = spot.descriptionTranslations?.en || spot.description || '';
+                    return description.length > 50
+                      ? `${description.substring(0, 50)}...`
+                      : description;
+                  })()}
                 </Typography>
               </TableCell>
               <TableCell>
-                <Box className="rating-cell">
-                  <StarIcon fontSize="small" color="warning" />
-                  <Typography variant="body2">
-                    {spot.rating} ({spot.ratingCount})
-                  </Typography>
-                </Box>
+                <Typography variant="body2" className="address-cell">
+                  {spot.addressTranslations?.en || spot.address || '—'}
+                </Typography>
               </TableCell>
               <TableCell>
                 <Typography variant="body2" fontWeight="bold" color="primary">
-                  {spot.isPaidEntry ? spot.entryFee : 'Free'}
+                  {spot.paidEntry ? 'Paid' : 'Free'}
                 </Typography>
               </TableCell>
               <TableCell>

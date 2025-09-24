@@ -1,31 +1,31 @@
-/* Paramètres Page Styles */
-.parametres-container {
+/* Settings Page Styles */
+.settings-container {
   padding: 24px;
   min-height: calc(100vh - 64px);
 }
 
-.parametres-header {
+.settings-header {
   margin-bottom: 32px;
 }
 
-.parametres-title {
+.settings-title {
   font-size: 2rem;
   font-weight: 600;
   margin-bottom: 8px;
   color: inherit;
 }
 
-.parametres-subtitle {
+.settings-subtitle {
   font-size: 1rem;
   color: rgba(0, 0, 0, 0.6);
   margin: 0;
 }
 
-.parametres-content {
+.settings-content {
   max-width: 800px;
 }
 
-.parametres-section {
+.settings-section {
   background: #ffffff;
   border-radius: 12px;
   padding: 24px;
@@ -33,25 +33,25 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.parametres-section-title {
+.settings-section-title {
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 16px;
   color: inherit;
 }
 
-.parametres-form-group {
+.settings-form-group {
   margin-bottom: 20px;
 }
 
-.parametres-label {
+.settings-label {
   display: block;
   font-weight: 500;
   margin-bottom: 8px;
   color: inherit;
 }
 
-.parametres-input {
+.settings-input {
   width: 100%;
   padding: 12px 16px;
   border: 1px solid #e0e0e0;
@@ -60,13 +60,13 @@
   transition: border-color 0.2s ease-in-out;
 }
 
-.parametres-input:focus {
+.settings-input:focus {
   outline: none;
   border-color: var(--primary-color);
   box-shadow: 0 0 0 2px rgba(151, 5, 29, 0.2);
 }
 
-.parametres-button {
+.settings-button {
   background: var(--primary-color);
   color: white;
   border: none;
@@ -78,38 +78,38 @@
   transition: background-color 0.2s ease-in-out;
 }
 
-.parametres-button:hover {
+.settings-button:hover {
   background: var(--primary-hover);
 }
 
 /* Dark Mode Styles */
-[data-theme="dark"] .parametres-subtitle {
+[data-theme="dark"] .settings-subtitle {
   color: rgba(255, 255, 255, 0.6);
 }
 
-[data-theme="dark"] .parametres-section {
+[data-theme="dark"] .settings-section {
   background: #1e1e1e;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-[data-theme="dark"] .parametres-input {
+[data-theme="dark"] .settings-input {
   background: #2d2d2d;
   border-color: #404040;
   color: white;
 }
 
-[data-theme="dark"] .parametres-input:focus {
+[data-theme="dark"] .settings-input:focus {
   border-color: #90caf9;
   box-shadow: 0 0 0 2px rgba(144, 202, 249, 0.2);
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .parametres-container {
+  .settings-container {
     padding: 16px;
   }
   
-  .parametres-section {
+  .settings-section {
     padding: 16px;
   }
 }

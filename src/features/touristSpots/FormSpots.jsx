@@ -1,18 +1,20 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   FormControl,
   InputLabel,
   MenuItem,
   Select,
   FormControlLabel,
-  Switch
+  Switch,
+  RadioGroup,
+  Radio
 } from '@mui/material';
-import { INTEREST_TYPES } from './index';
-import { sampleCities, getCityName } from '../cities';
+import { cityService } from '../../services/api/cityService';
+import { touristSpotService } from '../../services/api/touristSpotService';
+import { MapSelector, MultiImageSelector } from '../../components/common';
+import { useNotification } from '../../contexts/NotificationContext';
 import './FormSpots.css';
-
-const defaultCityId = sampleCities[0]?.id || '';
 
 const validateFormData = (data) => {
   const errors = {};
@@ -29,68 +31,130 @@ const validateFormData = (data) => {
     errors.cityId = 'City is required';
   }
 
-  if (data.rating < 0 || data.rating > 5) {
-    errors.rating = 'Rating must be between 0 and 5';
-  }
-
-  if (data.interestTypes.length === 0) {
-    errors.interestTypes = 'Select at least one interest type';
-  }
-
   return {
     isValid: Object.keys(errors).length === 0,
     errors
   };
 };
 
-const formatFormData = (data) => {
-  return {
-    name: data.name.trim(),
-    description: data.description.trim(),
-    address: data.address.trim(),
+const formatFormData = (data, isEditMode = false) => {
+  const baseData = {
+    nameTranslations: { en: data.name.trim() },
+    descriptionTranslations: { en: data.description.trim() },
+    addressTranslations: { en: data.address.trim() },
     cityId: data.cityId,
-    cityName: getCityName(sampleCities.find((city) => city.id === data.cityId)),
     location: {
-      latitude: data.latitude ? parseFloat(data.latitude) : null,
-      longitude: data.longitude ? parseFloat(data.longitude) : null
+      latitude: data.latitude ? parseFloat(data.latitude) : 0,
+      longitude: data.longitude ? parseFloat(data.longitude) : 0,
+      valid: true
     },
-    images: data.images.filter((image) => image.url || image.owner),
-    isPaidEntry: data.isPaidEntry,
-    entryFee: data.isPaidEntry ? data.entryFee : 'Free',
+    images: data.images
+      .filter((image) => image.url || image.owner)
+      .map((image) => ({
+        url: image.url || null,
+        owner: image.owner || null
+      })),
     openingTime: data.openingTime,
     closingTime: data.closingTime,
-    active: data.active,
-    rating: Number(data.rating) || 0,
-    ratingCount: Number(data.ratingCount) || 0,
-    likesCount: Number(data.likesCount) || 0,
-    interestTypes: data.interestTypes
   };
+
+  // Different field names for create vs update
+  if (isEditMode) {
+    return {
+      ...baseData,
+      isPaidEntry: data.entryType === 'paid',
+      isActive: data.active,
+    };
+  } else {
+    return {
+      ...baseData,
+      paidEntry: data.entryType === 'paid',
+    };
+  }
 };
 
 const FormSpots = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const isEditMode = Boolean(id);
+  const { showSuccess, showError } = useNotification();
 
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     address: '',
-    cityId: defaultCityId,
+    cityId: '',
     latitude: '',
     longitude: '',
-    images: [{ url: '', owner: '' }],
-    isPaidEntry: false,
-    entryFee: '',
+    images: [],
+    entryType: 'free', // 'free' or 'paid'
+    active: false,
     openingTime: '09:00',
     closingTime: '18:00',
-    active: true,
-    rating: 0,
-    ratingCount: '',
-    likesCount: '',
-    interestTypes: []
   });
 
-  const [newInterestType, setNewInterestType] = useState('');
+  const [cities, setCities] = useState([]);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(isEditMode);
+
+  // Load cities from API
+  useEffect(() => {
+    const loadCities = async () => {
+      try {
+        const response = await cityService.getAllCities();
+        setCities(response.data || []);
+        if (response.data && response.data.length > 0 && !isEditMode) {
+          setFormData(prev => ({ ...prev, cityId: response.data[0].id }));
+        }
+      } catch (error) {
+        console.error('Error loading cities:', error);
+      }
+    };
+    loadCities();
+  }, [isEditMode]);
+
+  // Load tourist spot data in edit mode
+  useEffect(() => {
+    if (isEditMode && id) {
+      const loadTouristSpot = async () => {
+        try {
+          setInitialLoading(true);
+          const response = await touristSpotService.getTouristSpotById(id);
+          const spot = response.data || response;
+          
+          // Transform API data to form data format
+          setFormData({
+            name: spot.nameTranslations?.en || spot.name || '',
+            description: spot.descriptionTranslations?.en || spot.description || '',
+            address: spot.addressTranslations?.en || spot.address || '',
+            cityId: spot.cityId || '',
+            latitude: spot.location?.latitude?.toString() || '',
+            longitude: spot.location?.longitude?.toString() || '',
+            images: (spot.images || []).map((image, index) => ({
+              ...image,
+              id: image.id || `existing-${index}`,
+              name: image.name || `Image ${index + 1}`,
+              // Keep existing url for display
+              url: image.url,
+              owner: image.owner || ''
+            })),
+            entryType: (spot.paidEntry || spot.isPaidEntry) ? 'paid' : 'free',
+            active: spot.active !== undefined ? spot.active : (spot.isActive !== undefined ? spot.isActive : true),
+            openingTime: spot.openingTime || '09:00',
+            closingTime: spot.closingTime || '18:00',
+          });
+        } catch (error) {
+          console.error('Error loading tourist spot:', error);
+          showError('Error loading tourist spot data');
+          navigate('/services/tourist-spots');
+        } finally {
+          setInitialLoading(false);
+        }
+      };
+      loadTouristSpot();
+    }
+  }, [isEditMode, id, navigate]);
 
   const handleInputChange = (field) => (event) => {
     setFormData({ ...formData, [field]: event.target.value });
@@ -103,72 +167,70 @@ const FormSpots = () => {
     setFormData({ ...formData, [field]: event.target.checked });
   };
 
-  const handleInterestTypeAdd = () => {
-    if (newInterestType && !formData.interestTypes.includes(newInterestType)) {
-      setFormData({
-        ...formData,
-        interestTypes: [...formData.interestTypes, newInterestType]
-      });
-      setNewInterestType('');
-      if (errors.interestTypes) {
-        setErrors({ ...errors, interestTypes: '' });
-      }
-    }
-  };
 
-  const handleInterestTypeRemove = (typeToRemove) => {
+  const handleImagesChange = (images) => {
     setFormData({
       ...formData,
-      interestTypes: formData.interestTypes.filter((type) => type !== typeToRemove)
+      images: images
     });
   };
 
-  const handleImageChange = (index, field, value) => {
-    const updatedImages = formData.images.map((image, imageIndex) =>
-      imageIndex === index ? { ...image, [field]: value } : image
-    );
-    setFormData({ ...formData, images: updatedImages });
-  };
-
-  const handleAddImage = () => {
-    setFormData({
-      ...formData,
-      images: [...formData.images, { url: '', owner: '' }]
-    });
-  };
-
-  const handleRemoveImage = (index) => {
-    setFormData({
-      ...formData,
-      images: formData.images.filter((_, imageIndex) => imageIndex !== index)
-    });
-  };
-
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    setLoading(true);
 
     const validation = validateFormData(formData);
     if (!validation.isValid) {
       setErrors(validation.errors);
-      alert('Please fix the errors before submitting.');
+      showError('Please fix the errors before submitting.');
+      setLoading(false);
       return;
     }
 
-    const formattedData = formatFormData(formData);
-    console.log('Tourist spot form submitted:', formattedData);
-    alert('Tourist spot saved!');
-    navigate('/services/tourist-spots');
+    try {
+      const formattedData = formatFormData(formData, isEditMode);
+      
+      if (isEditMode) {
+        await touristSpotService.updateTouristSpot(id, formattedData);
+        showSuccess('Tourist spot updated successfully!');
+      } else {
+        await touristSpotService.createTouristSpot(formattedData);
+        showSuccess('Tourist spot created successfully!');
+      }
+      
+      navigate('/services/tourist-spots');
+    } catch (error) {
+      console.error(`Error ${isEditMode ? 'updating' : 'creating'} tourist spot:`, error);
+      showError(`Error ${isEditMode ? 'updating' : 'creating'} tourist spot`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleBack = () => {
     navigate('/services/tourist-spots');
   };
 
+  // Show loading spinner while loading initial data in edit mode
+  if (initialLoading) {
+    return (
+      <div className="simple-form-container">
+        <div className="form-header">
+          <button onClick={handleBack} className="back-btn">← Back</button>
+          <h1>{isEditMode ? 'Edit Tourist Spot' : 'Add Tourist Spot'}</h1>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+          <div>Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="simple-form-container">
       <div className="form-header">
         <button onClick={handleBack} className="back-btn">← Back</button>
-        <h1>Add Tourist Spot</h1>
+        <h1>{isEditMode ? 'Edit Tourist Spot' : 'Add Tourist Spot'}</h1>
       </div>
 
       <div className="simple-form">
@@ -196,22 +258,23 @@ const FormSpots = () => {
           </div>
 
           <div className="form-group">
-            <label>Address</label>
+            <label>Address *</label>
             <input
               type="text"
               value={formData.address}
               onChange={handleInputChange('address')}
               className="simple-input"
+              required
             />
           </div>
 
           <div className="form-group">
             <FormControl fullWidth>
-              <InputLabel>City</InputLabel>
-              <Select value={formData.cityId} label="City" onChange={handleInputChange('cityId')}>
-                {sampleCities.map((city) => (
+              <InputLabel>City *</InputLabel>
+              <Select value={formData.cityId} label="City *" onChange={handleInputChange('cityId')} required>
+                {cities.map((city) => (
                   <MenuItem key={city.id} value={city.id}>
-                    {getCityName(city)}
+                    {city.nameTranslations?.en || city.name || city.id}
                   </MenuItem>
                 ))}
               </Select>
@@ -221,178 +284,114 @@ const FormSpots = () => {
 
           <div className="form-row">
             <div className="form-group">
-              <label>Latitude</label>
+              <label>Latitude *</label>
               <input
                 type="number"
                 value={formData.latitude}
                 onChange={handleInputChange('latitude')}
                 step="any"
                 className="simple-input"
+                required
               />
             </div>
 
             <div className="form-group">
-              <label>Longitude</label>
+              <label>Longitude *</label>
               <input
                 type="number"
                 value={formData.longitude}
                 onChange={handleInputChange('longitude')}
                 step="any"
                 className="simple-input"
+                required
               />
             </div>
           </div>
 
+          <MapSelector
+            latitude={formData.latitude}
+            longitude={formData.longitude}
+            onChange={({ latitude: nextLat, longitude: nextLng }) => {
+              setFormData((prev) => ({
+                ...prev,
+                latitude: nextLat,
+                longitude: nextLng
+              }));
+            }}
+            label="Tourist Spot Location"
+          />
+
           <div className="form-group">
-            <label>Images</label>
-            <div className="types-display">
-              {formData.images.map((image, index) => (
-                <div key={index} className="image-entry">
-                  <input
-                    type="url"
-                    value={image.url}
-                    onChange={(event) => handleImageChange(index, 'url', event.target.value)}
-                    placeholder="Image URL"
-                    className="simple-input"
-                  />
-                  <input
-                    type="text"
-                    value={image.owner}
-                    onChange={(event) => handleImageChange(index, 'owner', event.target.value)}
-                    placeholder="Owner"
-                    className="simple-input"
-                  />
-                  <button type="button" className="remove-btn" onClick={() => handleRemoveImage(index)}>
-                    Remove
-                  </button>
-                </div>
-              ))}
-            </div>
-            <button type="button" className="add-btn" onClick={handleAddImage}>
-              Add image
-            </button>
+            <MultiImageSelector
+              images={formData.images}
+              onChange={handleImagesChange}
+              label="Tourist Spot Images"
+              maxImages={10}
+              showPreview={true}
+              allowReorder={true}
+              showOwnerField={true}
+              ownerLabel="Image Owner"
+              subdirectory="tourist-spots"
+              uploadToServer={true}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Entry Type *</label>
+            <RadioGroup
+              value={formData.entryType}
+              onChange={handleInputChange('entryType')}
+              row
+            >
+              <FormControlLabel value="free" control={<Radio />} label="Free Entry" />
+              <FormControlLabel value="paid" control={<Radio />} label="Paid Entry" />
+            </RadioGroup>
           </div>
 
           <div className="form-group">
             <FormControlLabel
-              control={<Switch checked={formData.isPaidEntry} onChange={handleToggleChange('isPaidEntry')} color="primary" />}
-              label="Is paid entry"
+              control={
+                <Switch
+                  checked={formData.active}
+                  onChange={handleToggleChange('active')}
+                  color="primary"
+                  disabled={!isEditMode}
+                />
+              }
+              label={`Active${!isEditMode ? ' (Auto-disabled hta t ajouter translations oghyt activa)' : ''}`}
             />
           </div>
 
-          {formData.isPaidEntry && (
-            <div className="form-group">
-              <label>Entry fee</label>
-              <input
-                type="text"
-                value={formData.entryFee}
-                onChange={handleInputChange('entryFee')}
-                placeholder="e.g. MAD 120"
-                className="simple-input"
-              />
-            </div>
-          )}
-
           <div className="form-row">
             <div className="form-group">
-              <label>Opening time</label>
+              <label>Opening time *</label>
               <input
                 type="time"
                 value={formData.openingTime}
                 onChange={handleInputChange('openingTime')}
                 className="simple-input"
+                required
               />
             </div>
             <div className="form-group">
-              <label>Closing time</label>
+              <label>Closing time *</label>
               <input
                 type="time"
                 value={formData.closingTime}
                 onChange={handleInputChange('closingTime')}
                 className="simple-input"
+                required
               />
             </div>
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label>Rating</label>
-              <input
-                type="number"
-                value={formData.rating}
-                onChange={handleInputChange('rating')}
-                min="0"
-                max="5"
-                step="0.1"
-                className="simple-input"
-              />
-              {errors.rating && <span className="error-message">{errors.rating}</span>}
-            </div>
-            <div className="form-group">
-              <label>Rating count</label>
-              <input
-                type="number"
-                value={formData.ratingCount}
-                onChange={handleInputChange('ratingCount')}
-                min="0"
-                className="simple-input"
-              />
-            </div>
-            <div className="form-group">
-              <label>Likes count</label>
-              <input
-                type="number"
-                value={formData.likesCount}
-                onChange={handleInputChange('likesCount')}
-                min="0"
-                className="simple-input"
-              />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label>Interest types</label>
-            <div className="types-display">
-              {formData.interestTypes.map((type, index) => (
-                <span key={index} className="type-tag">
-                  {type}
-                  <button type="button" onClick={() => handleInterestTypeRemove(type)}>×</button>
-                </span>
-              ))}
-            </div>
-            <div className="add-type">
-              <select
-                value={newInterestType}
-                onChange={(event) => setNewInterestType(event.target.value)}
-                className="simple-select"
-              >
-                <option value="">Choose a type</option>
-                {INTEREST_TYPES.filter((option) => !formData.interestTypes.includes(option)).map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-              <button type="button" onClick={handleInterestTypeAdd} disabled={!newInterestType} className="add-btn">
-                Add
-              </button>
-            </div>
-            {errors.interestTypes && <span className="error-message">{errors.interestTypes}</span>}
-          </div>
-
-          <div className="form-group">
-            <FormControlLabel
-              control={<Switch checked={formData.active} onChange={handleToggleChange('active')} color="primary" />}
-              label="Active"
-            />
-          </div>
 
           <div className="form-actions">
             <button type="button" onClick={handleBack} className="cancel-btn">
               Cancel
             </button>
-            <button type="submit" className="save-btn">
-              Save
+            <button type="submit" className="save-btn" disabled={loading}>
+              {loading ? (isEditMode ? 'Updating...' : 'Saving...') : (isEditMode ? 'Update' : 'Save')}
             </button>
           </div>
         </form>

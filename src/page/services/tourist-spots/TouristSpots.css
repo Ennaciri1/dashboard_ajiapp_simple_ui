@@ -45,7 +45,7 @@
 }
 
 
-/* Indicateur de résultats */
+/* Results indicator */
 .results-indicator {
   margin-bottom: var(--spacing-md);
   padding: var(--spacing-sm) var(--spacing-md);
@@ -190,12 +190,6 @@
   background-color: rgba(0, 0, 0, 0.04);
 }
 
-.spot-image {
-  width: 60px;
-  height: 60px;
-  border-radius: var(--border-radius-md);
-  box-shadow: var(--shadow-light);
-}
 
 .city-cell {
   display: flex;
@@ -212,6 +206,14 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.address-cell {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-secondary);
 }
 
 .rating-cell {

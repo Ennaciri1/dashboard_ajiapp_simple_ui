@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FormControl, InputLabel, MenuItem, Select, FormControlLabel, Switch } from '@mui/material';
 import { CONTACT_CATEGORY_OPTIONS } from './index';
+import { useNotification } from '../../contexts/NotificationContext';
 import './FormContact.css';
 
 const FormContact = () => {
   const navigate = useNavigate();
+  const { showSuccess, showError } = useNotification();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -39,7 +41,7 @@ const FormContact = () => {
     };
 
     console.log('Contact form submitted:', formattedData);
-    alert('Contact saved successfully!');
+    showSuccess('Contact saved successfully!');
     navigate('/services/contact');
   };
 
@@ -53,42 +55,45 @@ const FormContact = () => {
       <div className="simple-form">
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Name</label>
+            <label>Name *</label>
             <input
               type="text"
               value={formData.name}
               onChange={handleInputChange('name')}
               placeholder="Contact name"
               className="simple-input"
+              required
             />
           </div>
 
           <div className="form-group">
-            <label>Link</label>
+            <label>Link *</label>
             <input
               type="url"
               value={formData.link}
               onChange={handleInputChange('link')}
               placeholder="https://..."
               className="simple-input"
+              required
             />
           </div>
 
           <div className="form-group">
-            <label>Icon</label>
+            <label>Icon *</label>
             <input
               type="text"
               value={formData.icon}
               onChange={handleInputChange('icon')}
               placeholder="e.g. phone"
               className="simple-input"
+              required
             />
           </div>
 
           <div className="form-group">
             <FormControl fullWidth>
-              <InputLabel>Category</InputLabel>
-              <Select value={formData.category} label="Category" onChange={handleInputChange('category')}>
+              <InputLabel>Category *</InputLabel>
+              <Select value={formData.category} label="Category *" onChange={handleInputChange('category')} required>
                 {CONTACT_CATEGORY_OPTIONS.filter((option) => option.value !== 'all').map((option) => (
                   <MenuItem key={option.value} value={option.value}>
                     {option.label}
