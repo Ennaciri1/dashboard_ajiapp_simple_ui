@@ -11,7 +11,8 @@ import {
   Avatar,
   Typography,
   Box,
-  IconButton
+  IconButton,
+  Chip
 } from '@mui/material';
 import {
   MoreVert as MoreVertIcon,
@@ -43,7 +44,9 @@ const SpotsTable = ({
             <TableCell>City</TableCell>
             <TableCell>Description</TableCell>
             <TableCell>Rating</TableCell>
-            <TableCell>Price</TableCell>
+            <TableCell>Entry</TableCell>
+            <TableCell>Hours</TableCell>
+            <TableCell>Status</TableCell>
             <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
@@ -58,7 +61,7 @@ const SpotsTable = ({
               </TableCell>
               <TableCell>
                 <Avatar
-                  src={spot.image}
+                  src={spot.images?.[0]?.url}
                   alt={spot.name}
                   className="spot-image"
                   variant="rounded"
@@ -77,7 +80,7 @@ const SpotsTable = ({
               <TableCell>
                 <Box className="city-cell">
                   <LocationIcon fontSize="small" />
-                  <Typography variant="body2">{spot.city}</Typography>
+                  <Typography variant="body2">{spot.cityName}</Typography>
                 </Box>
               </TableCell>
               <TableCell>
@@ -98,8 +101,20 @@ const SpotsTable = ({
               </TableCell>
               <TableCell>
                 <Typography variant="body2" fontWeight="bold" color="primary">
-                  {spot.entryFee}
+                  {spot.isPaidEntry ? spot.entryFee : 'Free'}
                 </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="body2">
+                  {spot.openingTime} - {spot.closingTime}
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Chip
+                  label={spot.active ? 'Active' : 'Inactive'}
+                  color={spot.active ? 'success' : 'default'}
+                  size="small"
+                />
               </TableCell>
               <TableCell>
                 <IconButton

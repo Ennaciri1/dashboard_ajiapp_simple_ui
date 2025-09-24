@@ -21,6 +21,8 @@ import HotelIcon from '@mui/icons-material/Hotel';
 import StadiumIcon from '@mui/icons-material/Stadium';
 import CardTravelIcon from '@mui/icons-material/CardTravel';
 import ContactMailIcon from '@mui/icons-material/ContactMail';
+import LocationCityIcon from '@mui/icons-material/LocationCity';
+import RateReviewIcon from '@mui/icons-material/RateReview';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import PersonIcon from '@mui/icons-material/Person';
@@ -43,7 +45,9 @@ const servicesMenu = {
     icon: <BusinessIcon />,
     submenu: [
         { text: 'Events', icon: <EventIcon />, path: '/services/events' },
+        { text: 'Cities', icon: <LocationCityIcon />, path: '/services/cities' },
         { text: 'Tourist Spots', icon: <PlaceIcon />, path: '/services/tourist-spots' },
+        { text: 'Reviews', icon: <RateReviewIcon />, path: '/services/reviews' },
         { text: 'Activities', icon: <SportsSoccerIcon />, path: '/services/activities' },
         { text: 'Contact', icon: <ContactMailIcon />, path: '/services/contact' },
         { text: 'Hotels', icon: <HotelIcon />, path: '/services/hotels' },

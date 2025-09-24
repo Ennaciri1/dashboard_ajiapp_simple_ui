@@ -58,6 +58,7 @@
   border-radius: var(--border-radius-md);
   transition: background-color var(--transition-fast);
   cursor: pointer;
+  position: relative;
 }
 
 .user-profile-section:hover {
@@ -83,6 +84,37 @@
 .user-menu-button:hover {
   color: var(--text-primary) !important;
   background-color: transparent;
+}
+
+.user-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--background-paper);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-medium);
+  padding: var(--spacing-xs);
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+  z-index: 1300;
+}
+
+.user-menu-item {
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  border-radius: var(--border-radius-sm);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.user-menu-item:hover {
+  background-color: rgba(151, 5, 29, 0.08);
+  color: var(--primary-color);
 }
 
 /* Theme Toggle Button */

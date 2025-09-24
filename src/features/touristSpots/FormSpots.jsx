@@ -1,41 +1,69 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { INTEREST_TYPES } from './index.js';
+import {
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  FormControlLabel,
+  Switch
+} from '@mui/material';
+import { INTEREST_TYPES } from './index';
+import { sampleCities, getCityName } from '../cities';
 import './FormSpots.css';
 
-// Form validation utility
+const defaultCityId = sampleCities[0]?.id || '';
+
 const validateFormData = (data) => {
   const errors = {};
-  
-  if (!data.name.trim()) errors.name = 'Name is required';
-  if (!data.city.trim()) errors.city = 'City is required';
-  if (!data.description.trim()) errors.description = 'Description is required';
-  if (!data.rating || data.rating < 1 || data.rating > 5) {
-    errors.rating = 'Rating must be between 1 and 5';
+
+  if (!data.name.trim()) {
+    errors.name = 'Name is required';
   }
-  if (!data.entryFee || data.entryFee < 0) {
-    errors.entryFee = 'Entry fee must be a positive number';
+
+  if (!data.description.trim()) {
+    errors.description = 'Description is required';
   }
+
+  if (!data.cityId) {
+    errors.cityId = 'City is required';
+  }
+
+  if (data.rating < 0 || data.rating > 5) {
+    errors.rating = 'Rating must be between 0 and 5';
+  }
+
   if (data.interestTypes.length === 0) {
-    errors.interestTypes = 'At least one interest type is required';
+    errors.interestTypes = 'Select at least one interest type';
   }
-  
+
   return {
     isValid: Object.keys(errors).length === 0,
     errors
   };
 };
 
-// Form data formatting utility
 const formatFormData = (data) => {
   return {
-    ...data,
-    rating: parseFloat(data.rating),
-    ratingCount: parseInt(data.ratingCount) || 0,
-    likesCount: parseInt(data.likesCount) || 0,
-    entryFee: parseFloat(data.entryFee),
-    latitude: parseFloat(data.latitude) || null,
-    longitude: parseFloat(data.longitude) || null
+    name: data.name.trim(),
+    description: data.description.trim(),
+    address: data.address.trim(),
+    cityId: data.cityId,
+    cityName: getCityName(sampleCities.find((city) => city.id === data.cityId)),
+    location: {
+      latitude: data.latitude ? parseFloat(data.latitude) : null,
+      longitude: data.longitude ? parseFloat(data.longitude) : null
+    },
+    images: data.images.filter((image) => image.url || image.owner),
+    isPaidEntry: data.isPaidEntry,
+    entryFee: data.isPaidEntry ? data.entryFee : 'Free',
+    openingTime: data.openingTime,
+    closingTime: data.closingTime,
+    active: data.active,
+    rating: Number(data.rating) || 0,
+    ratingCount: Number(data.ratingCount) || 0,
+    likesCount: Number(data.likesCount) || 0,
+    interestTypes: data.interestTypes
   };
 };
 
@@ -44,18 +72,21 @@ const FormSpots = () => {
 
   const [formData, setFormData] = useState({
     name: '',
-    city: '',
     description: '',
-    history: '',
-    rating: '',
-    ratingCount: '',
-    likesCount: '',
-    interestTypes: [],
-    entryFee: '',
-    openingHours: '',
+    address: '',
+    cityId: defaultCityId,
     latitude: '',
     longitude: '',
-    image: ''
+    images: [{ url: '', owner: '' }],
+    isPaidEntry: false,
+    entryFee: '',
+    openingTime: '09:00',
+    closingTime: '18:00',
+    active: true,
+    rating: 0,
+    ratingCount: '',
+    likesCount: '',
+    interestTypes: []
   });
 
   const [newInterestType, setNewInterestType] = useState('');
@@ -63,10 +94,13 @@ const FormSpots = () => {
 
   const handleInputChange = (field) => (event) => {
     setFormData({ ...formData, [field]: event.target.value });
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors({ ...errors, [field]: '' });
     }
+  };
+
+  const handleToggleChange = (field) => (event) => {
+    setFormData({ ...formData, [field]: event.target.checked });
   };
 
   const handleInterestTypeAdd = () => {
@@ -76,21 +110,44 @@ const FormSpots = () => {
         interestTypes: [...formData.interestTypes, newInterestType]
       });
       setNewInterestType('');
+      if (errors.interestTypes) {
+        setErrors({ ...errors, interestTypes: '' });
+      }
     }
   };
 
   const handleInterestTypeRemove = (typeToRemove) => {
     setFormData({
       ...formData,
-      interestTypes: formData.interestTypes.filter(type => type !== typeToRemove)
+      interestTypes: formData.interestTypes.filter((type) => type !== typeToRemove)
+    });
+  };
+
+  const handleImageChange = (index, field, value) => {
+    const updatedImages = formData.images.map((image, imageIndex) =>
+      imageIndex === index ? { ...image, [field]: value } : image
+    );
+    setFormData({ ...formData, images: updatedImages });
+  };
+
+  const handleAddImage = () => {
+    setFormData({
+      ...formData,
+      images: [...formData.images, { url: '', owner: '' }]
+    });
+  };
+
+  const handleRemoveImage = (index) => {
+    setFormData({
+      ...formData,
+      images: formData.images.filter((_, imageIndex) => imageIndex !== index)
     });
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    
+
     const validation = validateFormData(formData);
-    
     if (!validation.isValid) {
       setErrors(validation.errors);
       alert('Please fix the errors before submitting.');
@@ -98,7 +155,7 @@ const FormSpots = () => {
     }
 
     const formattedData = formatFormData(formData);
-    console.log('Form submitted:', formattedData);
+    console.log('Tourist spot form submitted:', formattedData);
     alert('Tourist spot saved!');
     navigate('/services/tourist-spots');
   };
@@ -111,34 +168,20 @@ const FormSpots = () => {
     <div className="simple-form-container">
       <div className="form-header">
         <button onClick={handleBack} className="back-btn">← Back</button>
-        <h1>Add Spot</h1>
+        <h1>Add Tourist Spot</h1>
       </div>
 
       <div className="simple-form">
         <form onSubmit={handleSubmit}>
-
           <div className="form-group">
-            <label>Spot Name *</label>
+            <label>Name *</label>
             <input
               type="text"
               value={formData.name}
               onChange={handleInputChange('name')}
-              required
               className={`simple-input ${errors.name ? 'error' : ''}`}
             />
             {errors.name && <span className="error-message">{errors.name}</span>}
-          </div>
-
-          <div className="form-group">
-            <label>City *</label>
-            <input
-              type="text"
-              value={formData.city}
-              onChange={handleInputChange('city')}
-              required
-              className={`simple-input ${errors.city ? 'error' : ''}`}
-            />
-            {errors.city && <span className="error-message">{errors.city}</span>}
           </div>
 
           <div className="form-group">
@@ -146,7 +189,6 @@ const FormSpots = () => {
             <textarea
               value={formData.description}
               onChange={handleInputChange('description')}
-              required
               rows={3}
               className={`simple-textarea ${errors.description ? 'error' : ''}`}
             />
@@ -154,18 +196,127 @@ const FormSpots = () => {
           </div>
 
           <div className="form-group">
-            <label>History</label>
-            <textarea
-              value={formData.history}
-              onChange={handleInputChange('history')}
-              rows={4}
-              className="simple-textarea"
+            <label>Address</label>
+            <input
+              type="text"
+              value={formData.address}
+              onChange={handleInputChange('address')}
+              className="simple-input"
             />
+          </div>
+
+          <div className="form-group">
+            <FormControl fullWidth>
+              <InputLabel>City</InputLabel>
+              <Select value={formData.cityId} label="City" onChange={handleInputChange('cityId')}>
+                {sampleCities.map((city) => (
+                  <MenuItem key={city.id} value={city.id}>
+                    {getCityName(city)}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            {errors.cityId && <span className="error-message">{errors.cityId}</span>}
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label>Rating (0-5)</label>
+              <label>Latitude</label>
+              <input
+                type="number"
+                value={formData.latitude}
+                onChange={handleInputChange('latitude')}
+                step="any"
+                className="simple-input"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Longitude</label>
+              <input
+                type="number"
+                value={formData.longitude}
+                onChange={handleInputChange('longitude')}
+                step="any"
+                className="simple-input"
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Images</label>
+            <div className="types-display">
+              {formData.images.map((image, index) => (
+                <div key={index} className="image-entry">
+                  <input
+                    type="url"
+                    value={image.url}
+                    onChange={(event) => handleImageChange(index, 'url', event.target.value)}
+                    placeholder="Image URL"
+                    className="simple-input"
+                  />
+                  <input
+                    type="text"
+                    value={image.owner}
+                    onChange={(event) => handleImageChange(index, 'owner', event.target.value)}
+                    placeholder="Owner"
+                    className="simple-input"
+                  />
+                  <button type="button" className="remove-btn" onClick={() => handleRemoveImage(index)}>
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+            <button type="button" className="add-btn" onClick={handleAddImage}>
+              Add image
+            </button>
+          </div>
+
+          <div className="form-group">
+            <FormControlLabel
+              control={<Switch checked={formData.isPaidEntry} onChange={handleToggleChange('isPaidEntry')} color="primary" />}
+              label="Is paid entry"
+            />
+          </div>
+
+          {formData.isPaidEntry && (
+            <div className="form-group">
+              <label>Entry fee</label>
+              <input
+                type="text"
+                value={formData.entryFee}
+                onChange={handleInputChange('entryFee')}
+                placeholder="e.g. MAD 120"
+                className="simple-input"
+              />
+            </div>
+          )}
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Opening time</label>
+              <input
+                type="time"
+                value={formData.openingTime}
+                onChange={handleInputChange('openingTime')}
+                className="simple-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>Closing time</label>
+              <input
+                type="time"
+                value={formData.closingTime}
+                onChange={handleInputChange('closingTime')}
+                className="simple-input"
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Rating</label>
               <input
                 type="number"
                 value={formData.rating}
@@ -173,13 +324,12 @@ const FormSpots = () => {
                 min="0"
                 max="5"
                 step="0.1"
-                className={`simple-input ${errors.rating ? 'error' : ''}`}
+                className="simple-input"
               />
               {errors.rating && <span className="error-message">{errors.rating}</span>}
             </div>
-
             <div className="form-group">
-              <label>Number of Ratings</label>
+              <label>Rating count</label>
               <input
                 type="number"
                 value={formData.ratingCount}
@@ -188,9 +338,8 @@ const FormSpots = () => {
                 className="simple-input"
               />
             </div>
-
             <div className="form-group">
-              <label>Number of Likes</label>
+              <label>Likes count</label>
               <input
                 type="number"
                 value={formData.likesCount}
@@ -202,98 +351,39 @@ const FormSpots = () => {
           </div>
 
           <div className="form-group">
-            <label>Interest Types</label>
+            <label>Interest types</label>
             <div className="types-display">
               {formData.interestTypes.map((type, index) => (
                 <span key={index} className="type-tag">
-                  {type} <button type="button" onClick={() => handleInterestTypeRemove(type)}>×</button>
+                  {type}
+                  <button type="button" onClick={() => handleInterestTypeRemove(type)}>×</button>
                 </span>
               ))}
             </div>
             <div className="add-type">
               <select
                 value={newInterestType}
-                onChange={(e) => setNewInterestType(e.target.value)}
+                onChange={(event) => setNewInterestType(event.target.value)}
                 className="simple-select"
               >
                 <option value="">Choose a type</option>
-                {INTEREST_TYPES
-                  .filter(option => !formData.interestTypes.includes(option))
-                  .map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
+                {INTEREST_TYPES.filter((option) => !formData.interestTypes.includes(option)).map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
               </select>
-              <button
-                type="button"
-                onClick={handleInterestTypeAdd}
-                disabled={!newInterestType}
-                className="add-btn"
-              >
+              <button type="button" onClick={handleInterestTypeAdd} disabled={!newInterestType} className="add-btn">
                 Add
               </button>
             </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label>Entry Fee</label>
-              <input
-                type="text"
-                value={formData.entryFee}
-                onChange={handleInputChange('entryFee')}
-                placeholder="ex: €29, Free, $15"
-                className="simple-input"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Opening Hours</label>
-              <input
-                type="text"
-                value={formData.openingHours}
-                onChange={handleInputChange('openingHours')}
-                placeholder="ex: 9:00-18:00, 24/7"
-                className="simple-input"
-              />
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label>Latitude</label>
-              <input
-                type="number"
-                value={formData.latitude}
-                onChange={handleInputChange('latitude')}
-                step="any"
-                className={`simple-input ${errors.latitude ? 'error' : ''}`}
-              />
-              {errors.latitude && <span className="error-message">{errors.latitude}</span>}
-            </div>
-
-            <div className="form-group">
-              <label>Longitude</label>
-              <input
-                type="number"
-                value={formData.longitude}
-                onChange={handleInputChange('longitude')}
-                step="any"
-                className={`simple-input ${errors.longitude ? 'error' : ''}`}
-              />
-              {errors.longitude && <span className="error-message">{errors.longitude}</span>}
-            </div>
+            {errors.interestTypes && <span className="error-message">{errors.interestTypes}</span>}
           </div>
 
           <div className="form-group">
-            <label>Image URL</label>
-            <input
-              type="url"
-              value={formData.image}
-              onChange={handleInputChange('image')}
-              placeholder="https://example.com/image.jpg"
-              className="simple-input"
+            <FormControlLabel
+              control={<Switch checked={formData.active} onChange={handleToggleChange('active')} color="primary" />}
+              label="Active"
             />
           </div>
 

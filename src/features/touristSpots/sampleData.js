@@ -2,47 +2,74 @@
 export const sampleTouristSpots = [
   {
     id: 1,
-    name: "Eiffel Tower",
-    city: "Paris",
-    description: "Iconic monument of Paris",
-    image: "https://images.unsplash.com/photo-1549144511-f099e773c147?w=100&h=100&fit=crop",
+    name: 'Jemaa el-Fna',
+    description: 'Historic market square in Marrakech with vibrant nightlife.',
+    address: 'Marrakech Medina, Morocco',
+    cityId: 1,
+    cityName: 'Marrakech',
+    location: { latitude: 31.6258, longitude: -7.9891 },
+    images: [
+      {
+        url: 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=300&h=200&fit=crop',
+        owner: 'Abdel Rahman'
+      }
+    ],
+    isPaidEntry: false,
+    openingTime: '09:00',
+    closingTime: '23:30',
+    active: true,
     rating: 4.8,
     ratingCount: 12500,
     likesCount: 8900,
-    interestTypes: ["Architecture", "History"],
-    entryFee: "€29",
-    openingHours: "9:30-23:45",
-    latitude: 48.8584,
-    longitude: 2.2945
+    interestTypes: ['Culture', 'Food'],
+    entryFee: 'Free'
   },
   {
     id: 2,
-    name: "Colosseum",
-    city: "Rome",
-    description: "Ancient Roman amphitheater",
-    image: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=100&h=100&fit=crop",
-    rating: 4.7,
-    ratingCount: 8900,
-    likesCount: 6700,
-    interestTypes: ["History", "Architecture"],
-    entryFee: "€16",
-    openingHours: "8:30-19:15",
-    latitude: 41.8902,
-    longitude: 12.4922
+    name: 'Hassan II Mosque',
+    description: 'Iconic mosque overlooking the Atlantic Ocean in Casablanca.',
+    address: 'Boulevard Sidi Mohammed Ben Abdallah, Casablanca',
+    cityId: 2,
+    cityName: 'Casablanca',
+    location: { latitude: 33.6083, longitude: -7.6325 },
+    images: [
+      {
+        url: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=300&h=200&fit=crop',
+        owner: 'Imane Laachir'
+      }
+    ],
+    isPaidEntry: true,
+    openingTime: '09:00',
+    closingTime: '21:00',
+    active: true,
+    rating: 4.9,
+    ratingCount: 9800,
+    likesCount: 7600,
+    interestTypes: ['Architecture', 'Religion'],
+    entryFee: 'MAD 120'
   },
   {
     id: 3,
-    name: "Sagrada Familia",
-    city: "Barcelona",
-    description: "Unfinished basilica by Gaudí",
-    image: "https://images.unsplash.com/photo-1539650116574-75c0c6d73c6e?w=100&h=100&fit=crop",
-    rating: 4.9,
-    ratingCount: 15200,
-    likesCount: 11200,
-    interestTypes: ["Architecture", "Religion"],
-    entryFee: "€26",
-    openingHours: "9:00-20:00",
-    latitude: 41.4036,
-    longitude: 2.1744
+    name: 'Fes Medina',
+    description: 'UNESCO World Heritage site with labyrinthine streets and souks.',
+    address: 'Fes El Bali, Fez',
+    cityId: 3,
+    cityName: 'Fes',
+    location: { latitude: 34.0638, longitude: -4.9731 },
+    images: [
+      {
+        url: 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=300&h=200&fit=crop',
+        owner: 'Youssef D'
+      }
+    ],
+    isPaidEntry: false,
+    openingTime: '08:00',
+    closingTime: '22:00',
+    active: false,
+    rating: 4.7,
+    ratingCount: 7200,
+    likesCount: 5400,
+    interestTypes: ['Culture', 'History'],
+    entryFee: 'Free'
   }
 ];

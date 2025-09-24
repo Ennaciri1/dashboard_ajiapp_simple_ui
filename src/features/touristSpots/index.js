@@ -52,8 +52,9 @@ export const filterSpots = (spots, { search, type, rating }) => {
     const matchesSearch =
       !normalizedSearch ||
       toLowerCase(spot.name).includes(normalizedSearch) ||
-      toLowerCase(spot.city).includes(normalizedSearch) ||
+      toLowerCase(spot.cityName).includes(normalizedSearch) ||
       toLowerCase(spot.description).includes(normalizedSearch) ||
+      toLowerCase(spot.address || '').includes(normalizedSearch) ||
       (spot.interestTypes || []).some((interest) =>
         toLowerCase(interest).includes(normalizedSearch)
       );

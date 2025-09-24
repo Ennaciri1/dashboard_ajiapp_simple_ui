@@ -1,0 +1,11 @@
+.results-indicator {
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--background-paper);
+  border-radius: var(--border-radius-md);
+  border-left: 4px solid var(--primary-color);
+}
+
+.contact-row .MuiTableCell-root {
+  vertical-align: middle;
+}
