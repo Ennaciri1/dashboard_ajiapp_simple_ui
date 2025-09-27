@@ -105,21 +105,30 @@ const Reviews = () => {
 
   return (
     <div className="global-container">
+      <div className="page-header">
+        <Typography variant="h4" component="h1" className="page-title">
+          Gestion des Avis
+        </Typography>
+        <Typography variant="body1" color="textSecondary" className="page-subtitle">
+          Gérez et modérez les avis des utilisateurs
+        </Typography>
+      </div>
+
       <FilterToolbar
-        title="Reviews Management"
+        title="Filtres et Actions"
         search={{
-          placeholder: 'Search reviews...',
+          placeholder: 'Rechercher des avis...',
           value: filters.search,
           onChange: (value) => setFilters((prev) => ({ ...prev, search: value }))
         }}
         filters={toolbarFilters}
         primaryAction={{
-          label: 'Add Review',
+          label: 'Ajouter un Avis',
           onClick: handleAddReview
         }}
         secondaryActions={[
           {
-            label: 'Delete All',
+            label: 'Supprimer Sélection',
             onClick: handleDeleteAllReviews,
             disabled: selectedReviews.length === 0,
             color: 'error'
@@ -128,13 +137,18 @@ const Reviews = () => {
       />
 
       <Box className="results-indicator">
-        <Typography variant="body2" color="textSecondary">
-          {filteredReviews.length} review{filteredReviews.length === 1 ? '' : 's'} found
-          {filteredReviews.length !== reviews.length && ` out of ${reviews.length} total`}
+        <Typography variant="body1" color="textPrimary">
+          {filteredReviews.length} avis trouvé{filteredReviews.length === 1 ? '' : 's'}
+          {filteredReviews.length !== reviews.length && ` sur ${reviews.length} au total`}
         </Typography>
+        {selectedReviews.length > 0 && (
+          <Typography variant="body2" color="primary" sx={{ mt: 1 }}>
+            {selectedReviews.length} avis sélectionné{selectedReviews.length > 1 ? 's' : ''}
+          </Typography>
+        )}
       </Box>
 
-      <Card>
+      <Card className="data-card">
         <CardContent>
           <ReviewsTable
             reviews={filteredReviews}
@@ -146,7 +160,13 @@ const Reviews = () => {
         </CardContent>
       </Card>
 
-      <ActionMenu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose} items={actionItems} />
+      <ActionMenu 
+        anchorEl={anchorEl} 
+        open={Boolean(anchorEl)} 
+        onClose={handleMenuClose} 
+        items={actionItems}
+        className="action-menu"
+      />
     </div>
   );
 };

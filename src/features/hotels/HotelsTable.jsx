@@ -8,14 +8,13 @@ import {
   TableRow,
   Paper,
   Checkbox,
-  Avatar,
   Typography,
   Box,
-  IconButton
+  IconButton,
+  Chip
 } from '@mui/material';
 import {
   MoreVert as MoreVertIcon,
-  Star as StarIcon,
   LocationOn as LocationIcon
 } from '@mui/icons-material';
 
@@ -38,12 +37,13 @@ const HotelsTable = ({
                 onChange={onSelectAll}
               />
             </TableCell>
-            <TableCell>Image</TableCell>
             <TableCell>Name</TableCell>
-            <TableCell>Location</TableCell>
+            <TableCell>City</TableCell>
             <TableCell>Description</TableCell>
-            <TableCell>Rating</TableCell>
-            <TableCell>Price/Night</TableCell>
+            <TableCell>Location</TableCell>
+            <TableCell>Price Range</TableCell>
+            <TableCell>Likes</TableCell>
+            <TableCell>Status</TableCell>
             <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
@@ -57,15 +57,6 @@ const HotelsTable = ({
                 />
               </TableCell>
               <TableCell>
-                <Avatar
-                  src={hotel.image}
-                  alt={hotel.name}
-                  className="hotel-image"
-                  variant="rounded"
-                  sx={{ width: 60, height: 40 }}
-                />
-              </TableCell>
-              <TableCell>
                 <Typography
                   variant="body2"
                   className="hotel-name"
@@ -75,31 +66,48 @@ const HotelsTable = ({
                 </Typography>
               </TableCell>
               <TableCell>
-                <Box className="location-cell">
+                <Box className="city-cell">
                   <LocationIcon fontSize="small" />
-                  <Typography variant="body2">{hotel.location}</Typography>
+                  <Typography variant="body2">{hotel.cityName || '—'}</Typography>
                 </Box>
               </TableCell>
               <TableCell>
                 <Typography variant="body2" className="description-cell">
-                  {hotel.description.length > 50
-                    ? `${hotel.description.substring(0, 50)}...`
-                    : hotel.description
+                  {(() => {
+                    const description = hotel.description || '';
+                    return description.length > 50
+                      ? `${description.substring(0, 50)}...`
+                      : description || '—';
+                  })()}
+                </Typography>
+              </TableCell>
+              <TableCell>
+                <Typography variant="body2" className="location-cell">
+                  {hotel.location?.latitude && hotel.location?.longitude 
+                    ? `${hotel.location.latitude.toFixed(4)}, ${hotel.location.longitude.toFixed(4)}`
+                    : '—'
                   }
                 </Typography>
               </TableCell>
               <TableCell>
-                <Box className="rating-cell">
-                  <StarIcon fontSize="small" color="warning" />
-                  <Typography variant="body2">
-                    {hotel.rating} ({hotel.ratingCount})
-                  </Typography>
-                </Box>
+                <Typography variant="body2" fontWeight="bold" color="primary">
+                  {hotel.priceRange?.minPrice && hotel.priceRange?.maxPrice
+                    ? `$${hotel.priceRange.minPrice} - $${hotel.priceRange.maxPrice}`
+                    : '—'
+                  }
+                </Typography>
               </TableCell>
               <TableCell>
-                <Typography variant="body2" fontWeight="bold" color="primary">
-                  ${hotel.pricePerNight}
+                <Typography variant="body2">
+                  {hotel.likesCount || 0}
                 </Typography>
+              </TableCell>
+              <TableCell>
+                <Chip
+                  label={(hotel.active !== undefined ? hotel.active : hotel.isActive) ? 'Active' : 'Inactive'}
+                  color={(hotel.active !== undefined ? hotel.active : hotel.isActive) ? 'success' : 'default'}
+                  size="small"
+                />
               </TableCell>
               <TableCell>
                 <IconButton

@@ -7,8 +7,21 @@ import {
   MenuItem,
   Select,
   InputLabel,
-  FormControl
+  FormControl,
+  Card,
+  CardContent,
+  Typography,
+  Box,
+  Divider,
+  Chip,
+  Alert
 } from '@mui/material';
+import { 
+  ArrowBack as ArrowBackIcon,
+  Save as SaveIcon,
+  Cancel as CancelIcon,
+  Star as StarIcon
+} from '@mui/icons-material';
 import { sampleTouristSpots } from '../touristSpots';
 import { sampleHotels } from '../hotels';
 import {
@@ -99,124 +112,228 @@ const FormReview = () => {
   };
 
   return (
-    <div className="simple-form-container">
+    <div className="form-review-container">
       <div className="form-header">
-        <button onClick={handleBack} className="back-btn">← Back</button>
-        <h1>Review</h1>
+        <button onClick={handleBack} className="back-button">
+          <ArrowBackIcon />
+          Retour
+        </button>
+        <div className="header-content">
+          <Typography variant="h4" className="form-title">
+            Gestion d'Avis
+          </Typography>
+          <Typography variant="body1" color="textSecondary" className="form-subtitle">
+            Créer ou modifier un avis
+          </Typography>
+        </div>
       </div>
 
-      <div className="simple-form">
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={isModerationMode}
-                  onChange={handleToggleModeration}
-                  color="primary"
+      <div className="form-content">
+        <Card className="form-card">
+          <CardContent>
+            <form onSubmit={handleSubmit} className="review-form">
+              {/* Mode de modération */}
+              <Box className="form-section">
+                <Typography variant="h6" className="section-title">
+                  Mode de Modération
+                </Typography>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={isModerationMode}
+                      onChange={handleToggleModeration}
+                      color="primary"
+                      className="moderation-switch"
+                    />
+                  }
+                  label="Activer le mode modération"
+                  className="moderation-label"
                 />
-              }
-              label="Moderation mode"
-            />
-          </div>
+                {isModerationMode && (
+                  <Alert severity="info" className="moderation-alert">
+                    Mode modération activé - Vous pouvez modifier le statut et la raison de rejet
+                  </Alert>
+                )}
+              </Box>
 
-          <div className="form-group">
-            <label>Message *</label>
-            <textarea
-              value={formData.message}
-              onChange={handleInputChange('message')}
-              rows={4}
-              className="simple-textarea"
-              readOnly={isModerationMode}
-              required
-            />
-          </div>
+              <Divider className="form-divider" />
 
-          <div className="form-group">
-            <label>Rating *</label>
-            <Rating
-              name="rating"
-              value={Number(formData.rating)}
-              onChange={(_, value) => handleInputChange('rating')(value || 0)}
-              required
-            />
-          </div>
+              {/* Contenu de l'avis */}
+              <Box className="form-section">
+                <Typography variant="h6" className="section-title">
+                  Contenu de l'Avis
+                </Typography>
+                
+                <Box className="form-group">
+                  <Typography variant="subtitle1" className="field-label">
+                    Message *
+                  </Typography>
+                  <textarea
+                    value={formData.message}
+                    onChange={handleInputChange('message')}
+                    rows={4}
+                    className="message-textarea"
+                    readOnly={isModerationMode}
+                    required
+                    placeholder="Décrivez votre expérience..."
+                  />
+                </Box>
 
-          <div className="form-group">
-            <FormControl fullWidth>
-              <InputLabel>Status *</InputLabel>
-              <Select value={formData.status} label="Status *" onChange={handleStatusChange} required>
-                {REVIEW_STATUS_OPTIONS.map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </div>
+                <Box className="form-group">
+                  <Typography variant="subtitle1" className="field-label">
+                    Note *
+                  </Typography>
+                  <Box className="rating-container">
+                    <Rating
+                      name="rating"
+                      value={Number(formData.rating)}
+                      onChange={(_, value) => handleInputChange('rating')(value || 0)}
+                      required
+                      size="large"
+                      icon={<StarIcon fontSize="inherit" />}
+                      className="rating-input"
+                    />
+                    <Typography variant="body2" color="textSecondary" className="rating-hint">
+                      {formData.rating > 0 ? `${formData.rating}/5 étoiles` : 'Sélectionnez une note'}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
 
-          {formData.status === REVIEW_STATUS.REJECTED && (
-            <div className="form-group">
-              <label>Rejection reason *</label>
-              <textarea
-                value={formData.rejectionReason}
-                onChange={handleInputChange('rejectionReason')}
-                rows={3}
-                className="simple-textarea"
-                required
-              />
-            </div>
-          )}
+              <Divider className="form-divider" />
 
-          <div className="form-group">
-            <FormControl fullWidth>
-              <InputLabel>User *</InputLabel>
-              <Select value={formData.userId} label="User *" onChange={handleInputChange('userId')} required>
-                {getUserOptions().map((option) => (
-                  <MenuItem key={option.value} value={option.value}>
-                    {option.label}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </div>
+              {/* Statut et modération */}
+              <Box className="form-section">
+                <Typography variant="h6" className="section-title">
+                  Statut et Modération
+                </Typography>
+                
+                <Box className="form-group">
+                  <FormControl fullWidth className="select-field">
+                    <InputLabel>Statut *</InputLabel>
+                    <Select 
+                      value={formData.status} 
+                      label="Statut *" 
+                      onChange={handleStatusChange} 
+                      required
+                    >
+                      {REVIEW_STATUS_OPTIONS.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                          <Box className="status-option">
+                            <Chip 
+                              label={option.label} 
+                              size="small" 
+                              color={
+                                option.value === 'APPROVED' ? 'success' :
+                                option.value === 'REJECTED' ? 'error' :
+                                option.value === 'PENDING' ? 'warning' : 'default'
+                              }
+                              variant="outlined"
+                            />
+                          </Box>
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Box>
 
-          <div className="form-row">
-            <div className="form-group">
-              <FormControl fullWidth>
-                <InputLabel>Entity type *</InputLabel>
-                <Select value={formData.entityType} label="Entity type *" onChange={handleEntityTypeChange} required>
-                  {REVIEW_ENTITY_OPTIONS.filter((option) => option.value !== 'all').map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </div>
-            <div className="form-group">
-              <FormControl fullWidth>
-                <InputLabel>Entity *</InputLabel>
-                <Select value={formData.entityId} label="Entity *" onChange={handleInputChange('entityId')} required>
-                  {entityOptions.map((option) => (
-                    <MenuItem key={option.id} value={option.id}>
-                      {option.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </div>
-          </div>
+                {formData.status === REVIEW_STATUS.REJECTED && (
+                  <Box className="form-group">
+                    <Typography variant="subtitle1" className="field-label">
+                      Raison du rejet *
+                    </Typography>
+                    <textarea
+                      value={formData.rejectionReason}
+                      onChange={handleInputChange('rejectionReason')}
+                      rows={3}
+                      className="rejection-textarea"
+                      required
+                      placeholder="Expliquez pourquoi cet avis est rejeté..."
+                    />
+                  </Box>
+                )}
+              </Box>
 
-          <div className="form-actions">
-            <button type="button" onClick={handleBack} className="cancel-btn">
-              Cancel
-            </button>
-            <button type="submit" className="save-btn">
-              Save
-            </button>
-          </div>
-        </form>
+              <Divider className="form-divider" />
+
+              {/* Utilisateur et entité */}
+              <Box className="form-section">
+                <Typography variant="h6" className="section-title">
+                  Utilisateur et Entité
+                </Typography>
+                
+                <Box className="form-group">
+                  <FormControl fullWidth className="select-field">
+                    <InputLabel>Utilisateur *</InputLabel>
+                    <Select 
+                      value={formData.userId} 
+                      label="Utilisateur *" 
+                      onChange={handleInputChange('userId')} 
+                      required
+                    >
+                      {getUserOptions().map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                          {option.label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Box>
+
+                <Box className="form-row">
+                  <Box className="form-group">
+                    <FormControl fullWidth className="select-field">
+                      <InputLabel>Type d'entité *</InputLabel>
+                      <Select 
+                        value={formData.entityType} 
+                        label="Type d'entité *" 
+                        onChange={handleEntityTypeChange} 
+                        required
+                      >
+                        {REVIEW_ENTITY_OPTIONS.filter((option) => option.value !== 'all').map((option) => (
+                          <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Box>
+                  <Box className="form-group">
+                    <FormControl fullWidth className="select-field">
+                      <InputLabel>Entité *</InputLabel>
+                      <Select 
+                        value={formData.entityId} 
+                        label="Entité *" 
+                        onChange={handleInputChange('entityId')} 
+                        required
+                      >
+                        {entityOptions.map((option) => (
+                          <MenuItem key={option.id} value={option.id}>
+                            {option.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Box>
+                </Box>
+              </Box>
+
+              <Divider className="form-divider" />
+
+              {/* Actions */}
+              <Box className="form-actions">
+                <button type="button" onClick={handleBack} className="cancel-button">
+                  <CancelIcon />
+                  Annuler
+                </button>
+                <button type="submit" className="save-button">
+                  <SaveIcon />
+                  Enregistrer
+                </button>
+              </Box>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

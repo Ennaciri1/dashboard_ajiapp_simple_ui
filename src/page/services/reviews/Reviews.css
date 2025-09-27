@@ -1,11 +1,170 @@
-.results-indicator {
-  margin-bottom: var(--spacing-md);
-  padding: var(--spacing-sm) var(--spacing-md);
-  background-color: var(--background-paper);
-  border-radius: var(--border-radius-md);
-  border-left: 4px solid var(--primary-color);
+/* Reviews Page Styles */
+
+/* Page Header */
+.page-header {
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 2px solid var(--border-color);
 }
 
+.page-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.page-subtitle {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+/* Data Card */
+.data-card {
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.results-indicator {
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--background-paper);
+  border-radius: var(--border-radius-lg);
+  border-left: 4px solid var(--primary-color);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+.results-indicator .MuiTypography-root {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* Reviews Table Enhancements */
 .reviews-table .MuiTableCell-head {
   font-weight: 600;
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+  border-bottom: 2px solid var(--border-color);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.reviews-table .MuiTableRow-root {
+  transition: all 0.2s ease-in-out;
+}
+
+.reviews-table .MuiTableRow-root:hover {
+  background-color: var(--background-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.reviews-table .MuiTableCell-root {
+  border-bottom: 1px solid var(--border-light);
+  padding: var(--spacing-md);
+}
+
+/* Card Enhancements */
+.MuiCard-root {
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.MuiCardContent-root {
+  padding: var(--spacing-lg);
+}
+
+/* Filter Toolbar Enhancements */
+.filter-toolbar {
+  background-color: var(--background-paper);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+/* Action Menu Enhancements */
+.action-menu .MuiMenuItem-root {
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: 0.875rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.action-menu .MuiMenuItem-root:hover {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .results-indicator {
+    padding: var(--spacing-sm) var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+  }
+  
+  .reviews-table .MuiTableCell-root {
+    padding: var(--spacing-sm);
+    font-size: 0.8rem;
+  }
+  
+  .MuiCardContent-root {
+    padding: var(--spacing-md);
+  }
+  
+  .filter-toolbar {
+    padding: var(--spacing-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .results-indicator {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+  
+  .reviews-table .MuiTableCell-root {
+    padding: var(--spacing-xs);
+    font-size: 0.75rem;
+  }
+  
+  .MuiCardContent-root {
+    padding: var(--spacing-sm);
+  }
+  
+  .filter-toolbar {
+    padding: var(--spacing-sm);
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .results-indicator {
+    background-color: var(--background-dark);
+    border-color: var(--border-dark);
+  }
+  
+  .reviews-table .MuiTableCell-head {
+    background-color: var(--background-dark-secondary);
+    color: var(--text-dark);
+    border-bottom-color: var(--border-dark);
+  }
+  
+  .reviews-table .MuiTableRow-root:hover {
+    background-color: var(--background-dark-hover);
+  }
+  
+  .MuiCard-root {
+    background-color: var(--background-dark);
+    border-color: var(--border-dark);
+  }
+  
+  .filter-toolbar {
+    background-color: var(--background-dark);
+    border-color: var(--border-dark);
+  }
 }

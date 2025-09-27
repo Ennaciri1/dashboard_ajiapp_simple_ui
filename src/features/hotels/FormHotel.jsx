@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { FormControl, InputLabel, MenuItem, Select, FormControlLabel, Switch } from '@mui/material';
 import './FormHotel.css';
 import { MapSelector, MultiImageSelector } from '../../components/common';
 import { useNotification } from '../../contexts/NotificationContext';
+import { cityService } from '../../services/api/cityService';
+import { hotelService } from '../../services/api/hotelService';
+import { imageService } from '../../services/api/imageService';
 
 
 // Form validation utility
@@ -11,10 +15,18 @@ const validateFormData = (data) => {
   
   if (!data.name.trim()) errors.name = 'Hotel name is required';
   if (!data.description.trim()) errors.description = 'Description is required';
-  if (!data.bookingInfo.trim()) errors.bookingInfo = 'Booking information is required';
-  if (!data.location.trim()) errors.location = 'Location is required';
-  if (!data.pricePerNight || data.pricePerNight <= 0) {
-    errors.pricePerNight = 'Price per night must be a positive number';
+  if (!data.cityId) errors.cityId = 'City is required';
+  if (!data.minPrice || data.minPrice <= 0) {
+    errors.minPrice = 'Minimum price must be a positive number';
+  }
+  if (!data.maxPrice || data.maxPrice <= 0) {
+    errors.maxPrice = 'Maximum price must be a positive number';
+  }
+  if (data.minPrice && data.maxPrice && parseFloat(data.minPrice) > parseFloat(data.maxPrice)) {
+    errors.maxPrice = 'Maximum price must be greater than minimum price';
+  }
+  if (!data.images || data.images.length === 0) {
+    errors.images = 'At least one image is required';
   }
   
   return {
@@ -24,36 +36,114 @@ const validateFormData = (data) => {
 };
 
 // Form data formatting utility
-const formatFormData = (data) => {
-  return {
-    ...data,
-    pricePerNight: parseFloat(data.pricePerNight),
-    rating: parseFloat(data.rating) || 0,
-    ratingCount: parseInt(data.ratingCount) || 0,
-    coordinates: {
-      lat: parseFloat(data.latitude) || null,
-      lng: parseFloat(data.longitude) || null
+const formatFormData = (data, isEditMode = false) => {
+  const formattedData = {
+    nameTranslations: { en: data.name.trim() },
+    descriptionTranslations: { en: data.description.trim() },
+    cityId: data.cityId,
+    location: {
+      latitude: parseFloat(data.latitude) || 0,
+      longitude: parseFloat(data.longitude) || 0,
+      valid: true
+    },
+    images: data.images
+      ?.filter((image) => image.url && image.url.trim())
+      ?.map((image) => ({
+        url: image.url.trim(),
+        owner: image.owner ? image.owner.trim() : ""
+      })) || [],
+    priceRange: {
+      minPrice: parseFloat(data.minPrice) || 0,
+      maxPrice: parseFloat(data.maxPrice) || 0,
+      valid: true
     }
   };
+
+  // Only include isActive field for updates (edit mode)
+  if (isEditMode) {
+    formattedData.isActive = Boolean(data.active);
+  }
+  
+  // Log the formatted data for debugging
+  console.log('Formatted data for API:', JSON.stringify(formattedData, null, 2));
+  console.log('Is edit mode:', isEditMode);
+  
+  return formattedData;
 };
 
 const FormHotel = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
   const { showSuccess, showError } = useNotification();
+  
+  const isEditMode = Boolean(id);
 
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    bookingInfo: '',
-    location: '',
+    cityId: '',
     latitude: '',
     longitude: '',
-    pricePerNight: '',
+    minPrice: '',
+    maxPrice: '',
     images: [],
-  
+    active: false, // Default to false for new hotels
   });
 
   const [errors, setErrors] = useState({});
+  const [cities, setCities] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(false);
+
+  // Load cities from API
+  useEffect(() => {
+    const loadCities = async () => {
+      try {
+        const response = await cityService.getAllCities();
+        setCities(response.data || []);
+      } catch (error) {
+        console.error('Error loading cities:', error);
+      }
+    };
+    loadCities();
+  }, []);
+
+  // Load hotel data in edit mode
+  useEffect(() => {
+    if (isEditMode && id) {
+      const loadHotel = async () => {
+        try {
+          setInitialLoading(true);
+          const response = await hotelService.getHotelById(id);
+          const hotel = response.data || response;
+          setFormData({
+            name: hotel.name || '',
+            description: hotel.description || '',
+            cityId: hotel.cityId || '',
+            latitude: hotel.location?.latitude?.toString() || '',
+            longitude: hotel.location?.longitude?.toString() || '',
+            minPrice: hotel.priceRange?.minPrice?.toString() || '',
+            maxPrice: hotel.priceRange?.maxPrice?.toString() || '',
+            images: (hotel.images || []).map((image, index) => ({
+              ...image,
+              id: image.id || `existing-${index}`,
+              name: image.name || `Image ${index + 1}`,
+              url: image.url,
+              owner: image.owner || ''
+            })),
+            active: Boolean(hotel.active !== undefined ? hotel.active : (hotel.isActive !== undefined ? hotel.isActive : false)),
+          });
+        } catch (error) {
+          console.error('Error loading hotel:', error);
+          showError('Error loading hotel data');
+          navigate('/services/hotels');
+        } finally {
+          setInitialLoading(false);
+        }
+      };
+      loadHotel();
+    }
+  }, [isEditMode, id, navigate, showError]);
 
   const handleInputChange = (field) => (event) => {
     setFormData({ ...formData, [field]: event.target.value });
@@ -61,6 +151,10 @@ const FormHotel = () => {
     if (errors[field]) {
       setErrors({ ...errors, [field]: '' });
     }
+  };
+
+  const handleToggleChange = (field) => (event) => {
+    setFormData({ ...formData, [field]: event.target.checked });
   };
 
 
@@ -71,7 +165,43 @@ const FormHotel = () => {
     });
   };
 
-  const handleSubmit = (event) => {
+  // Function to upload images using imageService
+  const uploadImages = async (images) => {
+    const uploadedImages = [];
+    
+    for (const image of images) {
+      if (image.file) {
+        // New image file to upload
+        try {
+          const validation = imageService.validateImageFile(image.file);
+          if (!validation.isValid) {
+            throw new Error(validation.error);
+          }
+          
+          const response = await imageService.uploadImage(image.file, 'hotels');
+          const imageUrl = imageService.getImageUrl(response);
+          
+          uploadedImages.push({
+            url: imageUrl,
+            owner: image.owner || ''
+          });
+        } catch (error) {
+          console.error('Error uploading image:', error);
+          throw new Error(`Failed to upload image: ${error.message}`);
+        }
+      } else if (image.url) {
+        // Existing image URL
+        uploadedImages.push({
+          url: image.url,
+          owner: image.owner || ''
+        });
+      }
+    }
+    
+    return uploadedImages;
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
     
     const validation = validateFormData(formData);
@@ -82,21 +212,68 @@ const FormHotel = () => {
       return;
     }
 
-    const formattedData = formatFormData(formData);
-    console.log('Hotel form submitted:', formattedData);
-    showSuccess('Hotel saved successfully!');
-    navigate('/services/hotels');
+    try {
+      setIsUploading(true);
+      
+      // Upload images first
+      const uploadedImages = await uploadImages(formData.images);
+      
+      // Create hotel data with uploaded images
+      const hotelData = {
+        ...formData,
+        images: uploadedImages
+      };
+      
+      const formattedData = formatFormData(hotelData, isEditMode);
+      console.log('Hotel form submitted:', formattedData);
+      console.log('Form data before formatting:', hotelData);
+      console.log('Active status before formatting:', hotelData.active, typeof hotelData.active);
+      if (isEditMode) {
+        console.log('Active status after formatting:', formattedData.isActive, typeof formattedData.isActive);
+      }
+      
+      if (isEditMode) {
+        await hotelService.updateHotel(id, formattedData);
+        showSuccess('Hotel updated successfully!');
+      } else {
+        await hotelService.createHotel(formattedData);
+        showSuccess('Hotel created successfully!');
+      }
+      navigate('/services/hotels');
+    } catch (error) {
+      console.error('Error creating hotel:', error);
+      console.error('Error details:', error.payload);
+      console.error('Error status:', error.status);
+      console.error('Validation errors:', error.payload?.data);
+      showError(`Error creating hotel: ${error.payload?.message || error.message}`);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleBack = () => {
     navigate('/services/hotels');
   };
 
+  if (initialLoading) {
+    return (
+      <div className="simple-form-container">
+        <div className="form-header">
+          <button onClick={handleBack} className="back-btn">← Back</button>
+          <h1>Loading Hotel...</h1>
+        </div>
+        <div style={{ textAlign: 'center', padding: '2rem' }}>
+          <p>Loading hotel data...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="simple-form-container">
       <div className="form-header">
         <button onClick={handleBack} className="back-btn">← Back</button>
-        <h1>Add Hotel</h1>
+        <h1>{isEditMode ? 'Edit Hotel' : 'Add Hotel'}</h1>
       </div>
 
       <div className="simple-form">
@@ -126,45 +303,54 @@ const FormHotel = () => {
             {errors.description && <span className="error-message">{errors.description}</span>}
           </div>
 
-          <div className="form-group">
-            <label>Booking Information *</label>
-            <textarea
-              value={formData.bookingInfo}
-              onChange={handleInputChange('bookingInfo')}
-              required
-              rows={2}
-              className={`simple-textarea ${errors.bookingInfo ? 'error' : ''}`}
-            />
-            {errors.bookingInfo && <span className="error-message">{errors.bookingInfo}</span>}
-          </div>
 
           <div className="form-group">
-            <label>Location *</label>
-            <input
-              type="text"
-              value={formData.location}
-              onChange={handleInputChange('location')}
-              required
-              className={`simple-input ${errors.location ? 'error' : ''}`}
-            />
-            {errors.location && <span className="error-message">{errors.location}</span>}
+            <FormControl fullWidth>
+              <InputLabel>City *</InputLabel>
+              <Select 
+                value={formData.cityId} 
+                label="City *" 
+                onChange={handleInputChange('cityId')} 
+                required
+                className={errors.cityId ? 'error' : ''}
+              >
+                {cities.map((city) => (
+                  <MenuItem key={city.id} value={city.id}>
+                    {city.nameTranslations?.en || city.name || city.id}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            {errors.cityId && <span className="error-message">{errors.cityId}</span>}
           </div>
 
           <div className="form-row">
             <div className="form-group">
-              <label>Price per Night ($) *</label>
+              <label>Min Price ($) *</label>
               <input
                 type="number"
-                value={formData.pricePerNight}
-                onChange={handleInputChange('pricePerNight')}
+                value={formData.minPrice}
+                onChange={handleInputChange('minPrice')}
                 min="0"
                 step="0.01"
-                className={`simple-input ${errors.pricePerNight ? 'error' : ''}`}
+                className={`simple-input ${errors.minPrice ? 'error' : ''}`}
+                required
               />
-              {errors.pricePerNight && <span className="error-message">{errors.pricePerNight}</span>}
+              {errors.minPrice && <span className="error-message">{errors.minPrice}</span>}
             </div>
-
-            
+            <div className="form-group">
+              <label>Max Price ($) *</label>
+              <input
+                type="number"
+                value={formData.maxPrice}
+                onChange={handleInputChange('maxPrice')}
+                min="0"
+                step="0.01"
+                className={`simple-input ${errors.maxPrice ? 'error' : ''}`}
+                required
+              />
+              {errors.maxPrice && <span className="error-message">{errors.maxPrice}</span>}
+            </div>
           </div>
 
 
@@ -211,21 +397,35 @@ const FormHotel = () => {
             <MultiImageSelector
               images={formData.images}
               onChange={handleImagesChange}
-              label="Hotel Images"
+              label="Hotel Images *"
               maxImages={8}
               showPreview={true}
               allowReorder={true}
               showOwnerField={true}
               ownerLabel="Photographer/Source"
             />
+            {errors.images && <span className="error-message">{errors.images}</span>}
           </div>
 
+          <div className="form-group">
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={formData.active}
+                  onChange={handleToggleChange('active')}
+                  color="primary"
+                  disabled={!isEditMode}
+                />
+              }
+              label={`Active${!isEditMode ? ' (Auto-disabled hta t ajouter translations oghyt activa)' : ''}`}
+            />
+          </div>
           <div className="form-actions">
             <button type="button" onClick={handleBack} className="cancel-btn">
               Cancel
             </button>
-            <button type="submit" className="save-btn">
-              Save
+            <button type="submit" className="save-btn" disabled={isUploading}>
+              {isUploading ? (isEditMode ? 'Updating...' : 'Uploading Images...') : (isEditMode ? 'Update' : 'Save')}
             </button>
           </div>
         </form>

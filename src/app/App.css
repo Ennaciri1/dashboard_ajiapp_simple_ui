@@ -1,0 +1,50 @@
+/* App Component Styles */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--background-default);
+}
+
+.app-main-content {
+  flex-grow: 1;
+  width: calc(100% - 240px);
+  min-height: 100vh;
+  transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out;
+}
+
+.app-content {
+  padding-top: 64px;
+  /* Space for fixed AppBar */
+  min-height: calc(100vh - 64px);
+}
+
+/* Global Container - Unified with App Content */
+.global-container {
+  padding: 24px;
+  min-height: calc(100vh - 64px);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .app-main-content {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .app-content {
+    padding-top: 56px;
+    /* Smaller AppBar on mobile */
+  }
+
+  .global-container {
+    padding: 16px;
+    /* Smaller padding on mobile */
+    min-height: calc(100vh - 56px);
+    /* Adjust for smaller AppBar */
+  }
+
+  /* Hide drawer on mobile - could be replaced with temporary drawer */
+  .drawer {
+    display: none;
+  }
+}

@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Typography,
   Box,
   Card,
-  CardContent
+  CardContent,
+  CircularProgress,
+  Alert
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -13,21 +15,56 @@ import {
   Visibility as ViewIcon
 } from '@mui/icons-material';
 import HotelsTable from '../../../features/hotels/HotelsTable';
-import { sampleHotels, filterHotels, HOTEL_FILTER_DEFAULTS, HOTEL_FILTERS } from '../../../features/hotels';
+import { filterHotels, HOTEL_FILTER_DEFAULTS, HOTEL_FILTERS } from '../../../features/hotels';
 import { FilterToolbar, ActionMenu } from '../../../components/common';
 import { useNotification } from '../../../contexts/NotificationContext';
+import { hotelService } from '../../../services/api/hotelService';
 import './Hotels.css';
 
 const Hotels = () => {
   const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
-  const [hotels, setHotels] = useState(sampleHotels);
+  const [hotels, setHotels] = useState([]);
   const [selectedHotels, setSelectedHotels] = useState([]);
   const [filters, setFilters] = useState(HOTEL_FILTER_DEFAULTS);
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedHotelId, setSelectedHotelId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const filteredHotels = filterHotels(hotels, filters);
+  const filteredHotels = useMemo(() => filterHotels(hotels, filters), [hotels, filters]);
+
+  // Load hotels from API
+  useEffect(() => {
+    const loadHotels = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await hotelService.getAllHotels();
+        console.log('API Response:', response);
+        
+        // Handle API response structure: response.data.hotels
+        let hotelsData = [];
+        if (response && response.data && response.data.hotels) {
+          hotelsData = Array.isArray(response.data.hotels) ? response.data.hotels : [];
+        } else if (response && response.data && Array.isArray(response.data)) {
+          hotelsData = response.data;
+        } else if (Array.isArray(response)) {
+          hotelsData = response;
+        }
+        
+        setHotels(hotelsData);
+      } catch (err) {
+        console.error('Error loading hotels:', err);
+        setError('Error loading hotels');
+        setHotels([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadHotels();
+  }, []);
 
   const handleAddHotel = () => {
     navigate('/services/hotels/formHotel');
@@ -60,19 +97,40 @@ const Hotels = () => {
   };
 
   const handleEditHotel = () => {
-    const hotel = hotels.find((h) => h.id === selectedHotelId);
-    if (hotel) {
-      console.log('Edit hotel:', hotel.id);
-      showSuccess(`Editing hotel: ${hotel.name}`);
+    if (selectedHotelId) {
+      navigate(`/services/hotels/edit/${selectedHotelId}`);
+      setAnchorEl(null);
     }
   };
 
-  const handleDeleteHotel = () => {
+  const handleViewHotel = () => {
     const hotel = hotels.find((h) => h.id === selectedHotelId);
     if (hotel) {
-      setHotels(prev => prev.filter(h => h.id !== selectedHotelId));
-      setSelectedHotels(prev => prev.filter(id => id !== selectedHotelId));
-      showSuccess(`Hotel "${hotel.name}" deleted successfully`);
+      console.log('View hotel:', hotel.id);
+      showSuccess(`Viewing hotel: ${hotel.name}`);
+      setAnchorEl(null);
+    }
+  };
+
+  const handleDeleteHotel = async () => {
+    if (selectedHotelId) {
+      const confirmed = window.confirm('Are you sure you want to delete this hotel?');
+      if (!confirmed) {
+        setAnchorEl(null);
+        return;
+      }
+
+      try {
+        await hotelService.deleteHotel(selectedHotelId);
+        setHotels(prev => prev.filter(h => h.id !== selectedHotelId));
+        setSelectedHotels(prev => prev.filter(id => id !== selectedHotelId));
+        showSuccess('Hotel deleted successfully');
+      } catch (error) {
+        console.error('Error deleting hotel:', error);
+        showError('Error deleting hotel');
+      } finally {
+        setAnchorEl(null);
+      }
     }
   };
 
@@ -89,7 +147,10 @@ const Hotels = () => {
     if (!confirmed) return;
 
     try {
-      // Update state to remove selected hotels
+      // Delete all selected hotels
+      await Promise.all(selectedHotels.map(hotelId => hotelService.deleteHotel(hotelId)));
+      
+      // Update state
       setHotels(prev => prev.filter(hotel => !selectedHotels.includes(hotel.id)));
       setSelectedHotels([]);
       
@@ -100,13 +161,6 @@ const Hotels = () => {
     }
   };
 
-  const handleViewHotel = () => {
-    const hotel = hotels.find((h) => h.id === selectedHotelId);
-    if (hotel) {
-      console.log('View hotel:', hotel.id);
-      showSuccess(`Viewing hotel: ${hotel.name}`);
-    }
-  };
 
   const handleFilterChange = (key) => (value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -117,6 +171,16 @@ const Hotels = () => {
     value: filters[filter.key],
     onChange: handleFilterChange(filter.key)
   }));
+
+  if (loading) {
+    return (
+      <div className="global-container">
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+          <CircularProgress />
+        </Box>
+      </div>
+    );
+  }
 
   return (
     <div className="global-container">
@@ -142,6 +206,12 @@ const Hotels = () => {
           }
         ]}
       />
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
 
       <Box className="results-indicator">
         <Typography variant="body2" color="textSecondary">
