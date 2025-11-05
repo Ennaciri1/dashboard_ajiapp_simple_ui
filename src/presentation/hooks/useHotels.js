@@ -1,9 +1,13 @@
-import { useState, useEffect, useCallback } from 'react';
-import { RealHotelRepository } from '../../infrastructure/api/RealHotelRepository.js';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { HotelRepository } from '../../infrastructure/api/HotelRepository.js';
 import { Hotel } from '../../core/entities/Hotel.js';
+import { GetHotelsUseCase } from '../../core/usecases/hotels/GetHotelsUseCase.js';
+import { CreateHotelUseCase } from '../../core/usecases/hotels/CreateHotelUseCase.js';
+import { UpdateHotelUseCase } from '../../core/usecases/hotels/UpdateHotelUseCase.js';
+import { DeleteHotelUseCase } from '../../core/usecases/hotels/DeleteHotelUseCase.js';
 
 /**
- * Hook personnalisé pour la gestion des hôtels
+ * Custom hook for hotels management
  * Encapsule la logique métier et fournit une interface simple aux composants
  */
 export const useHotels = () => {
@@ -13,107 +17,75 @@ export const useHotels = () => {
   const [total, setTotal] = useState(0);
   const [isTestMode, setIsTestMode] = useState(false);
 
-  // Initialisation du repository réel
-  const hotelRepository = new RealHotelRepository();
+  // Mémoriser les instances pour éviter les re-créations à chaque render
+  const hotelRepository = useMemo(() => new HotelRepository(), []);
+  const getHotelsUseCase = useMemo(() => new GetHotelsUseCase(hotelRepository), [hotelRepository]);
+  const createHotelUseCase = useMemo(() => new CreateHotelUseCase(hotelRepository), [hotelRepository]);
+  const updateHotelUseCase = useMemo(() => new UpdateHotelUseCase(hotelRepository), [hotelRepository]);
+  const deleteHotelUseCase = useMemo(() => new DeleteHotelUseCase(hotelRepository), [hotelRepository]);
 
   /**
-   * Charge la liste des hôtels depuis l'API réelle
+   * Charge la liste des hôtels via le use case
    */
   const loadHotels = useCallback(async (params = {}) => {
     setLoading(true);
     setError(null);
 
     try {
-      const hotelsData = await hotelRepository.findAll(params);
-      
-      // Conversion en entités Hotel si nécessaire
-      const hotelEntities = hotelsData.map(hotelData => {
-        // Les données de l'API sont déjà dans le bon format
-        return Hotel.fromJSON({
-          id: hotelData.id,
-          name: hotelData.name,
-          location: hotelData.cityName || hotelData.location,
-          description: hotelData.description,
-          amenities: [], // Pas dans l'API actuelle
-          rating: null, // Pas dans l'API actuelle
-          priceRange: hotelData.priceRange,
-          images: hotelData.images || [],
-          contactInfo: {}, // Pas dans l'API actuelle
-          status: hotelData.active ? 'active' : 'inactive',
-          createdAt: hotelData.createdAt,
-          updatedAt: hotelData.updatedAt
-        });
+      console.log('useHotels.loadHotels - Loading with params:', params);
+      const result = await getHotelsUseCase.execute({
+        filters: params.filters || {},
+        searchTerm: params.searchTerm || '',
+        sortBy: params.sortBy || 'name',
+        sortOrder: params.sortOrder || 'asc',
+        language: params.language || 'en'
       });
 
-      setHotels(hotelEntities);
-      setTotal(hotelEntities.length);
-      setIsTestMode(false); // API disponible
+      console.log('useHotels.loadHotels - Result:', result);
+      console.log('useHotels.loadHotels - Hotels count:', result.hotels?.length || 0);
+      
+      setHotels(result.hotels || []);
+      setTotal(result.total || 0);
+      setIsTestMode(false);
     } catch (err) {
       // Si l'erreur contient "Failed to fetch", on active le mode test
-      if (err.message.includes('Failed to fetch')) {
+      if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
         setIsTestMode(true);
-        setError(null); // Pas d'erreur en mode test
+        setError(null);
         
-        // Les données de test sont déjà gérées par le repository
+        // Essayer de récupérer les données malgré l'erreur réseau
         try {
-          const testData = await hotelRepository.findAll(params);
-          const hotelEntities = testData.map(hotelData => {
-            return Hotel.fromJSON({
-              id: hotelData.id,
-              name: hotelData.name,
-              location: hotelData.cityName || hotelData.location,
-              description: hotelData.description,
-              amenities: [],
-              rating: null,
-              priceRange: hotelData.priceRange,
-              images: hotelData.images || [],
-              contactInfo: {},
-              status: hotelData.active ? 'active' : 'inactive',
-              createdAt: hotelData.createdAt,
-              updatedAt: hotelData.updatedAt
-            });
+          const result = await getHotelsUseCase.execute({
+            filters: params.filters || {},
+            searchTerm: params.searchTerm || '',
+            sortBy: params.sortBy || 'name',
+            sortOrder: params.sortOrder || 'asc'
           });
           
-          setHotels(hotelEntities);
-          setTotal(hotelEntities.length);
-        } catch (testErr) {
-          setError('Impossible de charger les données de test');
+          setHotels(result.hotels);
+          setTotal(result.total);
+        } catch {
+          setError('Impossible de charger les données');
         }
       } else {
         setError(err.message);
         setIsTestMode(false);
       }
-      console.error('Erreur lors du chargement des hôtels:', err);
+      console.error('Error loading hotels:', err);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [getHotelsUseCase]);
 
   /**
-   * Crée un nouvel hôtel
+   * Crée un nouvel hôtel via le use case
    */
   const createHotel = useCallback(async (hotelData) => {
     setLoading(true);
     setError(null);
 
     try {
-      const newHotel = await hotelRepository.create(hotelData);
-      
-      // Conversion en entité
-      const hotelEntity = Hotel.fromJSON({
-        id: newHotel.id,
-        name: newHotel.name,
-        location: newHotel.cityName || newHotel.location,
-        description: newHotel.description,
-        amenities: [],
-        rating: null,
-        priceRange: newHotel.priceRange,
-        images: newHotel.images || [],
-        contactInfo: {},
-        status: newHotel.active ? 'active' : 'inactive',
-        createdAt: newHotel.createdAt,
-        updatedAt: newHotel.updatedAt
-      });
+      const hotelEntity = await createHotelUseCase.execute(hotelData);
       
       // Mise à jour de la liste locale
       setHotels(prev => [...prev, hotelEntity]);
@@ -126,33 +98,17 @@ export const useHotels = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [createHotelUseCase]);
 
   /**
-   * Met à jour un hôtel existant
+   * Met à jour un hôtel existant via le use case
    */
   const updateHotel = useCallback(async (id, updateData) => {
     setLoading(true);
     setError(null);
 
     try {
-      const updatedHotel = await hotelRepository.update(id, updateData);
-      
-      // Conversion en entité
-      const hotelEntity = Hotel.fromJSON({
-        id: updatedHotel.id,
-        name: updatedHotel.name,
-        location: updatedHotel.cityName || updatedHotel.location,
-        description: updatedHotel.description,
-        amenities: [],
-        rating: null,
-        priceRange: updatedHotel.priceRange,
-        images: updatedHotel.images || [],
-        contactInfo: {},
-        status: updatedHotel.active ? 'active' : 'inactive',
-        createdAt: updatedHotel.createdAt,
-        updatedAt: updatedHotel.updatedAt
-      });
+      const hotelEntity = await updateHotelUseCase.execute(id, updateData);
       
       // Mise à jour de la liste locale
       setHotels(prev => prev.map(hotel => 
@@ -166,17 +122,17 @@ export const useHotels = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [updateHotelUseCase]);
 
   /**
-   * Supprime un hôtel
+   * Supprime un hôtel via le use case
    */
   const deleteHotel = useCallback(async (id) => {
     setLoading(true);
     setError(null);
 
     try {
-      await hotelRepository.delete(id);
+      await deleteHotelUseCase.execute(id);
       
       // Mise à jour de la liste locale
       setHotels(prev => prev.filter(hotel => hotel.id !== id));
@@ -189,7 +145,7 @@ export const useHotels = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [deleteHotelUseCase]);
 
   /**
    * Recherche des hôtels
@@ -199,16 +155,54 @@ export const useHotels = () => {
   }, [loadHotels]);
 
   /**
+   * Récupère un hôtel par son ID
+   */
+  const getHotelById = useCallback(async (id) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const hotelData = await hotelRepository.findById(id);
+      
+      if (!hotelData) {
+        return null;
+      }
+
+      // Conversion en entité Hotel
+      return Hotel.fromJSON({
+        id: hotelData.id,
+        name: hotelData.nameTranslations?.en || hotelData.name || '',
+        location: hotelData.cityName || hotelData.location?.cityName || hotelData.location || '',
+        description: hotelData.descriptionTranslations?.en || hotelData.description || '',
+        amenities: hotelData.amenities || [],
+        rating: hotelData.rating || null,
+        priceRange: hotelData.priceRange || {},
+        images: hotelData.images || [],
+        contactInfo: hotelData.contactInfo || {},
+        status: hotelData.isActive !== undefined ? (hotelData.isActive ? 'active' : 'inactive') : 
+                hotelData.active !== undefined ? (hotelData.active ? 'active' : 'inactive') : 
+                hotelData.status || 'active',
+        createdAt: hotelData.createdAt,
+        updatedAt: hotelData.updatedAt
+      });
+    } catch (err) {
+      setError(err.message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, [hotelRepository]);
+
+  /**
    * Efface les erreurs
    */
   const clearError = useCallback(() => {
     setError(null);
   }, []);
 
-  // Chargement initial
-  useEffect(() => {
-    loadHotels();
-  }, [loadHotels]);
+  // Initial loading
+  // Note: loadHotels should be called explicitly by components when needed
+  // This allows components to control when to load and with which parameters
 
   return {
     // État
@@ -224,6 +218,7 @@ export const useHotels = () => {
     updateHotel,
     deleteHotel,
     searchHotels,
+    getHotelById,
     clearError,
     
     // Helpers

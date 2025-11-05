@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Contact } from '../../core/entities/Contact.js';
 
 /**
- * Hook personnalisé pour la gestion des contacts
+ * Custom hook for contacts management
  */
 export const useContacts = () => {
   const [contacts, setContacts] = useState([]);
@@ -68,7 +68,7 @@ export const useContacts = () => {
       setTotal(filteredContacts.length);
     } catch (err) {
       setError(err.message);
-      console.error('Erreur lors du chargement des contacts:', err);
+      console.error('Error loading contacts:', err);
     } finally {
       setLoading(false);
     }
@@ -224,7 +224,7 @@ export const useContacts = () => {
     setError(null);
   }, []);
 
-  // Chargement initial
+  // Initial loading
   useEffect(() => {
     loadContacts();
   }, [loadContacts]);

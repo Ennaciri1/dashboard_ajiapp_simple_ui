@@ -1,6 +1,5 @@
 import { FILTER_ALL, RATING_FILTER_OPTIONS, RATING_FILTERS } from '../../constants/filters';
 import { matchesRatingFilter } from '../../utils/filters';
-import { sampleReviews, sampleReviewUsers } from './sampleData';
 
 const toLowerCase = (value = '') => value.toString().toLowerCase();
 
@@ -77,4 +76,3 @@ export const filterReviews = (reviews, { search, status, rating, entityType }) =
   });
 };
 
-export { sampleReviews, sampleReviewUsers };

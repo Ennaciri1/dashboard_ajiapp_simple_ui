@@ -10,3 +10,5 @@ export { default as MapSelector } from './MapSelector';
 export { default as MultiImageSelector } from './MultiImageSelector';
 export { default as SpotDetailModal } from './SpotDetailModal';
 export { default as Notification } from './Notification';
+export { default as TranslationEditor } from './TranslationEditor';
+export { default as EntityDetailModal } from './EntityDetailModal';

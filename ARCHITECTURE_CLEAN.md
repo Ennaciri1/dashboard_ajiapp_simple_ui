@@ -9,7 +9,7 @@ Ce projet a été restructuré selon les principes de la **Clean Architecture** 
 ### 1. **Séparation des responsabilités**
 - **Core** : Logique métier pure
 - **Infrastructure** : Accès aux données et services externes
-- **Presentation** : Interface utilisateur et logique de présentation
+- **zx** : Interface utilisateur et logique de présentation
 - **Shared** : Code partagé entre les couches
 
 ### 2. **Inversion des dépendances**

@@ -9,13 +9,20 @@ import {
   Paper,
   Checkbox,
   Typography,
+  Box,
   IconButton,
   Chip,
   Rating,
   Avatar,
-  Box
+  Tooltip
 } from '@mui/material';
-import { MoreVert as MoreVertIcon, Person as PersonIcon } from '@mui/icons-material';
+import { 
+  MoreVert as MoreVertIcon, 
+  Person as PersonIcon,
+  Star as StarIcon,
+  Message as MessageIcon
+} from '@mui/icons-material';
+import { formatDate } from '../../utils/formatters';
 import './ReviewsTable.css';
 
 const ReviewsTable = ({
@@ -41,140 +48,128 @@ const ReviewsTable = ({
   const getStatusLabel = (status) => {
     switch (status?.toLowerCase()) {
       case 'approved':
-        return 'Approuvé';
+        return 'Approved';
       case 'rejected':
-        return 'Rejeté';
+        return 'Rejected';
       case 'pending':
-        return 'En attente';
+        return 'Pending';
       default:
-        return status;
+        return 'Unknown';
     }
   };
 
-  const formatDate = (dateString) => {
-    try {
-      return new Date(dateString).toLocaleDateString('fr-FR', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      });
-    } catch {
-      return dateString;
-    }
+  const getUserName = (review) => {
+    return review.userName || 'Anonymous User';
+  };
+
+  const getMessage = (review) => {
+    return review.message || 'No message';
   };
 
   return (
-    <div className="reviews-table-container">
-      <TableContainer component={Paper} className="reviews-table">
-        <Table>
-          <TableHead>
-            <TableRow className="table-header-row">
-              <TableCell padding="checkbox" className="table-header-cell">
+    <TableContainer component={Paper} className="modern-table reviews-table">
+      <Table>
+        <TableHead>
+          <TableRow className="table-header-row">
+            <TableCell padding="checkbox" align="center" className="checkbox-cell">
+              <Checkbox
+                indeterminate={selectedReviews.length > 0 && selectedReviews.length < reviews.length}
+                checked={selectedReviews.length === reviews.length && reviews.length > 0}
+                onChange={onSelectAll}
+                color="primary"
+              />
+            </TableCell>
+            <TableCell align="center" className="table-header-cell">User</TableCell>
+            <TableCell align="center" className="table-header-cell">Rating</TableCell>
+            <TableCell align="center" className="table-header-cell">Message</TableCell>
+            <TableCell align="center" className="table-header-cell">Entity</TableCell>
+            <TableCell align="center" className="table-header-cell">Status</TableCell>
+            <TableCell align="center" className="table-header-cell">Date</TableCell>
+            <TableCell align="center" className="actions-header-cell">Actions</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {reviews.map((review) => (
+            <TableRow 
+              key={review.id} 
+              className="table-data-row"
+              hover
+              selected={selectedReviews.includes(review.id)}
+            >
+              <TableCell padding="checkbox" align="center" className="checkbox-cell">
                 <Checkbox
-                  indeterminate={selectedReviews.length > 0 && selectedReviews.length < reviews.length}
-                  checked={selectedReviews.length === reviews.length && reviews.length > 0}
-                  onChange={onSelectAll}
-                  className="select-all-checkbox"
+                  checked={selectedReviews.includes(review.id)}
+                  onChange={() => onSelectReview(review.id)}
+                  color="primary"
                 />
               </TableCell>
-              <TableCell className="table-header-cell">Utilisateur</TableCell>
-              <TableCell className="table-header-cell">Message</TableCell>
-              <TableCell className="table-header-cell">Note</TableCell>
-              <TableCell className="table-header-cell">Statut</TableCell>
-              <TableCell className="table-header-cell">Entité</TableCell>
-              <TableCell className="table-header-cell">Date</TableCell>
-              <TableCell className="table-header-cell">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {reviews.map((review) => (
-              <TableRow key={review.id} className="review-row">
-                <TableCell padding="checkbox" className="table-cell">
-                  <Checkbox
-                    checked={selectedReviews.includes(review.id)}
-                    onChange={() => onSelectReview(review.id)}
-                    className="row-checkbox"
-                  />
-                </TableCell>
-                <TableCell className="table-cell">
-                  <Box className="user-cell">
-                    <Avatar className="user-avatar">
-                      <PersonIcon />
-                    </Avatar>
-                    <Box className="user-info">
-                      <Typography variant="body2" className="user-name">
-                        {review.userName || 'Utilisateur anonyme'}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </TableCell>
-                <TableCell className="table-cell">
-                  <Box className="message-cell">
-                    <Typography variant="body2" className="message-text">
-                      {review.message && review.message.length > 80 
-                        ? `${review.message.substring(0, 80)}…` 
-                        : review.message || 'Aucun message'
-                      }
-                    </Typography>
-                    {review.rejectionReason && (
-                      <Typography variant="caption" className="rejection-reason">
-                        Raison: {review.rejectionReason}
-                      </Typography>
-                    )}
-                  </Box>
-                </TableCell>
-                <TableCell className="table-cell">
-                  <Box className="rating-cell">
-                    <Rating 
-                      value={review.rating || 0} 
-                      precision={0.5} 
-                      readOnly 
-                      size="small"
-                      className="rating-stars"
-                    />
-                    <Typography variant="caption" className="rating-value">
-                      {review.rating || 0}/5
-                    </Typography>
-                  </Box>
-                </TableCell>
-                <TableCell className="table-cell">
-                  <Chip 
-                    label={getStatusLabel(review.status)} 
-                    size="small" 
-                    color={getStatusColor(review.status)}
-                    variant="outlined"
-                    className="status-chip"
-                  />
-                </TableCell>
-                <TableCell className="table-cell">
-                  <Box className="entity-cell">
-                    <Typography variant="body2" className="entity-name">
-                      {review.entityName || 'Entité inconnue'}
-                    </Typography>
-                    <Typography variant="caption" className="entity-type">
-                      {review.entityType?.toUpperCase()} #{review.entityId}
-                    </Typography>
-                  </Box>
-                </TableCell>
-                <TableCell className="table-cell">
-                  <Typography variant="body2" className="date-text">
-                    {formatDate(review.createdAt)}
+              <TableCell align="center" className="table-data-cell">
+                <Box display="flex" alignItems="center" justifyContent="center" gap={1}>
+                  <Avatar className="table-avatar">
+                    <PersonIcon fontSize="small" />
+                  </Avatar>
+                  <Typography variant="body2" fontWeight="600">
+                    {getUserName(review)}
                   </Typography>
-                </TableCell>
-                <TableCell className="table-cell">
-                  <IconButton 
-                    onClick={(event) => onMenuClick(event, review.id)}
+                </Box>
+              </TableCell>
+              <TableCell align="center" className="table-data-cell">
+                <Box className="table-rating">
+                  <Rating
+                    value={review.rating || 0}
+                    readOnly
+                    size="small"
+                    precision={0.5}
+                  />
+                  <Typography variant="body2" fontWeight="500" color="text.secondary">
+                    ({review.rating || 0})
+                  </Typography>
+                </Box>
+              </TableCell>
+              <TableCell align="center" className="table-data-cell">
+                <Tooltip title={getMessage(review)}>
+                  <Box display="flex" alignItems="center" justifyContent="center" gap={0.5}>
+                    <MessageIcon fontSize="small" color="action" />
+                    <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {getMessage(review).length > 30 ? getMessage(review).substring(0, 30) + '...' : getMessage(review)}
+                    </Typography>
+                  </Box>
+                </Tooltip>
+              </TableCell>
+              <TableCell align="center" className="table-data-cell">
+                <Typography variant="body2" fontWeight="500">
+                  {review.entityType || 'N/A'}
+                </Typography>
+              </TableCell>
+              <TableCell align="center" className="table-data-cell">
+                <Chip
+                  label={getStatusLabel(review.status)}
+                  color={getStatusColor(review.status)}
+                  size="small"
+                  className="status-chip"
+                />
+              </TableCell>
+              <TableCell align="center" className="table-data-cell">
+                <Typography variant="body2" className="date-display">
+                  {formatDate(review.createdAt)}
+                </Typography>
+              </TableCell>
+              <TableCell align="center" className="actions-cell">
+                <Tooltip title="More actions">
+                  <IconButton
+                    size="small"
+                    onClick={() => onMenuClick(review.id, review)}
                     className="action-button"
                   >
-                    <MoreVertIcon />
+                    <MoreVertIcon fontSize="small" />
                   </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </div>
+                </Tooltip>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
   );
 };
 

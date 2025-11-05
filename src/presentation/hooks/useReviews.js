@@ -3,8 +3,8 @@ import { Review } from '../../core/entities/Review.js';
 import { ReviewRepository } from '../../infrastructure/api/ReviewRepository.js';
 
 /**
- * Hook personnalisé pour la gestion des avis
- * Utilise l'API réelle pour la gestion des avis clients
+ * Custom hook for reviews management
+ * Uses real API for client reviews management
  */
 export const useReviews = () => {
   const [reviews, setReviews] = useState([]);
@@ -50,41 +50,9 @@ export const useReviews = () => {
       setTotal(reviewEntities.length);
       setIsTestMode(false); // API disponible
     } catch (err) {
-      // Si l'erreur contient "Failed to fetch", on active le mode test
-      if (err.message.includes('Failed to fetch')) {
-        setIsTestMode(true);
-        setError(null); // Pas d'erreur en mode test
-        
-        // Charger les données de test
-        try {
-          const testData = await reviewRepository.findAll(params);
-          const reviewEntities = testData.map(reviewData => {
-            return Review.fromJSON({
-              id: reviewData.id,
-              message: reviewData.message,
-              rating: reviewData.rating,
-              status: reviewData.status,
-              rejectionReason: reviewData.rejectionReason,
-              userId: reviewData.userId || 'unknown',
-              userName: reviewData.userName,
-              entityType: reviewData.entityType.toLowerCase(),
-              entityId: reviewData.entityId,
-              entityName: reviewData.entityName || `${reviewData.entityType} ${reviewData.entityId}`,
-              createdAt: reviewData.date,
-              updatedAt: reviewData.approvedAt || reviewData.date
-            });
-          });
-          
-          setReviews(reviewEntities);
-          setTotal(reviewEntities.length);
-        } catch (testErr) {
-          setError('Impossible de charger les données de test');
-        }
-      } else {
-        setError(err.message);
-        setIsTestMode(false);
-      }
-      console.error('Erreur lors du chargement des avis:', err);
+      setError(err.message);
+      setIsTestMode(false);
+      console.error('Error loading reviews:', err);
     } finally {
       setLoading(false);
     }
@@ -211,7 +179,7 @@ export const useReviews = () => {
     setError(null);
   }, []);
 
-  // Chargement initial
+  // Initial loading
   useEffect(() => {
     loadReviews();
   }, [loadReviews]);

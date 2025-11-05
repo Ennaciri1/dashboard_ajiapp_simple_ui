@@ -1,0 +1,41 @@
+@import '../../../styles/servicePage.css';
+
+.translations-card {
+  margin-top: 1rem;
+}
+
+.translations-card .MuiCardContent-root {
+  padding: 1rem !important;
+}
+
+.entity-type-tabs {
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 1rem;
+}
+
+.no-translations {
+  padding: 3rem;
+  text-align: center;
+}
+
+.results-indicator {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--background-paper);
+  border-radius: var(--border-radius-lg);
+  border-left: 4px solid var(--primary-color);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+}
+
+.results-indicator .MuiTypography-root {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .translations-card .MuiCardContent-root {
+    padding: 0.5rem !important;
+  }
+}

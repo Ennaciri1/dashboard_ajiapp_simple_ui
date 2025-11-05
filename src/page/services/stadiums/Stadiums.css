@@ -1,0 +1,6 @@
+@import '../../../styles/servicePage.css';
+
+/* Stadiums specific styles can be added here if needed */
+.stadiums-card .MuiCardContent-root {
+  padding: 0 !important;
+}

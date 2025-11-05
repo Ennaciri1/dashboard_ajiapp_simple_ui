@@ -1,0 +1,34 @@
+.portal-users-table {
+  margin-top: 0;
+}
+
+.portal-users-table .table-header-cell {
+  font-weight: 600;
+  background-color: var(--background-paper);
+  color: var(--text-primary);
+}
+
+.portal-users-table .table-data-cell {
+  color: var(--text-primary);
+}
+
+.portal-users-table .table-avatar {
+  width: 32px;
+  height: 32px;
+  background-color: var(--primary-main);
+}
+
+.portal-users-table .date-display {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.portal-users-table .action-button {
+  color: var(--text-secondary);
+}
+
+.portal-users-table .action-button:hover {
+  color: var(--primary-main);
+  background-color: var(--action-hover);
+}
+

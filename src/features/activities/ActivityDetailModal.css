@@ -1,0 +1,53 @@
+/* Activity Detail Modal Styles */
+
+/* Ensure modal content is scrollable */
+.MuiDialogContent-root {
+  overflow-y: auto;
+}
+
+/* Improve card styling */
+.activity-detail-card {
+  transition: box-shadow 0.3s ease;
+}
+
+.activity-detail-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Improve image gallery */
+.activity-image-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.activity-image-item {
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.activity-image-item:hover {
+  transform: scale(1.02);
+}
+
+/* Improve tag display */
+.activity-tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Info boxes styling */
+.info-box {
+  background-color: var(--background-default, #f5f5f5);
+  border-radius: 8px;
+  padding: 16px;
+  transition: background-color 0.2s ease;
+}
+
+.info-box:hover {
+  background-color: var(--action-hover, rgba(0, 0, 0, 0.04));
+}
+
+

@@ -2,13 +2,14 @@
  * Interface pour le repository des hôtels
  * Définit les contrats que doit respecter toute implémentation
  */
+/* eslint-disable no-unused-vars */
 export class IHotelRepository {
   /**
    * Récupère tous les hôtels
    * @param {Object} filters - Filtres à appliquer
    * @returns {Promise<Hotel[]>}
    */
-  async findAll(filters = {}) {
+  async findAll(_filters = {}) {
     throw new Error('Method findAll must be implemented');
   }
 
@@ -17,7 +18,7 @@ export class IHotelRepository {
    * @param {string|number} id - ID de l'hôtel
    * @returns {Promise<Hotel|null>}
    */
-  async findById(id) {
+  async findById(_id) {
     throw new Error('Method findById must be implemented');
   }
 
@@ -26,7 +27,7 @@ export class IHotelRepository {
    * @param {Hotel} hotel - Entité hôtel à créer
    * @returns {Promise<Hotel>}
    */
-  async create(hotel) {
+  async create(_hotel) {
     throw new Error('Method create must be implemented');
   }
 
@@ -36,7 +37,7 @@ export class IHotelRepository {
    * @param {Hotel} hotel - Données de l'hôtel à mettre à jour
    * @returns {Promise<Hotel>}
    */
-  async update(id, hotel) {
+  async update(_id, _hotel) {
     throw new Error('Method update must be implemented');
   }
 
@@ -45,7 +46,7 @@ export class IHotelRepository {
    * @param {string|number} id - ID de l'hôtel à supprimer
    * @returns {Promise<boolean>}
    */
-  async delete(id) {
+  async delete(_id) {
     throw new Error('Method delete must be implemented');
   }
 
@@ -55,7 +56,7 @@ export class IHotelRepository {
    * @param {Object} filters - Filtres additionnels
    * @returns {Promise<Hotel[]>}
    */
-  async search(searchTerm, filters = {}) {
+  async search(_searchTerm, _filters = {}) {
     throw new Error('Method search must be implemented');
   }
 }

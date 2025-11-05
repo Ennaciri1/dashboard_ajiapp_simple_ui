@@ -1,7 +1,6 @@
 import {
   FILTER_ALL
 } from '../../constants/filters.js';
-import { sampleTouristSpots } from './sampleData.js';
 
 const toLowerCase = (value = '') => value.toString().toLowerCase();
 
@@ -69,5 +68,3 @@ export const filterSpots = (spots, { search, city, entry }) => {
     return matchesSearch && matchesCity && matchesEntry;
   });
 };
-
-export { sampleTouristSpots };

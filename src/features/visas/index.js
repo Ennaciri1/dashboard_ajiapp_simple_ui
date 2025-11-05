@@ -1,5 +1,4 @@
 import { FILTER_ALL } from '../../constants/filters';
-import { sampleVisas } from './sampleData';
 
 const toLowerCase = (value = '') => value.toString().toLowerCase();
 
@@ -32,10 +31,13 @@ export const filterVisas = (visas, { search, requirement }) => {
   const normalizedSearch = search.trim().toLowerCase();
 
   return visas.filter((visa) => {
+    const country = getVisaCountry(visa);
+    const nationality = getVisaNationality(visa);
+    
     const matchesSearch =
       !normalizedSearch ||
-      toLowerCase(visa.country).includes(normalizedSearch) ||
-      toLowerCase(visa.nationality).includes(normalizedSearch);
+      toLowerCase(country).includes(normalizedSearch) ||
+      toLowerCase(nationality).includes(normalizedSearch);
 
     const matchesRequirement =
       requirement === FILTER_ALL ||
@@ -46,12 +48,12 @@ export const filterVisas = (visas, { search, requirement }) => {
   });
 };
 
-export const getVisaCountry = (visa, fallbackLanguage = 'en') => {
-  return visa?.country || '';
+export const getVisaCountry = (visa) => {
+  // Gérer les deux formats : avec et sans translations
+  return visa?.countryTranslations?.en || visa?.country || '';
 };
 
-export const getVisaNationality = (visa, fallbackLanguage = 'en') => {
-  return visa?.nationality || '';
+export const getVisaNationality = (visa) => {
+  // Gérer les deux formats : avec et sans translations
+  return visa?.nationalityTranslations?.en || visa?.nationality || '';
 };
-
-export { sampleVisas };

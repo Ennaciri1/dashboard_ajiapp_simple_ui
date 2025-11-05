@@ -1,13 +1,14 @@
 /**
  * Interface pour le repository des sites touristiques
  */
+/* eslint-disable no-unused-vars */
 export class ITouristSpotRepository {
   /**
    * Récupère tous les sites touristiques
    * @param {Object} filters - Filtres à appliquer
    * @returns {Promise<TouristSpot[]>}
    */
-  async findAll(filters = {}) {
+  async findAll(_filters = {}) {
     throw new Error('Method findAll must be implemented');
   }
 
@@ -16,7 +17,7 @@ export class ITouristSpotRepository {
    * @param {string|number} id - ID du site
    * @returns {Promise<TouristSpot|null>}
    */
-  async findById(id) {
+  async findById(_id) {
     throw new Error('Method findById must be implemented');
   }
 
@@ -25,7 +26,7 @@ export class ITouristSpotRepository {
    * @param {TouristSpot} spot - Entité site touristique à créer
    * @returns {Promise<TouristSpot>}
    */
-  async create(spot) {
+  async create(_spot) {
     throw new Error('Method create must be implemented');
   }
 
@@ -35,7 +36,7 @@ export class ITouristSpotRepository {
    * @param {TouristSpot} spot - Données du site à mettre à jour
    * @returns {Promise<TouristSpot>}
    */
-  async update(id, spot) {
+  async update(_id, _spot) {
     throw new Error('Method update must be implemented');
   }
 
@@ -44,7 +45,7 @@ export class ITouristSpotRepository {
    * @param {string|number} id - ID du site à supprimer
    * @returns {Promise<boolean>}
    */
-  async delete(id) {
+  async delete(_id) {
     throw new Error('Method delete must be implemented');
   }
 
@@ -53,7 +54,7 @@ export class ITouristSpotRepository {
    * @param {string} city - Nom de la ville
    * @returns {Promise<TouristSpot[]>}
    */
-  async findByCity(city) {
+  async findByCity(_city) {
     throw new Error('Method findByCity must be implemented');
   }
 
@@ -62,7 +63,7 @@ export class ITouristSpotRepository {
    * @param {string} interestType - Type d'intérêt
    * @returns {Promise<TouristSpot[]>}
    */
-  async findByInterestType(interestType) {
+  async findByInterestType(_interestType) {
     throw new Error('Method findByInterestType must be implemented');
   }
 }

@@ -7,8 +7,8 @@ import {
   CITY_FILTER_OPTIONS,
   CITY_STATUS_FILTERS
 } from '../../../features/cities';
-import { cityService } from '../../../services/api/cityService';
-import { FilterToolbar } from '../../../components/common';
+import { cityService } from '../../../infrastructure/api/cityService';
+import { FilterToolbar, ActionMenu } from '../../../components/common';
 import { useNotification } from '../../../contexts/NotificationContext';
 import './Cities.css';
 
@@ -23,6 +23,8 @@ const Cities = () => {
     search: '',
     status: CITY_STATUS_FILTERS.ALL
   });
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [selectedCityId, setSelectedCityId] = useState(null);
 
   const filteredCities = useMemo(() => filterCities(cities, filters), [cities, filters]);
 
@@ -65,12 +67,6 @@ const Cities = () => {
     );
   };
 
-  const handleDeleteClick = (cityId) => {
-    if (window.confirm('Are you sure you want to delete this city?')) {
-      handleDeleteCity(cityId);
-    }
-  };
-
   const handleFilterChange = (key) => (value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
@@ -85,17 +81,56 @@ const Cities = () => {
     }
   ];
 
-  const handleDeleteCity = async (cityId) => {
+  const handleMenuClick = (event, cityId) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedCityId(cityId);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedCityId(null);
+  };
+
+  const handleEditCity = () => {
+    if (selectedCityId) {
+      navigate(`/services/cities/edit/${selectedCityId}`);
+      handleMenuClose();
+    }
+  };
+
+  const handleDeleteCity = async () => {
+    if (!selectedCityId) return;
+    
+    const confirmed = window.confirm('Are you sure you want to delete this city?');
+    if (!confirmed) {
+      handleMenuClose();
+      return;
+    }
+
     try {
-      await cityService.deleteCity(cityId);
-      setCities(prev => prev.filter(city => city.id !== cityId));
-      setSelectedCities(prev => prev.filter(id => id !== cityId));
+      await cityService.deleteCity(selectedCityId);
+      setCities(prev => prev.filter(city => city.id !== selectedCityId));
+      setSelectedCities(prev => prev.filter(id => id !== selectedCityId));
       showSuccess('City deleted successfully');
+      handleMenuClose();
     } catch (error) {
       console.error('Error deleting city:', error);
       showError('Error deleting city');
     }
   };
+
+  const actionItems = [
+    {
+      key: 'edit',
+      label: 'Edit',
+      onClick: handleEditCity
+    },
+    {
+      key: 'delete',
+      label: 'Delete',
+      onClick: handleDeleteCity
+    }
+  ];
 
   const handleDeleteAllCities = async () => {
     if (selectedCities.length === 0) {
@@ -178,11 +213,12 @@ const Cities = () => {
             selectedCities={selectedCities}
             onSelectAll={handleSelectAll}
             onSelectCity={handleSelectCity}
-            onDeleteClick={handleDeleteClick}
+            onMenuClick={handleMenuClick}
           />
         </CardContent>
       </Card>
 
+      <ActionMenu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose} items={actionItems} />
     </div>
   );
 };

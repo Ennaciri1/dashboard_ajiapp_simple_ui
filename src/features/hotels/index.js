@@ -5,7 +5,6 @@ import {
   PRICE_RANGE_OPTIONS
 } from '../../constants/filters.js';
 import { matchesRatingFilter, matchesPriceFilter } from '../../utils/filters.js';
-import { sampleHotels } from './sampleData.js';
 
 const toLowerCase = (value = '') => value.toString().toLowerCase();
 
@@ -44,5 +43,3 @@ export const filterHotels = (hotels, { search, rating, price }) => {
     return matchesSearch && matchesRating && matchesPrice;
   });
 };
-
-export { sampleHotels };

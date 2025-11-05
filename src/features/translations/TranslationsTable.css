@@ -1,0 +1,113 @@
+.translations-table {
+  margin-top: 1rem;
+}
+
+.translations-table .sticky-column {
+  position: sticky;
+  left: 0;
+  background-color: var(--background-paper);
+  z-index: 10;
+  min-width: 150px;
+}
+
+.translations-table .table-header-row .sticky-column {
+  background-color: var(--background-secondary);
+  z-index: 11;
+}
+
+.translations-table .language-column {
+  min-width: 200px;
+  max-width: 300px;
+}
+
+.translations-table .language-cell {
+  min-width: 200px;
+  max-width: 300px;
+  padding: 8px !important;
+}
+
+.translation-cell-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 40px;
+}
+
+.translation-cell-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.translation-cell-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.translation-text {
+  flex: 1;
+  word-break: break-word;
+  color: var(--text-primary);
+}
+
+.translation-empty {
+  flex: 1;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.translation-placeholder {
+  color: var(--text-disabled);
+}
+
+.translation-edit-icon {
+  opacity: 0;
+  transition: opacity 0.2s;
+  padding: 4px !important;
+}
+
+.translation-cell-content:hover .translation-edit-icon {
+  opacity: 1;
+}
+
+.translations-table .table-data-row:hover {
+  background-color: var(--background-hover);
+}
+
+.translations-table .table-data-row:hover .sticky-column {
+  background-color: var(--background-hover);
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .translations-table .language-column,
+  .translations-table .language-cell {
+    min-width: 150px;
+    max-width: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .translations-table {
+    overflow-x: auto;
+  }
+  
+  .translations-table .language-column,
+  .translations-table .language-cell {
+    min-width: 120px;
+    max-width: 150px;
+  }
+  
+  .translation-cell-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .translation-edit-icon {
+    opacity: 1;
+  }
+}
+
+

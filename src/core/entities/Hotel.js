@@ -14,7 +14,8 @@ export class Hotel {
     contactInfo = {},
     status = 'active',
     createdAt,
-    updatedAt
+    updatedAt,
+    _rawData
   }) {
     this.id = id;
     this.name = name;
@@ -28,9 +29,11 @@ export class Hotel {
     this.status = status;
     this.createdAt = createdAt || new Date();
     this.updatedAt = updatedAt || new Date();
+    // Preserve raw data from API for components that need it
+    this._rawData = _rawData || {};
   }
 
-  // Méthodes métier
+  // Business methods
   isActive() {
     return this.status === 'active';
   }
@@ -41,7 +44,7 @@ export class Hotel {
 
   updateRating(newRating) {
     if (newRating < 0 || newRating > 5) {
-      throw new Error('La note doit être entre 0 et 5');
+      throw new Error('Rating must be between 0 and 5');
     }
     this.rating = newRating;
     this.updatedAt = new Date();
@@ -64,15 +67,15 @@ export class Hotel {
     const errors = [];
     
     if (!this.name || this.name.trim().length < 2) {
-      errors.push('Le nom de l\'hôtel est requis et doit contenir au moins 2 caractères');
+      errors.push('Hotel name is required and must contain at least 2 characters');
     }
     
-    if (!this.location || this.location.trim().length < 2) {
-      errors.push('La localisation est requise');
+    if (!this.location || (typeof this.location === 'string' && this.location.trim().length < 2) || (typeof this.location === 'object' && !this.location.cityName && !this.location.city)) {
+      errors.push('Location is required');
     }
     
     if (this.rating && (this.rating < 0 || this.rating > 5)) {
-      errors.push('La note doit être entre 0 et 5');
+      errors.push('Rating must be between 0 and 5');
     }
 
     return {

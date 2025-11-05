@@ -15,7 +15,8 @@ export class TouristSpot {
     rating,
     status = 'active',
     createdAt,
-    updatedAt
+    updatedAt,
+    _rawData
   }) {
     this.id = id;
     this.name = name;
@@ -30,6 +31,8 @@ export class TouristSpot {
     this.status = status;
     this.createdAt = createdAt || new Date();
     this.updatedAt = updatedAt || new Date();
+    // Preserve raw data from API for components that need it
+    this._rawData = _rawData || {};
   }
 
   // Méthodes métier

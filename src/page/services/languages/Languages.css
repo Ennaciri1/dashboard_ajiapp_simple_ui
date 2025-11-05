@@ -1,0 +1,10 @@
+@import '../../../styles/servicePage.css';
+
+.languages-card {
+  margin-top: 1rem;
+}
+
+.languages-card .MuiCardContent-root {
+  padding: 0 !important;
+}
+

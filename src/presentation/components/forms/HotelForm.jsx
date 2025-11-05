@@ -13,8 +13,8 @@ import {
 } from '@mui/material';
 import { LoadingButton } from '../ui';
 import { Hotel } from '../../../core/entities/Hotel.js';
-import { validateHotel } from '../../../shared/validators/hotelValidator.js';
-import { HOTEL_AMENITIES, PRICE_RANGES } from '../../../shared/types/Hotel.js';
+import { validateHotel } from '../../../utils/hotelValidator.js';
+import { HOTEL_AMENITIES, PRICE_RANGES } from '../../../constants/hotel.js';
 
 /**
  * Composant de formulaire pour les hôtels - Utilise les entités pour la validation

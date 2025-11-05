@@ -1,0 +1,297 @@
+/* Modern Table Styles - Unified Design for All Features */
+
+.modern-table {
+  background: var(--background-paper);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-light);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  transition: box-shadow var(--transition-normal);
+}
+
+.modern-table:hover {
+  box-shadow: var(--shadow-medium);
+}
+
+/* Table Header */
+.table-header-row {
+  background: var(--background-hover);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.table-header-cell {
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  color: var(--text-primary) !important;
+  padding: 20px 16px !important;
+  border-bottom: 2px solid var(--border-color) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.actions-header-cell {
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  color: var(--text-primary) !important;
+  padding: 20px 16px !important;
+  border-bottom: 2px solid var(--border-color) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Table Body */
+.table-data-row {
+  transition: background-color var(--transition-fast);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.table-data-row:hover {
+  background-color: var(--background-hover) !important;
+}
+
+.table-data-row.Mui-selected {
+  background-color: var(--primary-light) !important;
+}
+
+.table-data-row.Mui-selected:hover {
+  background-color: var(--primary-light) !important;
+}
+
+.table-data-cell {
+  padding: 16px 20px !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  font-size: 14px !important;
+  color: var(--text-primary) !important;
+  vertical-align: middle !important;
+}
+
+/* Checkbox Styling */
+.checkbox-cell {
+  padding: 16px 12px !important;
+  width: 60px;
+}
+
+.checkbox-cell .MuiCheckbox-root {
+  padding: 4px;
+}
+
+.checkbox-cell .MuiCheckbox-colorPrimary.Mui-checked {
+  color: var(--primary-color);
+}
+
+.checkbox-cell .MuiCheckbox-colorPrimary.MuiCheckbox-indeterminate {
+  color: var(--primary-color);
+}
+
+/* Actions Column */
+.actions-cell {
+  padding: 16px 12px !important;
+  width: 80px;
+}
+
+.action-button {
+  padding: 4px !important;
+  color: var(--text-secondary) !important;
+  transition: color var(--transition-fast);
+}
+
+.action-button:hover {
+  color: var(--primary-color) !important;
+  background-color: var(--primary-light) !important;
+}
+
+/* Status Chips */
+.status-chip {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 8px !important;
+  min-width: 70px;
+  justify-content: center;
+}
+
+.status-chip.status-active,
+.status-chip.status-approved {
+  background-color: var(--success-color) !important;
+  color: white !important;
+}
+
+.status-chip.status-inactive,
+.status-chip.status-rejected {
+  background-color: var(--error-color) !important;
+  color: white !important;
+}
+
+.status-chip.status-pending {
+  background-color: var(--warning-color) !important;
+  color: white !important;
+}
+
+.status-chip.status-warning {
+  background-color: var(--warning-color) !important;
+  color: white !important;
+}
+
+/* Avatar Styling */
+.table-avatar {
+  width: 32px !important;
+  height: 32px !important;
+  font-size: 14px !important;
+  background-color: var(--primary-color) !important;
+}
+
+/* Rating Styling */
+.table-rating {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.table-rating .MuiRating-root {
+  font-size: 16px;
+}
+
+/* Location Display */
+.location-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+/* Price Display */
+.price-display {
+  font-weight: 600;
+  color: var(--success-color);
+  font-size: 14px;
+}
+
+/* Date Display */
+.date-display {
+  color: var(--text-secondary);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+/* Image Display */
+.image-display {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--border-radius-md);
+  object-fit: cover;
+  border: 1px solid var(--border-color);
+}
+
+/* Link Display */
+.link-display {
+  color: var(--primary-color) !important;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color var(--transition-fast);
+}
+
+.link-display:hover {
+  color: var(--primary-hover) !important;
+  text-decoration: underline;
+}
+
+/* Empty State */
+.empty-table {
+  text-align: center;
+  padding: var(--spacing-xxl);
+  color: var(--text-secondary);
+}
+
+.empty-table-icon {
+  font-size: 48px !important;
+  color: var(--text-disabled);
+  margin-bottom: var(--spacing-md);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .modern-table {
+    border-radius: var(--border-radius-md);
+  }
+  
+  .table-header-cell,
+  .actions-header-cell {
+    padding: 12px 8px !important;
+    font-size: 12px !important;
+  }
+  
+  .table-data-cell {
+    padding: 12px 8px !important;
+    font-size: 13px !important;
+  }
+  
+  .checkbox-cell {
+    padding: 12px 6px !important;
+    width: 50px;
+  }
+  
+  .actions-cell {
+    padding: 12px 6px !important;
+    width: 60px;
+  }
+  
+  .action-button {
+    padding: 2px !important;
+  }
+}
+
+/* Dark Mode Adjustments */
+[data-theme="dark"] .modern-table {
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .table-header-row {
+  background: var(--background-hover);
+}
+
+[data-theme="dark"] .table-data-row:hover {
+  background-color: var(--background-hover) !important;
+}
+
+[data-theme="dark"] .table-data-row.Mui-selected {
+  background-color: var(--primary-light) !important;
+}
+
+/* Loading State */
+.table-loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.table-loading .table-data-row {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Focus States for Accessibility */
+.action-button:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.checkbox-cell .MuiCheckbox-root:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}

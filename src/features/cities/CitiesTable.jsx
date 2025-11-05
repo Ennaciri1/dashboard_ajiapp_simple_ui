@@ -9,100 +9,123 @@ import {
   Paper,
   Checkbox,
   Typography,
+  Box,
   IconButton,
-  Chip
+  Chip,
+  Avatar,
+  Tooltip
 } from '@mui/material';
-import { Delete as DeleteIcon } from '@mui/icons-material';
+import { 
+  MoreVert as MoreVertIcon,
+  LocationCity as LocationCityIcon,
+  Person as PersonIcon,
+  Schedule as ScheduleIcon
+} from '@mui/icons-material';
 import { getCityName } from './index';
-
-// Helper function to format date
-const formatDate = (dateString) => {
-  if (!dateString) return '-';
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  } catch (error) {
-    return '-';
-  }
-};
+import { formatDateTime } from '../../utils/formatters';
 
 const CitiesTable = ({
   cities,
   selectedCities,
   onSelectAll,
   onSelectCity,
-  onDeleteClick
+  onMenuClick
 }) => {
+  const getStatusColor = (active) => {
+    return active ? 'success' : 'error';
+  };
+
+  const getStatusLabel = (active) => {
+    return active ? 'Active' : 'Inactive';
+  };
+
   return (
-    <TableContainer component={Paper} className="cities-table">
+    <TableContainer component={Paper} className="modern-table cities-table">
       <Table>
         <TableHead>
-          <TableRow>
-            <TableCell padding="checkbox">
+          <TableRow className="table-header-row">
+            <TableCell padding="checkbox" align="center" className="checkbox-cell">
               <Checkbox
                 indeterminate={selectedCities.length > 0 && selectedCities.length < cities.length}
                 checked={selectedCities.length === cities.length && cities.length > 0}
                 onChange={onSelectAll}
+                color="primary"
               />
             </TableCell>
-            <TableCell>Name</TableCell>
-            <TableCell>Status</TableCell>
-            <TableCell>Created At</TableCell>
-            <TableCell>Created By</TableCell>
-            <TableCell>Updated At</TableCell>
-            <TableCell>Updated By</TableCell>
-            <TableCell>Actions</TableCell>
+            <TableCell align="center" className="table-header-cell">Name</TableCell>
+            <TableCell align="center" className="table-header-cell">Status</TableCell>
+            <TableCell align="center" className="table-header-cell">Created At</TableCell>
+            <TableCell align="center" className="table-header-cell">Created By</TableCell>
+            <TableCell align="center" className="table-header-cell">Updated At</TableCell>
+            <TableCell align="center" className="actions-header-cell">Actions</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {cities.map((city) => (
-            <TableRow key={city.id} className="city-row">
-              <TableCell padding="checkbox">
+            <TableRow 
+              key={city.id} 
+              className="table-data-row"
+              hover
+              selected={selectedCities.includes(city.id)}
+            >
+              <TableCell padding="checkbox" align="center" className="checkbox-cell">
                 <Checkbox
                   checked={selectedCities.includes(city.id)}
                   onChange={() => onSelectCity(city.id)}
+                  color="primary"
                 />
               </TableCell>
-              <TableCell>
-                <Typography variant="body2" fontWeight="bold">
-                  {getCityName(city)}
-                </Typography>
+              <TableCell align="center" className="table-data-cell">
+                <Box display="flex" alignItems="center" justifyContent="center" gap={1}>
+                  <Avatar className="table-avatar">
+                    <LocationCityIcon fontSize="small" />
+                  </Avatar>
+                  <Typography variant="body2" fontWeight="600">
+                    {getCityName(city)}
+                  </Typography>
+                </Box>
               </TableCell>
-              <TableCell>
+              <TableCell align="center" className="table-data-cell">
                 <Chip
-                  label={city.active ? 'Active' : 'Inactive'}
-                  color={city.active ? 'success' : 'default'}
+                  label={getStatusLabel(city.active)}
+                  color={getStatusColor(city.active)}
                   size="small"
+                  className="status-chip"
                 />
               </TableCell>
-              <TableCell>
-                <Typography variant="body2" fontSize="0.875rem">
-                  {formatDate(city.createdAt)}
+              <TableCell align="center" className="table-data-cell">
+                <Box display="flex" alignItems="center" justifyContent="center" gap={0.5}>
+                  <ScheduleIcon fontSize="small" color="action" />
+                  <Typography variant="body2" className="date-display">
+                    {formatDateTime(city.createdAt)}
+                  </Typography>
+                </Box>
+              </TableCell>
+              <TableCell align="center" className="table-data-cell">
+                <Box display="flex" alignItems="center" justifyContent="center" gap={1}>
+                  <Avatar className="table-avatar">
+                    <PersonIcon fontSize="small" />
+                  </Avatar>
+                  <Typography variant="body2" fontWeight="500">
+                    {city.createdBy || 'N/A'}
+                  </Typography>
+                </Box>
+              </TableCell>
+              <TableCell align="center" className="table-data-cell">
+                <Typography variant="body2" className="date-display">
+                  {formatDateTime(city.updatedAt)}
                 </Typography>
               </TableCell>
-              <TableCell>
-                <Typography variant="body2" fontSize="0.875rem">
-                  {city.createdBy || '-'}
-                </Typography>
-              </TableCell>
-              <TableCell>
-                <Typography variant="body2" fontSize="0.875rem">
-                  {formatDate(city.updatedAt)}
-                </Typography>
-              </TableCell>
-              <TableCell>
-                <Typography variant="body2" fontSize="0.875rem">
-                  {city.updatedBy || '-'}
-                </Typography>
-              </TableCell>
-              <TableCell>
-                <IconButton 
-                  onClick={() => onDeleteClick(city.id)}
-                  color="error"
-                  title="Delete city"
-                >
-                  <DeleteIcon />
-                </IconButton>
+              <TableCell align="center" className="actions-cell">
+                <Tooltip title="More actions">
+                  <IconButton
+                    size="small"
+                    onClick={() => onMenuClick(city.id, city)}
+                    className="action-button"
+                  >
+                    <MoreVertIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
               </TableCell>
             </TableRow>
           ))}

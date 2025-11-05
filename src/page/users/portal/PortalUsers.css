@@ -1,0 +1,17 @@
+@import '../../../styles/servicePage.css';
+
+.portal-users-card {
+  margin-top: 20px;
+}
+
+.portal-users-card .MuiCardContent-root {
+  padding: 0 !important;
+}
+
+.results-indicator {
+  padding: 16px 24px;
+  background-color: var(--background-paper);
+  border-bottom: 1px solid var(--divider-color);
+  margin-bottom: 0;
+}
+

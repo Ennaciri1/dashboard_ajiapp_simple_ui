@@ -1,19 +1,72 @@
 import React, { useState } from 'react';
 import { PageHeader, SearchBar, FilterSelect, DataTable } from '../../components/common';
-import { sampleFeaturesData } from './sampleData';
 import { filterData, SEARCH_FIELDS, formatDate, truncateText, FILTER_OPTIONS } from '../../utils/common';
 import { useNotification } from '../../contexts/NotificationContext';
 import './Features.css';
 
+// Real features data (can be replaced with API call later)
+const featuresData = [
+  {
+    id: 1,
+    name: "Performance Optimization",
+    icon: "🚀",
+    category: "Performance",
+    status: "Active",
+    description: "Fast and optimized interface for a smooth user experience.",
+    priority: "High",
+    lastUpdated: "2024-01-15"
+  },
+  {
+    id: 2,
+    name: "Modern Design",
+    icon: "🎨",
+    category: "UI/UX",
+    status: "Active",
+    description: "Modern and intuitive user interface with dark theme support.",
+    priority: "High",
+    lastUpdated: "2024-01-14"
+  },
+  {
+    id: 3,
+    name: "Responsive Layout",
+    icon: "📱",
+    category: "UI/UX",
+    status: "Active",
+    description: "Compatible with all devices: desktop, tablet and mobile.",
+    priority: "Medium",
+    lastUpdated: "2024-01-13"
+  },
+  {
+    id: 4,
+    name: "Customization",
+    icon: "🔧",
+    category: "Configuration",
+    status: "Active",
+    description: "Easily customizable according to your needs and preferences.",
+    priority: "Medium",
+    lastUpdated: "2024-01-12"
+  },
+  {
+    id: 5,
+    name: "Security System",
+    icon: "🔒",
+    category: "Security",
+    status: "Active",
+    description: "Robust security system to protect your data.",
+    priority: "High",
+    lastUpdated: "2024-01-11"
+  }
+];
+
 const Features = () => {
-  const { showSuccess, showError } = useNotification();
+  const { showSuccess } = useNotification();
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
   const [priorityFilter, setPriorityFilter] = useState('All');
 
   // Filter data using common utility
-  const filteredData = filterData(sampleFeaturesData, searchTerm, {
+  const filteredData = filterData(featuresData, searchTerm, {
     category: categoryFilter,
     status: statusFilter,
     priority: priorityFilter

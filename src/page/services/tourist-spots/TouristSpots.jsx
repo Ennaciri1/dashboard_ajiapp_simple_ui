@@ -6,7 +6,11 @@ import {
   Card,
   CardContent,
   CircularProgress,
-  Alert
+  Alert,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -16,8 +20,9 @@ import {
 } from '@mui/icons-material';
 import SpotsTable from '../../../features/touristSpots/SpotsTable';
 import { TOURIST_FILTER_DEFAULTS, TOURIST_FILTERS, filterSpots } from '../../../features/touristSpots';
-import { touristSpotService } from '../../../services/api/touristSpotService';
-import { cityService } from '../../../services/api/cityService';
+import { useTouristSpots } from '../../../presentation/hooks/useTouristSpots';
+import { useLanguages } from '../../../presentation/hooks/useLanguages';
+import { cityService } from '../../../infrastructure/api/cityService';
 import { FilterToolbar, ActionMenu, SpotDetailModal } from '../../../components/common';
 import { useNotification } from '../../../contexts/NotificationContext';
 import './TouristSpots.css';
@@ -25,16 +30,64 @@ import './TouristSpots.css';
 const TouristSpots = () => {
   const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
-  const [spots, setSpots] = useState([]);
+  const { spots: spotsEntities, loading, error, deleteSpot, loadSpots } = useTouristSpots();
+  const { languages } = useLanguages();
   const [selectedSpots, setSelectedSpots] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [filters, setFilters] = useState(TOURIST_FILTER_DEFAULTS);
+  const [selectedLanguage, setSelectedLanguage] = useState('en'); // Default to English
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedSpotId, setSelectedSpotId] = useState(null);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [focusedElement, setFocusedElement] = useState(null);
   const [cities, setCities] = useState([]);
+
+  // Convertir les entités TouristSpot en format plat pour le filtrage
+  const spots = useMemo(() => {
+    console.log('TouristSpots - Converting spotsEntities:', spotsEntities);
+    console.log('TouristSpots - spotsEntities length:', spotsEntities?.length || 0);
+    
+    if (!Array.isArray(spotsEntities) || spotsEntities.length === 0) {
+      console.log('TouristSpots - No spots entities to convert');
+      return [];
+    }
+    
+    return spotsEntities.map(spot => {
+      // Use raw data if available, otherwise use entity properties
+      const rawData = spot._rawData || {};
+      
+      console.log('TouristSpots - Converting spot:', spot);
+      console.log('TouristSpots - rawData:', rawData);
+      
+      const result = {
+        id: spot.id,
+        name: spot.name || '',
+        nameTranslations: spot.nameTranslations || {},
+        city: spot.city || rawData.cityName || '',
+        cityName: rawData.cityName || spot.city || '', // SpotsTable expects cityName
+        cityId: rawData.cityId || '',
+        description: spot.description || '',
+        descriptionTranslations: spot.descriptionTranslations || {},
+        address: rawData.address || spot.address || '', // API provides address directly
+        addressTranslations: spot.addressTranslations || {},
+        interestTypes: spot.interestTypes || [],
+        rating: spot.rating,
+        coordinates: spot.coordinates,
+        images: spot.images || [],
+        openingHours: spot.openingHours || {},
+        openingTime: rawData.openingTime || '',
+        closingTime: rawData.closingTime || '',
+        entryFee: spot.entryFee || '',
+        paidEntry: rawData.paidEntry !== undefined ? rawData.paidEntry : (spot.entryFee === 'paid' || spot.entryFee === true), // SpotsTable expects paidEntry boolean
+        active: rawData.active !== undefined ? rawData.active : (spot.status === 'active'), // SpotsTable expects active boolean
+        likes: rawData.likes || 0,
+        createdAt: spot.createdAt,
+        updatedAt: spot.updatedAt
+      };
+      
+      console.log('TouristSpots - Converted result:', result);
+      return result;
+    });
+  }, [spotsEntities]);
 
   const filteredSpots = useMemo(() => {
     if (!Array.isArray(spots)) {
@@ -78,37 +131,17 @@ const TouristSpots = () => {
     loadCities();
   }, []);
 
-  // Load tourist spots from API
+  // Load spots on mount and when language changes
   useEffect(() => {
-    const loadSpots = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await touristSpotService.getAllTouristSpots();
-        console.log('API Response:', response);
-        
-        // Handle API response structure: response.data.spots
-        let spotsData = [];
-        if (response && response.data && response.data.spots) {
-          spotsData = Array.isArray(response.data.spots) ? response.data.spots : [];
-        } else if (response && response.data && Array.isArray(response.data)) {
-          spotsData = response.data;
-        } else if (Array.isArray(response)) {
-          spotsData = response;
-        }
-        
-        setSpots(spotsData);
-      } catch (err) {
-        console.error('Error loading tourist spots:', err);
-        setError('Error loading tourist spots');
-        setSpots([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+    loadSpots({ language: selectedLanguage });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedLanguage]); // loadSpots is stable from useCallback, only re-load when language changes
 
-    loadSpots();
-  }, []);
+  // Handle language change
+  const handleLanguageChange = (event) => {
+    const newLanguage = event.target.value;
+    setSelectedLanguage(newLanguage);
+  };
 
   const handleAddSpot = () => {
     navigate('/services/tourist-spots/formSpots');
@@ -186,14 +219,23 @@ const TouristSpots = () => {
   };
 
   const handleDeleteSpot = async () => {
+    if (selectedSpotId) {
+      const confirmed = window.confirm('Are you sure you want to delete this tourist spot?');
+      if (!confirmed) {
+        setAnchorEl(null);
+        return;
+      }
+
     try {
-      await touristSpotService.deleteTouristSpot(selectedSpotId);
-      setSpots(prev => prev.filter(spot => spot.id !== selectedSpotId));
+        await deleteSpot(selectedSpotId);
       setSelectedSpots(prev => prev.filter(id => id !== selectedSpotId));
       showSuccess('Tourist spot deleted successfully');
     } catch (error) {
       console.error('Error deleting tourist spot:', error);
       showError('Error deleting tourist spot');
+      } finally {
+        setAnchorEl(null);
+      }
     }
   };
 
@@ -210,13 +252,8 @@ const TouristSpots = () => {
     if (!confirmed) return;
 
     try {
-      // Delete all selected tourist spots
-      await Promise.all(selectedSpots.map(spotId => touristSpotService.deleteTouristSpot(spotId)));
-      
-      // Update state
-      setSpots(prev => prev.filter(spot => !selectedSpots.includes(spot.id)));
+      await Promise.all(selectedSpots.map(spotId => deleteSpot(spotId)));
       setSelectedSpots([]);
-      
       showSuccess(`${selectedSpots.length} tourist spots deleted successfully`);
     } catch (error) {
       console.error('Error deleting tourist spots:', error);
@@ -285,6 +322,30 @@ const TouristSpots = () => {
         ]}
       />
 
+      {/* Language Selector */}
+      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 2 }}>
+        <FormControl size="small" sx={{ minWidth: 150 }}>
+          <InputLabel id="language-select-label">Language</InputLabel>
+          <Select
+            labelId="language-select-label"
+            id="language-select"
+            value={selectedLanguage}
+            label="Language"
+            onChange={handleLanguageChange}
+          >
+            {languages && languages.length > 0 ? (
+              languages.map((lang) => (
+                <MenuItem key={lang.code} value={lang.code}>
+                  {lang.name} ({lang.code.toUpperCase()})
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem value="en">English (EN)</MenuItem>
+            )}
+          </Select>
+        </FormControl>
+      </Box>
+
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
@@ -323,13 +384,13 @@ const TouristSpots = () => {
           },
           {
             key: 'edit',
-            label: 'Edit Spot',
+            label: 'Edit',
             icon: <EditIcon fontSize="small" />,
             onClick: handleEditSpot
           },
           {
             key: 'delete',
-            label: 'Delete Spot',
+            label: 'Delete',
             icon: <DeleteIcon fontSize="small" />,
             onClick: handleDeleteSpot
           }

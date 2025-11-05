@@ -23,11 +23,14 @@ import CardTravelIcon from '@mui/icons-material/CardTravel';
 import ContactMailIcon from '@mui/icons-material/ContactMail';
 import LocationCityIcon from '@mui/icons-material/LocationCity';
 import RateReviewIcon from '@mui/icons-material/RateReview';
+import LanguageIcon from '@mui/icons-material/Language';
+import TranslateIcon from '@mui/icons-material/Translate';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import PersonIcon from '@mui/icons-material/Person';
 import List from '@mui/material/List';
 import { useState } from 'react';
+import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../../contexts/useTheme';
 import './Drawer.css';
@@ -52,7 +55,19 @@ const servicesMenu = {
         { text: 'Contact', icon: <ContactMailIcon />, path: '/services/contact' },
         { text: 'Hotels', icon: <HotelIcon />, path: '/services/hotels' },
         { text: 'Stadiums', icon: <StadiumIcon />, path: '/services/stadiums' },
-        { text: 'Visa', icon: <CardTravelIcon />, path: '/services/visa' }
+        { text: 'Visa', icon: <CardTravelIcon />, path: '/services/visa' },
+        { text: 'Languages', icon: <LanguageIcon />, path: '/services/languages' },
+        { text: 'Translations', icon: <TranslateIcon />, path: '/services/translations' }
+    ]
+};
+
+// Portal submenu with nested submenus
+const portalSubmenu = {
+    text: 'Portal',
+    icon: <AccountBoxIcon />,
+    submenu: [
+        { text: 'Activities Users', icon: <SportsSoccerIcon />, path: '/users/portal/activities' },
+        { text: 'Hotels Users', icon: <HotelIcon />, path: '/users/portal/hotels' }
     ]
 };
 
@@ -62,7 +77,7 @@ const usersMenu = {
     icon: <PeopleIcon />,
     submenu: [
         { text: 'Admin', icon: <AdminPanelSettingsIcon />, path: '/users/admin' },
-        { text: 'Portal', icon: <AccountBoxIcon />, path: '/users/portal' },
+        portalSubmenu,
         { text: 'User', icon: <PersonIcon />, path: '/users/user' }
     ]
 };
@@ -87,6 +102,7 @@ const Drawer = () => {
     // States to manage opening/closing of submenus
     const [servicesOpen, setServicesOpen] = useState(false);
     const [usersOpen, setUsersOpen] = useState(false);
+    const [portalOpen, setPortalOpen] = useState(false);
 
     // Function to render a simple menu item
     const renderMenuItem = (item) => (
@@ -120,16 +136,62 @@ const Drawer = () => {
             </ListItem>
             <Collapse in={isOpen} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding className="submenu-list">
-                    {menu.submenu.map((subItem) => (
-                        <ListItem key={subItem.path} disablePadding className="submenu-item">
+                    {menu.submenu.map((subItem) => {
+                        // Check if this submenu item has its own submenu (nested)
+                        if (subItem.submenu && Array.isArray(subItem.submenu)) {
+                            return (
+                                <React.Fragment key={subItem.text}>
+                                    {renderNestedSubmenu(subItem, portalOpen, setPortalOpen)}
+                                </React.Fragment>
+                            );
+                        }
+                        // Regular submenu item
+                        return (
+                            <ListItem key={subItem.path || subItem.text} disablePadding className="submenu-item">
+                                <ListItemButton
+                                    onClick={() => navigate(subItem.path)}
+                                    className={`submenu-button ${location.pathname === subItem.path ? 'active' : ''}`}
+                                >
+                                    <ListItemIcon className="submenu-icon">
+                                        {subItem.icon}
+                                    </ListItemIcon>
+                                    <ListItemText primary={subItem.text} className="submenu-text" />
+                                </ListItemButton>
+                            </ListItem>
+                        );
+                    })}
+                </List>
+            </Collapse>
+        </>
+    );
+
+    // Function to render nested submenu (for Portal submenu)
+    const renderNestedSubmenu = (menu, isOpen, setIsOpen) => (
+        <>
+            <ListItem disablePadding className="submenu-item">
+                <ListItemButton
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="submenu-button submenu-with-nested"
+                >
+                    <ListItemIcon className="submenu-icon">
+                        {menu.icon}
+                    </ListItemIcon>
+                    <ListItemText primary={menu.text} className="submenu-text" />
+                    {isOpen ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
+                </ListItemButton>
+            </ListItem>
+            <Collapse in={isOpen} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding className="nested-submenu-list">
+                    {menu.submenu.map((nestedItem) => (
+                        <ListItem key={nestedItem.path} disablePadding className="nested-submenu-item">
                             <ListItemButton
-                                onClick={() => navigate(subItem.path)}
-                                className={`submenu-button ${location.pathname === subItem.path ? 'active' : ''}`}
+                                onClick={() => navigate(nestedItem.path)}
+                                className={`nested-submenu-button ${location.pathname === nestedItem.path ? 'active' : ''}`}
                             >
-                                <ListItemIcon className="submenu-icon">
-                                    {subItem.icon}
+                                <ListItemIcon className="nested-submenu-icon">
+                                    {nestedItem.icon}
                                 </ListItemIcon>
-                                <ListItemText primary={subItem.text} className="submenu-text" />
+                                <ListItemText primary={nestedItem.text} className="nested-submenu-text" />
                             </ListItemButton>
                         </ListItem>
                     ))}

@@ -1,7 +1,7 @@
 import { getAuthData, saveAuthData, clearAuthData } from '../storage/authStorage';
 import { isRoleAllowed } from '../../constants/auth';
 
-const baseURL = import.meta.env.VITE_API_BASE_URL + '/api/v1';
+const baseURL = (import.meta.env.VITE_API_BASE_URL || 'http://192.168.11.127:8080') + '/api/v1';
 
 const unauthorizedSubscribers = new Set();
 const tokenUpdateSubscribers = new Set();
@@ -68,10 +68,11 @@ const mapAuthPayload = (payload) => {
     throw new Error('Invalid auth payload');
   }
   const data = payload.data;
-  if (!data?.token || !data?.role) {
+  if (!data?.token || !data?.roles || !Array.isArray(data.roles) || data.roles.length === 0) {
     throw new Error('Invalid token payload');
   }
-  if (!isRoleAllowed(data.role)) {
+  const primaryRole = data.roles[0];
+  if (!isRoleAllowed(primaryRole)) {
     const error = new Error('Role not authorized');
     error.code = 'FORBIDDEN_ROLE';
     throw error;
@@ -83,9 +84,12 @@ const mapAuthPayload = (payload) => {
       id: data.userId,
       email: data.email,
       fullName: data.fullName,
-      role: data.role,
-      notificationsEnabled: data.notificationsEnabled,
-      profilePicture: data.profilePicture,
+      role: primaryRole, // Keep compatibility with old system
+      roles: data.roles, // Add complete roles array
+      phoneNumber: data.phoneNumber || null,
+      notificationsEnabled: data.notificationsEnabled || false,
+      profilePicture: data.profilePicture || null,
+      profiles: data.profiles || []
     }
   };
 };
@@ -93,6 +97,9 @@ const mapAuthPayload = (payload) => {
 const attemptRefresh = async () => {
   const { refreshToken } = getAuthData();
   if (!refreshToken) {
+    // No refresh token available, disconnect user
+    clearAuthData();
+    notifyUnauthorized();
     return null;
   }
 
@@ -109,12 +116,24 @@ const attemptRefresh = async () => {
     refreshPromise = fetch(url, options)
       .then(async (response) => {
         const payload = await parseResponse(response);
+        
+        // If refresh returns 401, disconnect user
+        if (response.status === 401) {
+          clearAuthData();
+          notifyUnauthorized();
+          const error = new Error('Session expired. Please login again.');
+          error.status = 401;
+          error.payload = payload;
+          throw error;
+        }
+        
         if (!response.ok) {
           const error = new Error(payload?.message || 'Unable to refresh session');
           error.status = response.status;
           error.payload = payload;
           throw error;
         }
+        
         return mapAuthPayload(payload);
       })
       .then((authData) => {
@@ -123,6 +142,7 @@ const attemptRefresh = async () => {
         return authData;
       })
       .catch((error) => {
+        // If refresh failed, disconnect user
         clearAuthData();
         notifyUnauthorized();
         throw error;
@@ -135,6 +155,7 @@ const attemptRefresh = async () => {
   try {
     return await refreshPromise;
   } catch (error) {
+    // If refresh failed, return null to indicate failure
     return null;
   }
 };
@@ -164,6 +185,15 @@ const request = async (url, options = {}) => {
     finalHeaders.Authorization = `Bearer ${authData.token}`;
   }
 
+  // Log pour debug
+  if (url.includes('visa')) {
+    console.log('HTTP Request:', {
+      method,
+      url: resolvedUrl,
+      headers: finalHeaders
+    });
+  }
+
   const payload = body === undefined || body === null
     ? undefined
     : isFormData
@@ -179,8 +209,11 @@ const request = async (url, options = {}) => {
     ...rest,
   });
 
+  // Handle 401 Unauthorized - try to refresh token
   if (response.status === 401 && retry) {
     const refreshed = await attemptRefresh();
+    
+    // If refresh succeeded, retry the original request with new token
     if (refreshed?.token) {
       const updatedHeaders = {
         ...headers,
@@ -189,9 +222,15 @@ const request = async (url, options = {}) => {
       return request(url, {
         ...options,
         headers: updatedHeaders,
-        retry: false,
+        retry: false, // Don't retry again to avoid infinite loop
       });
     }
+    
+    // If refresh failed (returned null), the user has been disconnected
+    // Throw an error to stop the request chain
+    const error = new Error('Session expired. Please login again.');
+    error.status = 401;
+    throw error;
   }
 
   const data = await parseResponse(response);

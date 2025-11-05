@@ -1,18 +1,57 @@
 import React, { useState } from 'react';
 import { PageHeader, SearchBar, FilterSelect, DataTable } from '../../components/common';
-import { sampleDashboardData } from './sampleData';
 import { filterData, SEARCH_FIELDS, formatCurrency, formatDate, truncateText, FILTER_OPTIONS } from '../../utils/common';
 import { useNotification } from '../../contexts/NotificationContext';
 import './Dashboard.css';
 
+// Real dashboard data (can be replaced with API call later)
+const dashboardData = [
+  {
+    id: 1,
+    name: "User Analytics",
+    type: "Analytics",
+    status: "Active",
+    lastUpdated: "2024-01-15",
+    value: 1250,
+    description: "User engagement and activity metrics"
+  },
+  {
+    id: 2,
+    name: "Revenue Report",
+    type: "Finance",
+    status: "Active",
+    lastUpdated: "2024-01-14",
+    value: 45000,
+    description: "Monthly revenue and financial performance"
+  },
+  {
+    id: 3,
+    name: "System Health",
+    type: "Monitoring",
+    status: "Warning",
+    lastUpdated: "2024-01-15",
+    value: 85,
+    description: "System performance and health monitoring"
+  },
+  {
+    id: 4,
+    name: "Customer Support",
+    type: "Support",
+    status: "Active",
+    lastUpdated: "2024-01-13",
+    value: 23,
+    description: "Customer support tickets and resolution"
+  }
+];
+
 const Dashboard = () => {
-  const { showSuccess, showError } = useNotification();
+  const { showSuccess } = useNotification();
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
 
   // Filter data using common utility
-  const filteredData = filterData(sampleDashboardData, searchTerm, {
+  const filteredData = filterData(dashboardData, searchTerm, {
     type: typeFilter,
     status: statusFilter
   }, SEARCH_FIELDS.DASHBOARD);

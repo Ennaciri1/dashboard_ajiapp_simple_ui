@@ -6,7 +6,11 @@ import {
   Card,
   CardContent,
   CircularProgress,
-  Alert
+  Alert,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -18,53 +22,78 @@ import HotelsTable from '../../../features/hotels/HotelsTable';
 import { filterHotels, HOTEL_FILTER_DEFAULTS, HOTEL_FILTERS } from '../../../features/hotels';
 import { FilterToolbar, ActionMenu } from '../../../components/common';
 import { useNotification } from '../../../contexts/NotificationContext';
-import { hotelService } from '../../../services/api/hotelService';
+import { useHotels } from '../../../presentation/hooks/useHotels';
+import { useLanguages } from '../../../presentation/hooks/useLanguages';
 import './Hotels.css';
 
 const Hotels = () => {
   const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
-  const [hotels, setHotels] = useState([]);
+  const { hotels: hotelsEntities, loading, error, deleteHotel, loadHotels } = useHotels();
+  const { languages } = useLanguages();
   const [selectedHotels, setSelectedHotels] = useState([]);
   const [filters, setFilters] = useState(HOTEL_FILTER_DEFAULTS);
+  const [selectedLanguage, setSelectedLanguage] = useState('en'); // Default to English
   const [anchorEl, setAnchorEl] = useState(null);
   const [selectedHotelId, setSelectedHotelId] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+
+  // Convertir les entités Hotel en format plat pour le filtrage
+  const hotels = useMemo(() => {
+    console.log('Hotels - Converting hotelsEntities:', hotelsEntities);
+    console.log('Hotels - hotelsEntities length:', hotelsEntities?.length || 0);
+    
+    if (!Array.isArray(hotelsEntities) || hotelsEntities.length === 0) {
+      console.log('Hotels - No hotels entities to convert');
+      return [];
+    }
+    
+    return hotelsEntities.map(hotel => {
+      // Use raw data if available, otherwise use entity properties
+      const rawData = hotel._rawData || {};
+      
+      console.log('Hotels - Converting hotel:', hotel);
+      console.log('Hotels - hotel.name:', hotel.name);
+      console.log('Hotels - hotel.description:', hotel.description);
+      console.log('Hotels - rawData:', rawData);
+      console.log('Hotels - rawData.cityName:', rawData.cityName);
+      console.log('Hotels - rawData.priceRange:', rawData.priceRange);
+      console.log('Hotels - rawData.likesCount:', rawData.likesCount);
+      
+      const mappedHotel = {
+        id: hotel.id,
+        name: hotel.name || '',
+        city: rawData.cityName || hotel.location?.cityName || '',
+        cityName: rawData.cityName || hotel.location?.cityName || '', // HotelsTable expects cityName
+        location: rawData.location || hotel.location || {},
+        description: hotel.description || '',
+        amenities: hotel.amenities || [],
+        rating: hotel.rating,
+        priceRange: rawData.priceRange || hotel.priceRange || {},
+        images: hotel.images || [],
+        likesCount: rawData.likesCount || 0,
+        active: rawData.active !== undefined ? rawData.active : (hotel.status === 'active'),
+        createdAt: hotel.createdAt,
+        updatedAt: hotel.updatedAt
+      };
+      
+      console.log('Hotels - Mapped hotel:', mappedHotel);
+      return mappedHotel;
+    });
+  }, [hotelsEntities]);
 
   const filteredHotels = useMemo(() => filterHotels(hotels, filters), [hotels, filters]);
 
-  // Load hotels from API
+  // Load hotels on mount and when language changes
   useEffect(() => {
-    const loadHotels = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await hotelService.getAllHotels();
-        console.log('API Response:', response);
-        
-        // Handle API response structure: response.data.hotels
-        let hotelsData = [];
-        if (response && response.data && response.data.hotels) {
-          hotelsData = Array.isArray(response.data.hotels) ? response.data.hotels : [];
-        } else if (response && response.data && Array.isArray(response.data)) {
-          hotelsData = response.data;
-        } else if (Array.isArray(response)) {
-          hotelsData = response;
-        }
-        
-        setHotels(hotelsData);
-      } catch (err) {
-        console.error('Error loading hotels:', err);
-        setError('Error loading hotels');
-        setHotels([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+    loadHotels({ language: selectedLanguage });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedLanguage]); // Re-load when language changes
 
-    loadHotels();
-  }, []);
+  // Handle language change
+  const handleLanguageChange = (event) => {
+    const newLanguage = event.target.value;
+    setSelectedLanguage(newLanguage);
+  };
 
   const handleAddHotel = () => {
     navigate('/services/hotels/formHotel');
@@ -121,8 +150,7 @@ const Hotels = () => {
       }
 
       try {
-        await hotelService.deleteHotel(selectedHotelId);
-        setHotels(prev => prev.filter(h => h.id !== selectedHotelId));
+        await deleteHotel(selectedHotelId);
         setSelectedHotels(prev => prev.filter(id => id !== selectedHotelId));
         showSuccess('Hotel deleted successfully');
       } catch (error) {
@@ -148,10 +176,9 @@ const Hotels = () => {
 
     try {
       // Delete all selected hotels
-      await Promise.all(selectedHotels.map(hotelId => hotelService.deleteHotel(hotelId)));
+      await Promise.all(selectedHotels.map(hotelId => deleteHotel(hotelId)));
       
       // Update state
-      setHotels(prev => prev.filter(hotel => !selectedHotels.includes(hotel.id)));
       setSelectedHotels([]);
       
       showSuccess(`${selectedHotels.length} hotels deleted successfully`);
@@ -213,6 +240,30 @@ const Hotels = () => {
         </Alert>
       )}
 
+      {/* Language Selector */}
+      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 2 }}>
+        <FormControl size="small" sx={{ minWidth: 150 }}>
+          <InputLabel id="language-select-label">Language</InputLabel>
+          <Select
+            labelId="language-select-label"
+            id="language-select"
+            value={selectedLanguage}
+            label="Language"
+            onChange={handleLanguageChange}
+          >
+            {languages && languages.length > 0 ? (
+              languages.map((lang) => (
+                <MenuItem key={lang.code} value={lang.code}>
+                  {lang.name} ({lang.code.toUpperCase()})
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem value="en">English (EN)</MenuItem>
+            )}
+          </Select>
+        </FormControl>
+      </Box>
+
       <Box className="results-indicator">
         <Typography variant="body2" color="textSecondary">
           {filteredHotels.length} hotel{filteredHotels.length !== 1 ? 's' : ''} found
@@ -222,6 +273,8 @@ const Hotels = () => {
 
       <Card className="hotels-card">
         <CardContent>
+          {console.log('Hotels - Rendering HotelsTable with filteredHotels:', filteredHotels)}
+          {console.log('Hotels - filteredHotels length:', filteredHotels?.length || 0)}
           <HotelsTable
             hotels={filteredHotels}
             selectedHotels={selectedHotels}
@@ -239,7 +292,7 @@ const Hotels = () => {
         items={[
           {
             key: 'view',
-            label: 'View',
+            label: 'View Details',
             icon: <ViewIcon fontSize="small" />,
             onClick: handleViewHotel
           },

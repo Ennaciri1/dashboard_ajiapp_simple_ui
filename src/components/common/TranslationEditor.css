@@ -1,0 +1,151 @@
+/* Translation Editor Styles */
+.translation-editor-card {
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: var(--border-radius-lg, 8px);
+}
+
+.translation-editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--border-color, #e0e0e0);
+}
+
+.translation-field-label {
+  font-weight: 600;
+  color: var(--text-primary, #333);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.required-indicator {
+  color: var(--error-color, #d32f2f);
+  font-weight: bold;
+}
+
+.translation-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.translation-cancel-btn {
+  padding: 0.5rem 1rem;
+  background-color: var(--background-secondary, #f5f5f5);
+  color: var(--text-primary, #333);
+  border: 1px solid var(--border-color, #e0e0e0);
+  border-radius: var(--border-radius, 4px);
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.translation-cancel-btn:hover:not(:disabled) {
+  background-color: var(--background-hover, #eeeeee);
+}
+
+.translation-cancel-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.translation-save-btn {
+  padding: 0.5rem 1rem;
+  background-color: var(--primary-color, #1976d2);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius, 4px);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.translation-save-btn:hover:not(:disabled) {
+  background-color: var(--primary-dark, #1565c0);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.translation-save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.translation-inputs-grid {
+  margin-top: 1rem;
+}
+
+.translation-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.translation-input-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary, #666);
+  margin-bottom: 0.25rem;
+}
+
+.translation-input .MuiOutlinedInput-root {
+  background-color: var(--background-paper, #fff);
+}
+
+.translation-input .MuiOutlinedInput-root:hover {
+  border-color: var(--primary-color, #1976d2);
+}
+
+.translation-input .MuiOutlinedInput-root.Mui-focused {
+  border-color: var(--primary-color, #1976d2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .translation-editor-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .translation-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .translation-inputs-grid .MuiGrid-item {
+    width: 100%;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .translation-editor-card {
+    background-color: var(--background-dark, #1e1e1e);
+    border-color: var(--border-dark, #333);
+  }
+
+  .translation-field-label {
+    color: var(--text-dark, #fff);
+  }
+
+  .translation-cancel-btn {
+    background-color: var(--background-dark-secondary, #2a2a2a);
+    color: var(--text-dark, #fff);
+    border-color: var(--border-dark, #333);
+  }
+
+  .translation-input-label {
+    color: var(--text-dark-secondary, #ccc);
+  }
+
+  .translation-input .MuiOutlinedInput-root {
+    background-color: var(--background-dark-secondary, #2a2a2a);
+    color: var(--text-dark, #fff);
+  }
+}
+

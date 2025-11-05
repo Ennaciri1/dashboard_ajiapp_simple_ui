@@ -31,14 +31,15 @@ export class DeleteHotelUseCase {
 
       return true;
     } catch (error) {
-      throw new Error(`Erreur lors de la suppression de l'hôtel: ${error.message}`);
+      throw new Error(`Error deleting hotel: ${error.message}`);
     }
   }
 
   /**
    * Vérifie les règles métier avant suppression
    */
-  async _checkBusinessRules(hotel) {
+  // eslint-disable-next-line no-unused-vars
+  async _checkBusinessRules(_hotel) {
     // Exemple : vérifier s'il y a des réservations actives
     // Cette logique dépendra de votre domaine métier
     

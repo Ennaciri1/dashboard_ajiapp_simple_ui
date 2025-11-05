@@ -7,36 +7,30 @@ export class Contact {
     name,
     link,
     icon,
-    active = true,
-    category,
-    description = '',
-    priority = 'normal',
+    isActive = true,
     createdAt,
-    updatedAt
+    updatedAt,
+    createdBy,
+    updatedBy
   }) {
     this.id = id;
     this.name = name;
     this.link = link;
     this.icon = icon;
-    this.active = active;
-    this.category = category;
-    this.description = description;
-    this.priority = priority;
+    this.isActive = isActive;
     this.createdAt = createdAt || new Date();
     this.updatedAt = updatedAt || new Date();
+    this.createdBy = createdBy;
+    this.updatedBy = updatedBy;
   }
 
   // Méthodes métier
   isActive() {
-    return this.active === true;
-  }
-
-  isEmergency() {
-    return this.category === 'Emergency';
+    return this.isActive === true;
   }
 
   isPhoneNumber() {
-    return this.link && this.link.startsWith('tel:');
+    return this.link && (this.link.startsWith('tel:') || /^\+?[\d\s\-()]+$/.test(this.link));
   }
 
   isWebLink() {
@@ -44,17 +38,26 @@ export class Contact {
   }
 
   isEmail() {
-    return this.link && this.link.startsWith('mailto:');
+    return this.link && (this.link.startsWith('mailto:') || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.link));
+  }
+
+  isTextLink() {
+    return this.link && !this.isPhoneNumber() && !this.isWebLink() && !this.isEmail();
   }
 
   activate() {
-    this.active = true;
+    this.isActive = true;
     this.updatedAt = new Date();
   }
 
   deactivate() {
-    this.active = false;
+    this.isActive = false;
     this.updatedAt = new Date();
+  }
+
+  // Méthode pour obtenir le nom
+  getName() {
+    return this.name || '';
   }
 
   // Validation
@@ -67,24 +70,12 @@ export class Contact {
     
     if (!this.link || this.link.trim().length === 0) {
       errors.push('Le lien du contact est requis');
-    } else {
-      // Validation du format du lien
-      const isValidPhone = this.link.startsWith('tel:');
-      const isValidEmail = this.link.startsWith('mailto:');
-      const isValidUrl = /^https?:\/\/.+/.test(this.link);
-      
-      if (!isValidPhone && !isValidEmail && !isValidUrl) {
-        errors.push('Le lien doit être une URL valide, un numéro de téléphone (tel:) ou un email (mailto:)');
-      }
+    } else if (this.link.trim().length < 2) {
+      errors.push('Le lien doit contenir au moins 2 caractères');
     }
     
-    if (!this.category || this.category.trim().length === 0) {
-      errors.push('La catégorie est requise');
-    }
-
-    const validPriorities = ['low', 'normal', 'high', 'urgent'];
-    if (this.priority && !validPriorities.includes(this.priority)) {
-      errors.push('La priorité doit être: low, normal, high ou urgent');
+    if (!this.icon || this.icon.trim().length === 0) {
+      errors.push('L\'icône est requise');
     }
 
     return {
@@ -100,17 +91,45 @@ export class Contact {
       name: this.name,
       link: this.link,
       icon: this.icon,
-      active: this.active,
-      category: this.category,
-      description: this.description,
-      priority: this.priority,
+      isActive: this.isActive,
       createdAt: this.createdAt,
-      updatedAt: this.updatedAt
+      updatedAt: this.updatedAt,
+      createdBy: this.createdBy,
+      updatedBy: this.updatedBy
+    };
+  }
+
+  // Méthode pour l'API POST
+  toCreatePayload() {
+    return {
+      nameTranslations: { en: this.name },
+      link: this.link,
+      icon: this.icon
+    };
+  }
+
+  // Méthode pour l'API PUT
+  toUpdatePayload() {
+    return {
+      nameTranslations: { en: this.name },
+      link: this.link,
+      icon: this.icon,
+      isActive: this.isActive
     };
   }
 
   // Factory method
   static fromJSON(data) {
-    return new Contact(data);
+    return new Contact({
+      id: data.id,
+      name: data.name || (data.nameTranslations && data.nameTranslations.en) || '',
+      link: data.link,
+      icon: data.icon,
+      isActive: data.isActive !== undefined ? data.isActive : data.active,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
+      createdBy: data.createdBy,
+      updatedBy: data.updatedBy
+    });
   }
 }

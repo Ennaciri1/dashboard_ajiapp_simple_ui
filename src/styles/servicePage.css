@@ -1,0 +1,215 @@
+/* Service Page - Standard styles for all service pages */
+
+.global-container {
+  padding: var(--spacing-lg);
+  max-width: 1400px;
+  margin: 0 auto;
+  background: var(--background-default);
+  min-height: 100vh;
+}
+
+/* Results indicator */
+.results-indicator {
+  margin: var(--spacing-lg) 0;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--background-paper);
+  border-radius: var(--border-radius-md);
+  border-left: 4px solid var(--primary-color);
+  box-shadow: var(--shadow-light);
+}
+
+.results-indicator .MuiTypography-root {
+  color: var(--text-secondary);
+}
+
+/* Card Styles */
+.service-card {
+  background: var(--background-paper);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-light);
+  overflow: hidden;
+  transition: box-shadow var(--transition-normal);
+}
+
+.service-card:hover {
+  box-shadow: var(--shadow-medium);
+}
+
+.service-card .MuiCardContent-root {
+  padding: 0 !important;
+}
+
+/* Table Styles */
+.service-table {
+  background: transparent;
+  width: 100%;
+}
+
+.service-table .MuiTableHead-root {
+  background: var(--background-hover);
+}
+
+.service-table .MuiTableCell-head {
+  font-weight: 600;
+  color: var(--text-primary);
+  padding: var(--spacing-md) var(--spacing-sm);
+  border-bottom: 2px solid var(--divider-color);
+  background: var(--background-hover);
+}
+
+.service-table .MuiTableBody-root .MuiTableRow-root {
+  transition: background-color var(--transition-fast);
+}
+
+.service-table .MuiTableBody-root .MuiTableRow-root:hover {
+  background: var(--background-hover);
+}
+
+.service-table .MuiTableBody-root .MuiTableCell-root {
+  padding: var(--spacing-sm);
+  border-bottom: 1px solid var(--divider-color);
+  vertical-align: middle;
+  color: var(--text-primary);
+}
+
+/* Actions Button */
+.actions-button {
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.actions-button:hover {
+  color: var(--primary-color);
+  background: var(--primary-light);
+}
+
+/* Checkbox styling */
+.MuiCheckbox-root {
+  color: var(--text-secondary);
+}
+
+.MuiCheckbox-root.Mui-checked {
+  color: var(--primary-color);
+}
+
+.MuiCheckbox-indeterminate {
+  color: var(--primary-color);
+}
+
+/* Status chips */
+.MuiChip-colorSuccess {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--success-color);
+  font-weight: 500;
+}
+
+.MuiChip-colorError {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--error-color);
+  font-weight: 500;
+}
+
+.MuiChip-colorWarning {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--warning-color);
+  font-weight: 500;
+}
+
+.MuiChip-colorDefault {
+  background: var(--background-hover);
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Loading state */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: var(--text-secondary);
+}
+
+/* Error state */
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: var(--error-color);
+  text-align: center;
+  padding: var(--spacing-xl);
+}
+
+/* Empty state */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: var(--spacing-xl);
+}
+
+.empty-state h3 {
+  margin-bottom: var(--spacing-md);
+  color: var(--text-primary);
+}
+
+.empty-state p {
+  margin-bottom: var(--spacing-lg);
+  max-width: 400px;
+  color: var(--text-secondary);
+}
+
+/* Action menu styling */
+.action-menu .MuiMenuItem-root {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  color: var(--text-primary);
+}
+
+.action-menu .MuiMenuItem-root:hover {
+  background: var(--primary-light);
+  color: var(--primary-color);
+}
+
+.action-menu .MuiMenuItem-root .MuiSvgIcon-root {
+  font-size: 1.2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .service-table .MuiTableCell-body {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .global-container {
+    padding: var(--spacing-md);
+  }
+  
+  .service-table .MuiTable-root {
+    min-width: 700px;
+  }
+}
+
+@media (max-width: 480px) {
+  .global-container {
+    padding: var(--spacing-sm);
+  }
+  
+  .service-table .MuiTableCell-body {
+    padding: var(--spacing-xs);
+    font-size: 0.8rem;
+  }
+}
+

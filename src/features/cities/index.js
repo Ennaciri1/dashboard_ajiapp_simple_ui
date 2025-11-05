@@ -1,5 +1,4 @@
 import { FILTER_ALL } from '../../constants/filters';
-import { sampleCities } from './sampleData';
 
 const toLowerCase = (value = '') => value.toString().toLowerCase();
 
@@ -64,5 +63,3 @@ export const getAllCityTranslations = (city) => {
     translation
   }));
 };
-
-export { sampleCities };

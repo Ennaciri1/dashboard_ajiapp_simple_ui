@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   FormControlLabel,
@@ -22,15 +22,14 @@ import {
   Cancel as CancelIcon,
   Star as StarIcon
 } from '@mui/icons-material';
-import { sampleTouristSpots } from '../touristSpots';
-import { sampleHotels } from '../hotels';
 import {
   REVIEW_STATUS,
   REVIEW_STATUS_OPTIONS,
-  REVIEW_ENTITY_OPTIONS,
-  sampleReviewUsers
+  REVIEW_ENTITY_OPTIONS
 } from './index';
 import { useNotification } from '../../contexts/NotificationContext';
+import { useHotels } from '../../presentation/hooks/useHotels';
+import { useTouristSpots } from '../../presentation/hooks/useTouristSpots';
 import './FormReview.css';
 
 const activityOptions = [
@@ -38,30 +37,100 @@ const activityOptions = [
   { id: 'a-2', name: 'Atlas Mountains Trek' }
 ];
 
-const entityMap = {
-  spot: sampleTouristSpots.map((spot) => ({ id: spot.id, name: spot.name })),
-  hotel: sampleHotels.map((hotel) => ({ id: hotel.id, name: hotel.name })),
-  activity: activityOptions
-};
+// Sample users for form (can be replaced with real user API later)
+const sampleUsers = [
+  { id: 'user-1', name: 'Ahmed El Idrissi' },
+  { id: 'user-2', name: 'Sarah Johnson' },
+  { id: 'user-3', name: 'Mohammed Alami' },
+  { id: 'user-4', name: 'Fatima Zahra' },
+  { id: 'user-5', name: 'Laura Chen' }
+];
 
-const getUserOptions = () => sampleReviewUsers.map((user) => ({ value: user.id, label: user.name }));
+const getUserOptions = () => sampleUsers.map((user) => ({ value: user.id, label: user.name }));
 
 const FormReview = () => {
   const navigate = useNavigate();
-  const { showSuccess, showError } = useNotification();
+  const { showSuccess } = useNotification();
+  const { hotels: hotelsEntities, loadHotels } = useHotels();
+  const { spots: spotsEntities, loadSpots } = useTouristSpots();
   const [isModerationMode, setIsModerationMode] = useState(false);
+  
+  // Convert entities to flat format for form
+  const touristSpots = useMemo(() => {
+    return spotsEntities.map(spot => ({
+      id: spot.id,
+      name: spot.name,
+      nameTranslations: { en: spot.name }
+    }));
+  }, [spotsEntities]);
+  
+  const hotels = useMemo(() => {
+    return hotelsEntities.map(hotel => ({
+      id: hotel.id,
+      name: hotel.name,
+      nameTranslations: { en: hotel.name }
+    }));
+  }, [hotelsEntities]);
 
   const [formData, setFormData] = useState({
     message: '',
     rating: 0,
     status: REVIEW_STATUS.PENDING,
     rejectionReason: '',
-    userId: sampleReviewUsers[0]?.id || '',
+    userId: sampleUsers[0]?.id || '',
     entityType: 'spot',
-    entityId: sampleTouristSpots[0]?.id || ''
+    entityId: ''
   });
 
-  const entityOptions = useMemo(() => entityMap[formData.entityType] || [], [formData.entityType]);
+  // Load entities from API
+  useEffect(() => {
+    const loadEntities = async () => {
+      try {
+        await Promise.all([
+          loadSpots(),
+          loadHotels()
+        ]);
+        
+        // Set default entityId if available
+        if (spotsEntities.length > 0) {
+          setFormData(prev => ({ ...prev, entityId: spotsEntities[0].id }));
+        }
+      } catch (error) {
+        console.error('Error loading entities:', error);
+      }
+    };
+    
+    loadEntities();
+  }, [loadSpots, loadHotels, spotsEntities]);
+
+  const currentEntityOptions = useMemo(() => {
+    let entities = [];
+    
+    switch (formData.entityType) {
+      case 'spot':
+        entities = touristSpots.map(spot => ({
+          id: spot.id,
+          name: spot.nameTranslations?.en || spot.name
+        }));
+        break;
+      case 'hotel':
+        entities = hotels.map(hotel => ({
+          id: hotel.id,
+          name: hotel.nameTranslations?.en || hotel.name
+        }));
+        break;
+      case 'activity':
+        entities = activityOptions;
+        break;
+      default:
+        entities = [];
+    }
+    
+    return entities.map((entity) => ({
+      value: entity.id,
+      label: entity.name
+    }));
+  }, [formData.entityType, touristSpots, hotels]);
 
   const handleInputChange = (field) => (event) => {
     const value = event?.target?.value ?? event;
@@ -78,13 +147,26 @@ const FormReview = () => {
   };
 
   const handleEntityTypeChange = (event) => {
-    const type = event.target.value;
-    const options = entityMap[type] || [];
-    setFormData((prev) => ({
-      ...prev,
-      entityType: type,
-      entityId: options[0]?.id || ''
-    }));
+    const newType = event.target.value;
+    let firstEntityId = '';
+    
+    switch (newType) {
+      case 'spot':
+        firstEntityId = touristSpots[0]?.id || '';
+        break;
+      case 'hotel':
+        firstEntityId = hotels[0]?.id || '';
+        break;
+      case 'activity':
+        firstEntityId = activityOptions[0]?.id || '';
+        break;
+    }
+    
+    setFormData({
+      ...formData,
+      entityType: newType,
+      entityId: firstEntityId
+    });
   };
 
   const handleToggleModeration = (event) => {
@@ -116,14 +198,14 @@ const FormReview = () => {
       <div className="form-header">
         <button onClick={handleBack} className="back-button">
           <ArrowBackIcon />
-          Retour
+          Back
         </button>
         <div className="header-content">
           <Typography variant="h4" className="form-title">
-            Gestion d'Avis
+            Reviews Management
           </Typography>
           <Typography variant="body1" color="textSecondary" className="form-subtitle">
-            Créer ou modifier un avis
+            Create or edit a review
           </Typography>
         </div>
       </div>
@@ -132,10 +214,10 @@ const FormReview = () => {
         <Card className="form-card">
           <CardContent>
             <form onSubmit={handleSubmit} className="review-form">
-              {/* Mode de modération */}
+              {/* Moderation Mode */}
               <Box className="form-section">
                 <Typography variant="h6" className="section-title">
-                  Mode de Modération
+                  Moderation Mode
                 </Typography>
                 <FormControlLabel
                   control={
@@ -146,22 +228,22 @@ const FormReview = () => {
                       className="moderation-switch"
                     />
                   }
-                  label="Activer le mode modération"
+                  label="Enable moderation mode"
                   className="moderation-label"
                 />
                 {isModerationMode && (
                   <Alert severity="info" className="moderation-alert">
-                    Mode modération activé - Vous pouvez modifier le statut et la raison de rejet
+                    Moderation mode enabled - You can modify status and rejection reason
                   </Alert>
                 )}
               </Box>
 
               <Divider className="form-divider" />
 
-              {/* Contenu de l'avis */}
+              {/* Review Content */}
               <Box className="form-section">
                 <Typography variant="h6" className="section-title">
-                  Contenu de l'Avis
+                  Review Content
                 </Typography>
                 
                 <Box className="form-group">
@@ -175,13 +257,13 @@ const FormReview = () => {
                     className="message-textarea"
                     readOnly={isModerationMode}
                     required
-                    placeholder="Décrivez votre expérience..."
+                    placeholder="Describe your experience..."
                   />
                 </Box>
 
                 <Box className="form-group">
                   <Typography variant="subtitle1" className="field-label">
-                    Note *
+                    Rating *
                   </Typography>
                   <Box className="rating-container">
                     <Rating
@@ -194,7 +276,7 @@ const FormReview = () => {
                       className="rating-input"
                     />
                     <Typography variant="body2" color="textSecondary" className="rating-hint">
-                      {formData.rating > 0 ? `${formData.rating}/5 étoiles` : 'Sélectionnez une note'}
+                      {formData.rating > 0 ? `${formData.rating}/5 stars` : 'Select a rating'}
                     </Typography>
                   </Box>
                 </Box>
@@ -202,18 +284,18 @@ const FormReview = () => {
 
               <Divider className="form-divider" />
 
-              {/* Statut et modération */}
+              {/* Status and Moderation */}
               <Box className="form-section">
                 <Typography variant="h6" className="section-title">
-                  Statut et Modération
+                  Status and Moderation
                 </Typography>
                 
                 <Box className="form-group">
                   <FormControl fullWidth className="select-field">
-                    <InputLabel>Statut *</InputLabel>
+                    <InputLabel>Status *</InputLabel>
                     <Select 
                       value={formData.status} 
-                      label="Statut *" 
+                      label="Status *" 
                       onChange={handleStatusChange} 
                       required
                     >
@@ -240,7 +322,7 @@ const FormReview = () => {
                 {formData.status === REVIEW_STATUS.REJECTED && (
                   <Box className="form-group">
                     <Typography variant="subtitle1" className="field-label">
-                      Raison du rejet *
+                      Rejection Reason *
                     </Typography>
                     <textarea
                       value={formData.rejectionReason}
@@ -248,7 +330,7 @@ const FormReview = () => {
                       rows={3}
                       className="rejection-textarea"
                       required
-                      placeholder="Expliquez pourquoi cet avis est rejeté..."
+                      placeholder="Explain why this review is rejected..."
                     />
                   </Box>
                 )}
@@ -256,18 +338,18 @@ const FormReview = () => {
 
               <Divider className="form-divider" />
 
-              {/* Utilisateur et entité */}
+              {/* User and Entity */}
               <Box className="form-section">
                 <Typography variant="h6" className="section-title">
-                  Utilisateur et Entité
+                  User and Entity
                 </Typography>
                 
                 <Box className="form-group">
                   <FormControl fullWidth className="select-field">
-                    <InputLabel>Utilisateur *</InputLabel>
+                    <InputLabel>User *</InputLabel>
                     <Select 
                       value={formData.userId} 
-                      label="Utilisateur *" 
+                      label="User *" 
                       onChange={handleInputChange('userId')} 
                       required
                     >
@@ -283,10 +365,10 @@ const FormReview = () => {
                 <Box className="form-row">
                   <Box className="form-group">
                     <FormControl fullWidth className="select-field">
-                      <InputLabel>Type d'entité *</InputLabel>
+                      <InputLabel>Entity Type *</InputLabel>
                       <Select 
                         value={formData.entityType} 
-                        label="Type d'entité *" 
+                        label="Entity Type *" 
                         onChange={handleEntityTypeChange} 
                         required
                       >
@@ -300,14 +382,14 @@ const FormReview = () => {
                   </Box>
                   <Box className="form-group">
                     <FormControl fullWidth className="select-field">
-                      <InputLabel>Entité *</InputLabel>
+                      <InputLabel>Entity *</InputLabel>
                       <Select 
                         value={formData.entityId} 
-                        label="Entité *" 
+                        label="Entity *" 
                         onChange={handleInputChange('entityId')} 
                         required
                       >
-                        {entityOptions.map((option) => (
+                        {currentEntityOptions.map((option) => (
                           <MenuItem key={option.id} value={option.id}>
                             {option.name}
                           </MenuItem>
@@ -324,11 +406,11 @@ const FormReview = () => {
               <Box className="form-actions">
                 <button type="button" onClick={handleBack} className="cancel-button">
                   <CancelIcon />
-                  Annuler
+                  Cancel
                 </button>
                 <button type="submit" className="save-button">
                   <SaveIcon />
-                  Enregistrer
+                  Save
                 </button>
               </Box>
             </form>

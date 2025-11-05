@@ -37,12 +37,12 @@ import { useNotification } from '../../contexts/NotificationContext';
 import './ReviewsPage.css';
 
 /**
- * Page de gestion des avis - Utilise l'API réelle
+ * Reviews Management Page - Uses real API
  */
 const ReviewsPage = () => {
   const { showSuccess, showError } = useNotification();
   
-  // État local pour l'UI
+  // Local state for UI
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [entityTypeFilter, setEntityTypeFilter] = useState('ALL');
   const [anchorEl, setAnchorEl] = useState(null);
@@ -50,7 +50,7 @@ const ReviewsPage = () => {
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
 
-  // Hook personnalisé pour la gestion des avis
+  // Custom hook for reviews management
   const {
     reviews,
     loading,
@@ -65,7 +65,7 @@ const ReviewsPage = () => {
     getReviewsStats
   } = useReviews();
 
-  // Filtrage côté client
+  // Client-side filtering
   const filteredReviews = useMemo(() => {
     return reviews.filter(review => {
       const statusMatch = statusFilter === 'ALL' || review.status === statusFilter;
@@ -74,10 +74,10 @@ const ReviewsPage = () => {
     });
   }, [reviews, statusFilter, entityTypeFilter]);
 
-  // Statistiques
+  // Statistics
   const stats = getReviewsStats();
 
-  // Handlers d'événements
+  // Event handlers
   const handleMenuOpen = (event, reviewId) => {
     setAnchorEl(event.currentTarget);
     setSelectedReviewId(reviewId);
@@ -85,7 +85,7 @@ const ReviewsPage = () => {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
-    // Ne pas remettre selectedReviewId à null si un dialog est ouvert
+    // Don't reset selectedReviewId to null if a dialog is open
     if (!rejectDialogOpen) {
       setSelectedReviewId(null);
     }
@@ -95,7 +95,7 @@ const ReviewsPage = () => {
     const targetId = reviewId || selectedReviewId;
     
     if (!targetId) {
-      showError('Aucun avis sélectionné');
+      showError('No review selected');
       handleMenuClose();
       return;
     }
@@ -105,18 +105,18 @@ const ReviewsPage = () => {
       const previousStatus = currentReview?.status;
       await approveReview(targetId);
       
-      let message = 'Avis approuvé avec succès';
+      let message = 'Review approved successfully';
       if (previousStatus === 'REJECTED') {
-        message = 'Avis rejeté → approuvé avec succès';
+        message = 'Review rejected → approved successfully';
       } else if (previousStatus === 'PENDING') {
-        message = 'Avis en attente → approuvé avec succès';
+        message = 'Review pending → approved successfully';
       }
       
       showSuccess(message);
       setSelectedReviewId(null);
     } catch (error) {
-      console.error('Erreur lors de l\'approbation de l\'avis:', error);
-      showError(`Erreur lors de l'approbation: ${error.message || 'Une erreur inattendue s\'est produite'}`);
+      console.error('Error approving review:', error);
+      showError(`Error approving review: ${error.message || 'An unexpected error occurred'}`);
     }
     handleMenuClose();
   };
@@ -128,16 +128,16 @@ const ReviewsPage = () => {
     
     if (!targetId) {
       console.error('No targetId found for rejection');
-      showError('Aucun avis sélectionné');
+      showError('No review selected');
       handleMenuClose();
       return;
     }
     
-    // Ne pas fermer le menu avant de définir l'ID
+    // Don't close menu before setting ID
     console.log('Setting selectedReviewId to:', targetId);
     setSelectedReviewId(targetId);
     setRejectDialogOpen(true);
-    // Fermer le menu après avoir défini l'ID
+    // Close menu after setting ID
     setAnchorEl(null);
   };
 
@@ -145,13 +145,13 @@ const ReviewsPage = () => {
     console.log('handleRejectConfirm called with:', { selectedReviewId, rejectionReason });
     
     if (!rejectionReason.trim()) {
-      showError('Une raison de rejet est requise');
+      showError('A rejection reason is required');
       return;
     }
 
     if (!selectedReviewId) {
       console.error('No selectedReviewId found:', selectedReviewId);
-      showError('Aucun avis sélectionné pour le rejet');
+      showError('No review selected for rejection');
       setRejectDialogOpen(false);
       setRejectionReason('');
       return;
@@ -164,11 +164,11 @@ const ReviewsPage = () => {
       
       await rejectReview(selectedReviewId, rejectionReason.trim());
       
-      let message = `Avis rejeté avec succès. Raison: ${rejectionReason.trim()}`;
+      let message = `Review rejected successfully. Reason: ${rejectionReason.trim()}`;
       if (previousStatus === 'APPROVED') {
-        message = `Avis approuvé → rejeté avec succès. Raison: ${rejectionReason.trim()}`;
+        message = `Review approved → rejected successfully. Reason: ${rejectionReason.trim()}`;
       } else if (previousStatus === 'PENDING') {
-        message = `Avis en attente → rejeté avec succès. Raison: ${rejectionReason.trim()}`;
+        message = `Review pending → rejected successfully. Reason: ${rejectionReason.trim()}`;
       }
       
       showSuccess(message);
@@ -176,8 +176,8 @@ const ReviewsPage = () => {
       setRejectionReason('');
       setSelectedReviewId(null);
     } catch (error) {
-      console.error('Erreur lors du rejet de l\'avis:', error);
-      showError(`Erreur lors du rejet: ${error.message || 'Une erreur inattendue s\'est produite'}`);
+      console.error('Error rejecting review:', error);
+      showError(`Error rejecting review: ${error.message || 'An unexpected error occurred'}`);
     }
   };
 
@@ -185,12 +185,12 @@ const ReviewsPage = () => {
     const targetId = reviewId || selectedReviewId;
     
     if (!targetId) {
-      showError('Aucun avis sélectionné');
+      showError('No review selected');
       handleMenuClose();
       return;
     }
 
-    const confirmed = window.confirm('Êtes-vous sûr de vouloir supprimer cet avis ? Cette action est irréversible.');
+    const confirmed = window.confirm('Are you sure you want to delete this review? This action is irreversible.');
     if (!confirmed) {
       handleMenuClose();
       return;
@@ -198,11 +198,11 @@ const ReviewsPage = () => {
 
     try {
       await deleteReview(targetId);
-      showSuccess('Avis supprimé avec succès');
+      showSuccess('Review deleted successfully');
       setSelectedReviewId(null);
     } catch (error) {
-      console.error('Erreur lors de la suppression de l\'avis:', error);
-      showError(`Erreur lors de la suppression: ${error.message || 'Une erreur inattendue s\'est produite'}`);
+      console.error('Error deleting review:', error);
+      showError(`Error deleting review: ${error.message || 'An unexpected error occurred'}`);
     }
     handleMenuClose();
   };
@@ -214,33 +214,33 @@ const ReviewsPage = () => {
 
   const getEntityTypeLabel = (entityType) => {
     const labels = {
-      hotel: 'Hôtel',
-      touristspot: 'Site touristique', 
-      activity: 'Activité'
+      hotel: 'Hotel',
+      touristspot: 'Tourist Spot', 
+      activity: 'Activity'
     };
     return labels[entityType.toLowerCase()] || entityType;
   };
 
-  // Configuration des statuts pour StatusChip
+  // Status configuration for StatusChip
   const statusConfig = {
     PENDING: {
-      label: 'En attente',
+      label: 'Pending',
       color: 'warning',
       icon: <MoreVertIcon />
     },
     APPROVED: {
-      label: 'Approuvé',
+      label: 'Approved',
       color: 'success',
       icon: <ApproveIcon />
     },
     REJECTED: {
-      label: 'Rejeté',
+      label: 'Rejected',
       color: 'error',
       icon: <RejectIcon />
     }
   };
 
-  // Rendu conditionnel pour les erreurs
+  // Conditional rendering for errors
   if (error) {
     return (
       <Box className="reviews-page">
@@ -248,7 +248,7 @@ const ReviewsPage = () => {
           severity="error" 
           action={
             <Button color="inherit" size="small" onClick={handleRetry}>
-              Réessayer
+              Retry
             </Button>
           }
         >
@@ -262,21 +262,21 @@ const ReviewsPage = () => {
     <div className="global-container">
       <div className="page-header">
         <Typography variant="h4" component="h1" className="page-title">
-          Gestion des Avis
+          Reviews Management
         </Typography>
         <Typography variant="body1" color="textSecondary" className="page-subtitle">
-          Gérez et modérez les avis des utilisateurs
+          Manage and moderate user reviews
         </Typography>
       </div>
       
-      {/* Indicateur de mode test */}
+      {/* Test mode indicator */}
       {isTestMode && (
         <Alert severity="info" className="test-mode-alert">
-          🧪 Mode test activé - API non disponible (192.168.11.127:8080). Les données affichées sont des exemples et les actions sont simulées.
+          🧪 Test mode enabled - API unavailable (192.168.11.127:8080). Displayed data is sample and actions are simulated.
         </Alert>
       )}
 
-      {/* Statistiques */}
+      {/* Statistics */}
       <div className="stats-grid">
         <Card className="stat-card">
           <CardContent>
@@ -294,7 +294,7 @@ const ReviewsPage = () => {
           <CardContent>
             <div className="stat-content">
               <Typography color="textSecondary" className="stat-label">
-                En attente
+                Pending
               </Typography>
               <Typography variant="h4" className="stat-value warning">
                 {stats.pending}
@@ -306,7 +306,7 @@ const ReviewsPage = () => {
           <CardContent>
             <div className="stat-content">
               <Typography color="textSecondary" className="stat-label">
-                Approuvés
+                Approved
               </Typography>
               <Typography variant="h4" className="stat-value success">
                 {stats.approved}
@@ -318,7 +318,7 @@ const ReviewsPage = () => {
           <CardContent>
             <div className="stat-content">
               <Typography color="textSecondary" className="stat-label">
-                Note moyenne
+                Average Rating
               </Typography>
               <Typography variant="h4" className="stat-value">
                 {stats.averageRating.toFixed(1)}
@@ -328,17 +328,17 @@ const ReviewsPage = () => {
         </Card>
       </div>
 
-      {/* Filtres */}
+      {/* Filters */}
       <div className="filters-section">
         <div className="filter-group">
           <Typography variant="subtitle1" className="filter-label">
-            Statut
+            Status
           </Typography>
           <div className="filter-chips">
             {['ALL', 'PENDING', 'APPROVED', 'REJECTED'].map(status => (
               <Chip
                 key={status}
-                label={status === 'ALL' ? 'Tous' : statusConfig[status]?.label || status}
+                label={status === 'ALL' ? 'All' : statusConfig[status]?.label || status}
                 variant={statusFilter === status ? 'filled' : 'outlined'}
                 onClick={() => setStatusFilter(status)}
                 color={statusFilter === status ? 'primary' : 'default'}
@@ -350,13 +350,13 @@ const ReviewsPage = () => {
         
         <div className="filter-group">
           <Typography variant="subtitle1" className="filter-label">
-            Type d'entité
+            Entity Type
           </Typography>
           <div className="filter-chips">
             {['ALL', 'HOTEL', 'TOURISTSPOT', 'ACTIVITY'].map(type => (
               <Chip
                 key={type}
-                label={type === 'ALL' ? 'Tous' : getEntityTypeLabel(type)}
+                label={type === 'ALL' ? 'All' : getEntityTypeLabel(type)}
                 variant={entityTypeFilter === type ? 'filled' : 'outlined'}
                 onClick={() => setEntityTypeFilter(type)}
                 color={entityTypeFilter === type ? 'primary' : 'default'}
@@ -367,49 +367,42 @@ const ReviewsPage = () => {
         </div>
       </div>
 
-      {/* Tableau des avis */}
+      {/* Reviews Table */}
       <Card className="data-card">
         <CardContent>
           {loading ? (
             <div className="loading-container">
               <CircularProgress />
               <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
-                Chargement des avis...
+                Loading reviews...
               </Typography>
             </div>
           ) : (
             <>
-              <div className="table-header">
-                <Typography variant="h6" className="table-title">
-                  {filteredReviews.length} avis trouvé{filteredReviews.length > 1 ? 's' : ''}
-                  {filteredReviews.length !== total && ` sur ${total} total`}
-                </Typography>
-              </div>
-
               <div className="table-container">
                 <Table className="reviews-table">
                   <TableHead>
                     <TableRow className="table-header-row">
-                      <TableCell className="table-header-cell">Utilisateur</TableCell>
-                      <TableCell className="table-header-cell">Message</TableCell>
-                      <TableCell className="table-header-cell">Note</TableCell>
-                      <TableCell className="table-header-cell">Type</TableCell>
-                      <TableCell className="table-header-cell">Statut</TableCell>
-                      <TableCell className="table-header-cell">Date</TableCell>
-                      <TableCell className="table-header-cell">Actions</TableCell>
+                      <TableCell className="table-header-cell" align="center">User</TableCell>
+                      <TableCell className="table-header-cell" align="center">Message</TableCell>
+                      <TableCell className="table-header-cell" align="center">Rating</TableCell>
+                      <TableCell className="table-header-cell" align="center">Type</TableCell>
+                      <TableCell className="table-header-cell" align="center">Status</TableCell>
+                      <TableCell className="table-header-cell" align="center">Date</TableCell>
+                      <TableCell className="table-header-cell" align="center">Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {filteredReviews.map((review) => (
                       <TableRow key={review.id} className="table-row">
-                        <TableCell className="table-cell">
+                        <TableCell className="table-cell" align="center">
                           <div className="user-info">
                             <Typography variant="body2" className="user-name">
                               {review.userName}
                             </Typography>
                           </div>
                         </TableCell>
-                        <TableCell className="table-cell">
+                        <TableCell className="table-cell" align="center">
                           <div className="message-cell">
                             <Typography variant="body2" className="message-text">
                               {review.message.length > 100 
@@ -419,41 +412,41 @@ const ReviewsPage = () => {
                             </Typography>
                             {review.rejectionReason && (
                               <Typography variant="caption" className="rejection-reason">
-                                Raison: {review.rejectionReason}
+                                Reason: {review.rejectionReason}
                               </Typography>
                             )}
                           </div>
                         </TableCell>
-                        <TableCell className="table-cell">
+                        <TableCell className="table-cell" align="center">
                           <RatingDisplay 
                             value={review.rating} 
                             size="small" 
                             showValue={false}
                           />
                         </TableCell>
-                        <TableCell className="table-cell">
+                        <TableCell className="table-cell" align="center">
                           <Typography variant="body2" className="entity-type">
                             {getEntityTypeLabel(review.entityType)}
                           </Typography>
                         </TableCell>
-                        <TableCell className="table-cell">
+                        <TableCell className="table-cell" align="center">
                           <StatusChip 
                             status={review.status}
                             statusConfig={statusConfig}
                           />
                         </TableCell>
-                        <TableCell className="table-cell">
+                        <TableCell className="table-cell" align="center">
                           <Typography variant="body2" className="date-text">
-                            {new Date(review.createdAt).toLocaleDateString('fr-FR')}
+                            {new Date(review.createdAt).toLocaleDateString('en-US')}
                           </Typography>
                         </TableCell>
-                        <TableCell className="table-cell">
+                        <TableCell className="table-cell" align="center">
                           <Box className="action-buttons">
                             <IconButton
                               onClick={() => handleApprove(review.id)}
                               className={`action-button approve-button ${review.status === 'APPROVED' ? 'disabled' : ''}`}
                               size="small"
-                              title={review.status === 'APPROVED' ? 'Déjà approuvé' : 'Approuver cet avis'}
+                              title={review.status === 'APPROVED' ? 'Already approved' : 'Approve this review'}
                               disabled={review.status === 'APPROVED'}
                             >
                               <ApproveIcon />
@@ -462,7 +455,7 @@ const ReviewsPage = () => {
                               onClick={() => handleRejectClick(review.id)}
                               className={`action-button reject-button ${review.status === 'REJECTED' ? 'disabled' : ''}`}
                               size="small"
-                              title={review.status === 'REJECTED' ? 'Déjà rejeté' : 'Rejeter cet avis'}
+                              title={review.status === 'REJECTED' ? 'Already rejected' : 'Reject this review'}
                               disabled={review.status === 'REJECTED'}
                             >
                               <RejectIcon />
@@ -471,7 +464,7 @@ const ReviewsPage = () => {
                               onClick={(e) => handleMenuOpen(e, review.id)}
                               className="action-button menu-button"
                               size="small"
-                              title="Plus d'actions"
+                              title="More actions"
                             >
                               <MoreVertIcon />
                             </IconButton>
@@ -487,7 +480,7 @@ const ReviewsPage = () => {
         </CardContent>
       </Card>
 
-      {/* Menu contextuel */}
+      {/* Context Menu */}
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
@@ -499,24 +492,24 @@ const ReviewsPage = () => {
           onClick={() => handleApprove(selectedReviewId)}
         >
           <ApproveIcon sx={{ mr: 1 }} />
-          Approuver
+          Approve
         </MenuItem>
         <MenuItem 
           onClick={() => handleRejectClick(selectedReviewId)}
         >
           <RejectIcon sx={{ mr: 1 }} />
-          Rejeter
+          Reject
         </MenuItem>
         <MenuItem 
           onClick={() => handleDelete(selectedReviewId)} 
           sx={{ color: 'error.main' }}
         >
           <DeleteIcon sx={{ mr: 1 }} />
-          Supprimer
+          Delete
         </MenuItem>
       </Menu>
 
-      {/* Dialog de rejet */}
+      {/* Rejection Dialog */}
       <Dialog 
         open={rejectDialogOpen} 
         onClose={() => {
@@ -530,24 +523,24 @@ const ReviewsPage = () => {
         <DialogTitle>
           <Box display="flex" alignItems="center" gap={1}>
             <RejectIcon color="error" />
-            Rejeter l'avis
+            Reject Review
           </Box>
         </DialogTitle>
         <DialogContent>
           <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
-            Veuillez indiquer la raison du rejet de cet avis. Cette information sera visible par l'utilisateur.
+            Please provide a reason for rejecting this review. This information will be visible to the user.
           </Typography>
           {selectedReviewId && (
             <Alert severity="info" sx={{ mb: 2 }}>
               <Box>
                 <Typography variant="body2" fontWeight="medium">
-                  Avis sélectionné: ID {selectedReviewId}
+                  Selected review: ID {selectedReviewId}
                 </Typography>
                 {(() => {
                   const review = reviews.find(r => r.id === selectedReviewId);
                   return review ? (
                     <Typography variant="caption" color="textSecondary">
-                      Statut actuel: {statusConfig[review.status]?.label || review.status}
+                      Current status: {statusConfig[review.status]?.label || review.status}
                     </Typography>
                   ) : null;
                 })()}
@@ -557,16 +550,16 @@ const ReviewsPage = () => {
           <TextField
             autoFocus
             margin="dense"
-            label="Raison du rejet *"
+            label="Rejection Reason *"
             fullWidth
             multiline
             rows={4}
             variant="outlined"
             value={rejectionReason}
             onChange={(e) => setRejectionReason(e.target.value)}
-            placeholder="Ex: Contenu inapproprié, informations erronées, spam..."
+            placeholder="Ex: Inappropriate content, incorrect information, spam..."
             error={!rejectionReason.trim() && rejectDialogOpen}
-            helperText={!rejectionReason.trim() && rejectDialogOpen ? "Une raison de rejet est requise" : ""}
+            helperText={!rejectionReason.trim() && rejectDialogOpen ? "A rejection reason is required" : ""}
           />
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
@@ -578,7 +571,7 @@ const ReviewsPage = () => {
             }}
             variant="outlined"
           >
-            Annuler
+            Cancel
           </Button>
           <Button 
             onClick={handleRejectConfirm} 
@@ -587,7 +580,7 @@ const ReviewsPage = () => {
             disabled={!rejectionReason.trim()}
             startIcon={<RejectIcon />}
           >
-            Rejeter l'avis
+            Reject Review
           </Button>
         </DialogActions>
       </Dialog>

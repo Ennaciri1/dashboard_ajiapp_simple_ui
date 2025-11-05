@@ -61,8 +61,12 @@ const AppBar = () => {
         return 'Add Visa Requirement';
       case '/users/admin':
         return 'Admin Panel';
-      case '/users/portal':
-        return 'User Portal';
+      case '/users/portal/activities':
+        return 'Activities Users Management';
+      case '/users/portal/activities/add-user':
+        return 'Add Activity User';
+      case '/users/portal/hotels':
+        return 'Hotels Users Management';
       case '/users/user':
         return 'User Management';
       case '/profile':

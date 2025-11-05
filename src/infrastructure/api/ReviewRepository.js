@@ -33,98 +33,11 @@ export class ReviewRepository {
       
       return [];
     } catch (error) {
-      console.warn('API non disponible, utilisation des données de test:', error.message);
-      
-      // Données de test en fallback
-      return this._getMockData(filters);
+      console.error('Erreur API lors du chargement des avis:', error.message);
+      throw new Error(`Impossible de charger les avis depuis l'API: ${error.message}`);
     }
   }
 
-  /**
-   * Données de test quand l'API n'est pas disponible
-   */
-  _getMockData(filters = {}) {
-    const mockReviews = [
-      {
-        id: "68d54c96aefd9d7d1ef4fd33",
-        message: "Excellent séjour dans cet hôtel ! Le service était impeccable et la vue magnifique.",
-        rating: 5,
-        date: "2025-09-25T15:07:18.169Z",
-        status: "APPROVED",
-        entityType: "HOTEL",
-        entityId: "hotel-123",
-        rejectionReason: null,
-        approvedAt: "2025-09-25T16:00:00.000Z",
-        userName: "Sarah Johnson",
-        userProfilePicture: null
-      },
-      {
-        id: "68d54cadaefd9d7d1ef4fd34",
-        message: "Site touristique vraiment intéressant, guide très compétent. Je recommande !",
-        rating: 4,
-        date: "2025-09-25T15:07:41.459Z",
-        status: "PENDING",
-        entityType: "TOURISTSPOT",
-        entityId: "spot-456",
-        rejectionReason: null,
-        approvedAt: null,
-        userName: "Ahmed El Idrissi",
-        userProfilePicture: null
-      },
-      {
-        id: "68d54cc6aefd9d7d1ef4fd35",
-        message: "Activité décevante, pas à la hauteur des attentes. Organisation défaillante.",
-        rating: 2,
-        date: "2025-09-24T10:30:00.000Z",
-        status: "REJECTED",
-        entityType: "ACTIVITY",
-        entityId: "activity-789",
-        rejectionReason: "Avis trop négatif sans justification constructive",
-        approvedAt: null,
-        userName: "Laura Chen",
-        userProfilePicture: null
-      },
-      {
-        id: "mock-review-4",
-        message: "Très bon rapport qualité-prix pour ce restaurant. Plats savoureux et service rapide.",
-        rating: 4,
-        date: "2025-09-23T19:15:00.000Z",
-        status: "PENDING",
-        entityType: "HOTEL",
-        entityId: "hotel-456",
-        rejectionReason: null,
-        approvedAt: null,
-        userName: "Mohammed Alami",
-        userProfilePicture: null
-      },
-      {
-        id: "mock-review-5",
-        message: "Expérience inoubliable ! Les paysages sont à couper le souffle.",
-        rating: 5,
-        date: "2025-09-22T14:20:00.000Z",
-        status: "APPROVED",
-        entityType: "TOURISTSPOT",
-        entityId: "spot-789",
-        rejectionReason: null,
-        approvedAt: "2025-09-22T15:00:00.000Z",
-        userName: "Fatima Zahra",
-        userProfilePicture: null
-      }
-    ];
-
-    // Filtrage selon les paramètres
-    let filteredReviews = mockReviews;
-    
-    if (filters.status) {
-      filteredReviews = filteredReviews.filter(review => review.status === filters.status);
-    }
-    
-    if (filters.entityType) {
-      filteredReviews = filteredReviews.filter(review => review.entityType === filters.entityType);
-    }
-    
-    return filteredReviews;
-  }
 
   /**
    * Met à jour le statut d'un avis
@@ -137,20 +50,14 @@ export class ReviewRepository {
     try {
       const statusData = {
         status,
-        rejectionReason
+        rejectionReason: rejectionReason || null
       };
       
       const response = await httpClient.put(`${this.basePath}/${reviewId}/status`, statusData);
       return response.data;
     } catch (error) {
-      console.warn('API non disponible pour la mise à jour, simulation:', error.message);
-      
-      // Simulation de la mise à jour
-      return {
-        success: true,
-        message: `Statut mis à jour vers ${status} (mode test)`,
-        data: { id: reviewId, status, rejectionReason }
-      };
+      console.error('Erreur API lors de la mise à jour du statut:', error.message);
+      throw new Error(`Impossible de mettre à jour le statut: ${error.message}`);
     }
   }
 
@@ -166,10 +73,8 @@ export class ReviewRepository {
       await httpClient.delete(`${this.basePath}/${reviewId}`);
       return true;
     } catch (error) {
-      console.warn('API non disponible pour la suppression, simulation:', error.message);
-      
-      // Simulation de la suppression
-      return true;
+      console.error('Erreur API lors de la suppression:', error.message);
+      throw new Error(`Impossible de supprimer l'avis: ${error.message}`);
     }
   }
 

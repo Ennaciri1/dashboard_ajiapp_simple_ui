@@ -10,21 +10,30 @@
   /* Light theme colors */
   --primary-color: #97051D;
   --primary-hover: #7A0418;
+  --primary-light: rgba(151, 5, 29, 0.08);
   --secondary-color: #dc004e;
   --secondary-hover: #c51162;
   
-  --background-default: #fafafa;
+  --background-default: #f5f5f7;
   --background-paper: #ffffff;
-  --text-primary: #213547;
-  --text-secondary: rgba(0, 0, 0, 0.6);
+  --background-hover: #f8f9fa;
+  --text-primary: #1a1a1a;
+  --text-secondary: rgba(0, 0, 0, 0.65);
   --text-disabled: rgba(0, 0, 0, 0.38);
   
   --border-color: #e0e0e0;
+  --border-color-hover: #bdbdbd;
   --divider-color: #e0e0e0;
   
-  --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.1);
-  --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.15);
-  --shadow-heavy: 0 8px 32px rgba(0, 0, 0, 0.2);
+  --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-heavy: 0 10px 30px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.08);
+  
+  /* Status colors */
+  --success-color: #10b981;
+  --error-color: #ef4444;
+  --warning-color: #f59e0b;
+  --info-color: #3b82f6;
   
   /* Spacing */
   --spacing-xs: 4px;
@@ -50,21 +59,30 @@
 [data-theme="dark"] {
   --primary-color: #E53E3E;
   --primary-hover: #C53030;
+  --primary-light: rgba(229, 62, 62, 0.12);
   --secondary-color: #f48fb1;
   --secondary-hover: #f06292;
   
-  --background-default: #121212;
-  --background-paper: #1e1e1e;
-  --text-primary: rgba(255, 255, 255, 0.87);
-  --text-secondary: rgba(255, 255, 255, 0.6);
+  --background-default: #0f0f0f;
+  --background-paper: #1a1a1a;
+  --background-hover: #2a2a2a;
+  --text-primary: rgba(255, 255, 255, 0.92);
+  --text-secondary: rgba(255, 255, 255, 0.65);
   --text-disabled: rgba(255, 255, 255, 0.38);
   
-  --border-color: #404040;
-  --divider-color: #404040;
+  --border-color: #333333;
+  --border-color-hover: #4a4a4a;
+  --divider-color: #2a2a2a;
   
-  --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --shadow-heavy: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.6);
+  --shadow-heavy: 0 10px 40px rgba(0, 0, 0, 0.7);
+  
+  /* Status colors - Dark mode */
+  --success-color: #34d399;
+  --error-color: #f87171;
+  --warning-color: #fbbf24;
+  --info-color: #60a5fa;
 }
 
 /* Base styles */
@@ -267,7 +285,10 @@ input:focus, textarea:focus, select:focus {
   border-color: var(--primary-color);
 }
 
-/* Data Table */
+/* Import Modern Table Styles */
+@import './modernTable.css';
+
+/* Legacy Data Table - Deprecated */
 .data-table {
   background: var(--background-paper);
   border-radius: 8px;
@@ -281,12 +302,16 @@ input:focus, textarea:focus, select:focus {
 }
 
 .data-table th {
-  background: #f8f9fa;
+  background: var(--background-hover);
   padding: 15px 12px;
   text-align: left;
   font-weight: 600;
   color: var(--text-primary);
   border-bottom: 2px solid var(--divider-color);
+}
+
+[data-theme="dark"] .data-table th {
+  background: var(--background-hover);
 }
 
 .data-table td {
@@ -296,7 +321,8 @@ input:focus, textarea:focus, select:focus {
 }
 
 .data-table tr:hover {
-  background: #f8f9fa;
+  background: var(--background-hover);
+  transition: background-color var(--transition-fast);
 }
 
 /* Common cell styles */

@@ -133,6 +133,10 @@
   font-weight: 600;
 }
 
+.submenu-with-nested {
+  justify-content: space-between;
+}
+
 .submenu-icon {
   min-width: 32px;
   display: flex;
@@ -141,6 +145,50 @@
 }
 
 .submenu-text {
+  flex: 1;
+  font-weight: 400;
+}
+
+/* Nested Submenu Styles */
+.nested-submenu-list {
+  background-color: rgba(0, 0, 0, 0.03);
+  border-radius: 6px;
+  margin: 2px 8px 2px 48px;
+}
+
+.nested-submenu-item {
+  display: flex;
+  padding: 0;
+}
+
+.nested-submenu-button {
+  width: 100%;
+  padding: 6px 16px 6px 48px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 4px;
+  margin: 1px 4px;
+  transition: background-color 0.2s ease-in-out;
+  font-size: 0.85rem;
+}
+
+.nested-submenu-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.nested-submenu-button.active {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.nested-submenu-icon {
+  min-width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nested-submenu-text {
   flex: 1;
   font-weight: 400;
 }

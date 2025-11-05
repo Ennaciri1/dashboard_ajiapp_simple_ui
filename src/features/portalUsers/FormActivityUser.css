@@ -1,0 +1,11 @@
+.activity-user-form {
+  padding: 24px;
+}
+
+@media (max-width: 768px) {
+  .activity-user-form {
+    padding: 16px;
+  }
+}
+
+

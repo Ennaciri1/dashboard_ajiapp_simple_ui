@@ -1,0 +1,33 @@
+.activities-table {
+  margin-top: 0;
+}
+
+.activities-table .table-header-cell {
+  font-weight: 600;
+  background-color: var(--background-paper);
+  color: var(--text-primary);
+}
+
+.activities-table .table-data-cell {
+  color: var(--text-primary);
+}
+
+.activities-table .table-avatar {
+  width: 32px;
+  height: 32px;
+  background-color: var(--primary-main);
+}
+
+.activities-table .date-display {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.activities-table .action-button {
+  color: var(--text-secondary);
+}
+
+.activities-table .action-button:hover {
+  color: var(--primary-main);
+  background-color: var(--action-hover);
+}

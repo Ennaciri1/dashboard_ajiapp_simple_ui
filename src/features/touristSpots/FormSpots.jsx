@@ -10,8 +10,8 @@ import {
   RadioGroup,
   Radio
 } from '@mui/material';
-import { cityService } from '../../services/api/cityService';
-import { touristSpotService } from '../../services/api/touristSpotService';
+import { cityService } from '../../infrastructure/api/cityService';
+import { useTouristSpots } from '../../presentation/hooks/useTouristSpots';
 import { MapSelector, MultiImageSelector } from '../../components/common';
 import { useNotification } from '../../contexts/NotificationContext';
 import './FormSpots.css';
@@ -78,6 +78,7 @@ const FormSpots = () => {
   const { id } = useParams();
   const isEditMode = Boolean(id);
   const { showSuccess, showError } = useNotification();
+  const { createSpot, updateSpot, getSpotById } = useTouristSpots();
 
   const [formData, setFormData] = useState({
     name: '',
@@ -120,30 +121,35 @@ const FormSpots = () => {
       const loadTouristSpot = async () => {
         try {
           setInitialLoading(true);
-          const response = await touristSpotService.getTouristSpotById(id);
-          const spot = response.data || response;
+          const spotEntity = await getSpotById(id);
+          
+          if (spotEntity) {
+            // Récupérer les détails complets depuis l'API pour cityId et location
+            const { TouristSpotRepository } = await import('../../infrastructure/api/TouristSpotRepository.js');
+            const repository = new TouristSpotRepository();
+            const spotData = await repository.findById(id);
           
           // Transform API data to form data format
           setFormData({
-            name: spot.nameTranslations?.en || spot.name || '',
-            description: spot.descriptionTranslations?.en || spot.description || '',
-            address: spot.addressTranslations?.en || spot.address || '',
-            cityId: spot.cityId || '',
-            latitude: spot.location?.latitude?.toString() || '',
-            longitude: spot.location?.longitude?.toString() || '',
-            images: (spot.images || []).map((image, index) => ({
+              name: spotEntity.name || '',
+              description: spotEntity.description || '',
+              address: spotData?.addressTranslations?.en || spotData?.address || '',
+              cityId: spotData?.cityId || '',
+              latitude: spotData?.location?.latitude?.toString() || spotEntity.coordinates?.lat?.toString() || '',
+              longitude: spotData?.location?.longitude?.toString() || spotEntity.coordinates?.lng?.toString() || '',
+              images: (spotEntity.images || []).map((image, index) => ({
               ...image,
               id: image.id || `existing-${index}`,
               name: image.name || `Image ${index + 1}`,
-              // Keep existing url for display
-              url: image.url,
+                url: typeof image === 'string' ? image : image.url,
               owner: image.owner || ''
             })),
-            entryType: (spot.paidEntry || spot.isPaidEntry) ? 'paid' : 'free',
-            active: spot.active !== undefined ? spot.active : (spot.isActive !== undefined ? spot.isActive : true),
-            openingTime: spot.openingTime || '09:00',
-            closingTime: spot.closingTime || '18:00',
+              entryType: (spotData?.paidEntry || spotData?.isPaidEntry) ? 'paid' : 'free',
+              active: spotEntity.status === 'active',
+              openingTime: spotData?.openingTime || '09:00',
+              closingTime: spotData?.closingTime || '18:00',
           });
+          }
         } catch (error) {
           console.error('Error loading tourist spot:', error);
           showError('Error loading tourist spot data');
@@ -154,7 +160,7 @@ const FormSpots = () => {
       };
       loadTouristSpot();
     }
-  }, [isEditMode, id, navigate]);
+  }, [isEditMode, id, navigate, getSpotById, showError]);
 
   const handleInputChange = (field) => (event) => {
     setFormData({ ...formData, [field]: event.target.value });
@@ -191,10 +197,10 @@ const FormSpots = () => {
       const formattedData = formatFormData(formData, isEditMode);
       
       if (isEditMode) {
-        await touristSpotService.updateTouristSpot(id, formattedData);
+        await updateSpot(id, formattedData);
         showSuccess('Tourist spot updated successfully!');
       } else {
-        await touristSpotService.createTouristSpot(formattedData);
+        await createSpot(formattedData);
         showSuccess('Tourist spot created successfully!');
       }
       

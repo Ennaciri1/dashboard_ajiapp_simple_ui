@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { imageService } from '../../services/api/imageService';
+import { imageService } from '../../infrastructure/api/imageService';
 import { useNotification } from '../../contexts/NotificationContext';
 import './MultiImageSelector.css';
 
@@ -18,11 +18,10 @@ const MultiImageSelector = ({
   subdirectory = 'general',
   uploadToServer = false
 }) => {
-  const { showSuccess, showError } = useNotification();
+  const { showError } = useNotification();
   const fileInputRef = useRef(null);
   const [draggedIndex, setDraggedIndex] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
-  const [uploadingImages, setUploadingImages] = useState(new Set());
 
   // Convert file to base64 for preview
   const fileToBase64 = (file) => {
@@ -71,7 +70,6 @@ const MultiImageSelector = ({
           // Upload to server if enabled
           if (uploadToServer) {
             imageData.uploading = true;
-            setUploadingImages(prev => new Set([...prev, imageId]));
             
             try {
               const response = await imageService.uploadImage(file, subdirectory);
@@ -80,20 +78,10 @@ const MultiImageSelector = ({
               console.log('Extracted image URL:', imageUrl);
               imageData.url = imageUrl;
               imageData.uploading = false;
-              setUploadingImages(prev => {
-                const newSet = new Set(prev);
-                newSet.delete(imageId);
-                return newSet;
-              });
             } catch (uploadError) {
               console.error('Error uploading image:', uploadError);
               imageData.uploading = false;
               imageData.uploadError = uploadError.message || 'Upload failed';
-              setUploadingImages(prev => {
-                const newSet = new Set(prev);
-                newSet.delete(imageId);
-                return newSet;
-              });
             }
           }
 

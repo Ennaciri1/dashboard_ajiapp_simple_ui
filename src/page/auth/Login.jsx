@@ -8,7 +8,7 @@ import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useAuth } from '../../contexts/AuthContext';
-import { login as loginService } from '../../services/api/authService';
+import { login as loginService } from '../../infrastructure/api/authService';
 import { isRoleAllowed } from '../../constants/auth';
 import './Login.css';
 
@@ -34,7 +34,7 @@ const Login = () => {
       login(result);
       navigate('/', { replace: true });
     } catch (requestError) {
-      if (requestError?.code === 'FORBIDDEN_ROLE' || !isRoleAllowed(requestError?.payload?.data?.role)) {
+      if (requestError?.code === 'FORBIDDEN_ROLE' || !isRoleAllowed(requestError?.payload?.data?.roles?.[0])) {
         setError('You must have ADMIN or SUPERADMIN role to access the dashboard.');
       } else {
         const message = requestError?.response?.data?.message || requestError?.message || 'Connection failed.';

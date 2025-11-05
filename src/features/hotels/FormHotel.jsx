@@ -4,9 +4,9 @@ import { FormControl, InputLabel, MenuItem, Select, FormControlLabel, Switch } f
 import './FormHotel.css';
 import { MapSelector, MultiImageSelector } from '../../components/common';
 import { useNotification } from '../../contexts/NotificationContext';
-import { cityService } from '../../services/api/cityService';
-import { hotelService } from '../../services/api/hotelService';
-import { imageService } from '../../services/api/imageService';
+import { cityService } from '../../infrastructure/api/cityService';
+import { useHotels } from '../../presentation/hooks/useHotels';
+import { imageService } from '../../infrastructure/api/imageService';
 
 
 // Form validation utility
@@ -75,6 +75,7 @@ const FormHotel = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { showSuccess, showError } = useNotification();
+  const { createHotel, updateHotel, getHotelById } = useHotels();
   
   const isEditMode = Boolean(id);
 
@@ -114,25 +115,41 @@ const FormHotel = () => {
       const loadHotel = async () => {
         try {
           setInitialLoading(true);
-          const response = await hotelService.getHotelById(id);
-          const hotel = response.data || response;
+          const hotelEntity = await getHotelById(id);
+          
+          if (hotelEntity) {
           setFormData({
-            name: hotel.name || '',
-            description: hotel.description || '',
-            cityId: hotel.cityId || '',
-            latitude: hotel.location?.latitude?.toString() || '',
-            longitude: hotel.location?.longitude?.toString() || '',
-            minPrice: hotel.priceRange?.minPrice?.toString() || '',
-            maxPrice: hotel.priceRange?.maxPrice?.toString() || '',
-            images: (hotel.images || []).map((image, index) => ({
+              name: hotelEntity.name || '',
+              description: hotelEntity.description || '',
+              cityId: '', // Note: L'entité Hotel n'a pas cityId directement, besoin de récupérer depuis l'API
+              latitude: '', // Note: L'entité Hotel a location comme string, besoin de récupérer depuis l'API
+              longitude: '',
+              minPrice: hotelEntity.priceRange?.minPrice?.toString() || '',
+              maxPrice: hotelEntity.priceRange?.maxPrice?.toString() || '',
+              images: (hotelEntity.images || []).map((image, index) => ({
               ...image,
               id: image.id || `existing-${index}`,
               name: image.name || `Image ${index + 1}`,
-              url: image.url,
+                url: typeof image === 'string' ? image : image.url,
               owner: image.owner || ''
             })),
-            active: Boolean(hotel.active !== undefined ? hotel.active : (hotel.isActive !== undefined ? hotel.isActive : false)),
-          });
+              active: hotelEntity.status === 'active',
+            });
+            
+            // Récupérer les détails complets depuis l'API pour cityId et location
+            const { HotelRepository } = await import('../../infrastructure/api/HotelRepository.js');
+            const repository = new HotelRepository();
+            const hotelData = await repository.findById(id);
+            
+            if (hotelData) {
+              setFormData(prev => ({
+                ...prev,
+                cityId: hotelData.cityId || '',
+                latitude: hotelData.location?.latitude?.toString() || '',
+                longitude: hotelData.location?.longitude?.toString() || '',
+              }));
+            }
+          }
         } catch (error) {
           console.error('Error loading hotel:', error);
           showError('Error loading hotel data');
@@ -143,7 +160,7 @@ const FormHotel = () => {
       };
       loadHotel();
     }
-  }, [isEditMode, id, navigate, showError]);
+  }, [isEditMode, id, navigate, showError, getHotelById]);
 
   const handleInputChange = (field) => (event) => {
     setFormData({ ...formData, [field]: event.target.value });
@@ -233,10 +250,10 @@ const FormHotel = () => {
       }
       
       if (isEditMode) {
-        await hotelService.updateHotel(id, formattedData);
+        await updateHotel(id, formattedData);
         showSuccess('Hotel updated successfully!');
       } else {
-        await hotelService.createHotel(formattedData);
+        await createHotel(formattedData);
         showSuccess('Hotel created successfully!');
       }
       navigate('/services/hotels');

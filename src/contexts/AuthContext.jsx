@@ -1,7 +1,8 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { loadAuthData, saveAuthData, clearAuthData } from '../services/storage/authStorage';
+import { loadAuthData, saveAuthData, clearAuthData } from '../infrastructure/storage/authStorage';
 import { isRoleAllowed } from '../constants/auth';
-import { subscribeToUnauthorized, subscribeToTokenUpdate } from '../services/api/httpClient';
+import { subscribeToUnauthorized, subscribeToTokenUpdate } from '../infrastructure/api/httpClient';
 
 const AuthContext = createContext(null);
 
@@ -35,6 +36,10 @@ export const AuthProvider = ({ children }) => {
       setToken(null);
       setRefreshToken(null);
       setUser(null);
+      // Navigate to login page when unauthorized
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     });
 
     const unsubscribeTokenUpdate = subscribeToTokenUpdate((authData) => {
